@@ -1,3 +1,4 @@
+/* Base Styles */
 body {
   margin: 0;
   background: #121212;
@@ -5,6 +6,7 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 1rem;
 }
+
 input, select, textarea {
   padding: 0.5rem;
   font-size: 1rem;
@@ -14,20 +16,25 @@ input, select, textarea {
   background: #222;
   color: #eee;
 }
+
 input::placeholder {
   color: #aaa;
 }
+
 textarea {
   width: 100%;
   height: 300px;
   resize: vertical;
 }
+
+/* Articles List */
 .articles-list {
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
 .article-card {
   background: #1f1f1f;
   padding: 1rem;
@@ -35,9 +42,11 @@ textarea {
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
 .article-card:hover {
   background: #333;
 }
+
 .article-card img {
   width: 100%;
   height: 150px;
@@ -45,12 +54,15 @@ textarea {
   border-radius: 8px;
   margin-bottom: 0.5rem;
 }
+
+/* Pagination */
 #pagination {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .page-btn {
   background: #333;
   border: none;
@@ -60,21 +72,27 @@ textarea {
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
 .page-btn:hover {
   background: #555;
 }
+
 .page-btn.active {
   background: #0a84ff;
   font-weight: bold;
 }
+
+/* Article View */
 #articleView {
   background: #1f1f1f;
   padding: 1rem;
   border-radius: 10px;
 }
+
 #articleBody {
   margin-top: 1rem;
 }
+
 button#backToList, #downloadBtn {
   margin-bottom: 1rem;
   padding: 0.5rem 1rem;
@@ -84,83 +102,136 @@ button#backToList, #downloadBtn {
   color: white;
   cursor: pointer;
 }
+
 button:hover {
   background: #666;
 }
+
+/* Light Mode */
 body.light-mode {
   background: #f2f2f2;
   color: #111;
 }
+
 body.light-mode input,
 body.light-mode select,
 body.light-mode textarea {
   background: #fff;
   color: #111;
 }
+
 body.light-mode .article-card {
   background: #eee;
 }
+
 body.light-mode #articleView {
   background: #fff;
 }
+
 body.light-mode .site-header {
   background: #ffffff;
   color: #111;
   border-bottom: 1px solid #ddd;
 }
+
+/* Modern & Rounded Header */
 .site-header {
   background: #0a84ff;
   color: white;
-  padding: 0.8rem 1rem;
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid #0a74d4;
-}
-.site-header .container {
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 12px rgba(10, 132, 255, 0.4);
   max-width: 960px;
+  margin: 1rem auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.site-header:hover {
+  background: #0965d1;
+  box-shadow: 0 10px 20px rgba(9, 101, 209, 0.5);
+}
+
+.site-header .container {
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 .site-title {
+  font-weight: 700;
+  letter-spacing: 1.2px;
   font-size: 1.5rem;
-  font-weight: bold;
 }
+
 .nav-links {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
 }
+
 .nav-links a {
   color: white;
   text-decoration: none;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-weight: 600;
 }
-.nav-links a:hover {
-  text-decoration: underline;
+
+.nav-links a:hover,
+.nav-links a:focus {
+  background: rgba(255 255 255 / 0.2);
+  color: #dbe9ff;
+  outline: none;
 }
+
 .menu-icons {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
+
 #modeToggle, #menuToggle {
-  background: none;
+  background: rgba(255 255 255 / 0.15);
   border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: background-color 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+#modeToggle:hover, #menuToggle:hover,
+#modeToggle:focus, #menuToggle:focus {
+  background: rgba(255 255 255 / 0.3);
+  outline: none;
+}
+
+/* Responsive Nav */
 @media (max-width: 700px) {
   .nav-links {
     position: absolute;
-    top: 60px;
-    right: 10px;
+    top: 72px;
+    right: 1.5rem;
     flex-direction: column;
     background: #0a84ff;
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
     display: none;
     transition: opacity 0.3s ease;
+    z-index: 10;
   }
   .nav-links.open {
     display: flex;
