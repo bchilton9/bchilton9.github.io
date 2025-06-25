@@ -38,3 +38,13 @@ button {
   margin-bottom: 1rem;
   cursor: pointer;
 }
+select {
+  width: 100%;
+  background: #1f1f1f;
+  color: #eee;
+  border: none;
+  margin-top: 0.5rem;
+}
+input::placeholder {
+  color: #aaa;
+}

@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Gadget Guide</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
 <body>
   <div id="header"></div>
 
   <main id="content">
+    <!-- Search -->
+    <input type="text" id="searchInput" placeholder="Search articles..." />
+
+    <!-- Article List -->
     <div id="articles"></div>
+
+    <!-- Single Article View -->
     <div id="article-view" style="display:none;">
       <button id="back-button">← Back</button>
       <h2 id="article-title"></h2>
@@ -21,6 +19,6 @@
 
   <div id="footer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="js/main.js"></script>
 </body>
-</html>
