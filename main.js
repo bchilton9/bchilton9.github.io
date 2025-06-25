@@ -5,6 +5,7 @@ window.onload = () => {
     .then(data => {
       document.getElementById('header-placeholder').innerHTML = data;
       initHeaderScripts();
+      loadArticlesListIntoDropdown();
     });
   fetch('footer.html')
     .then(res => res.text())
@@ -78,10 +79,17 @@ window.onload = () => {
         articleBody.innerHTML = marked.parse(md);
       });
     articleView.style.display = 'block';
+    articlesEl.style.display = 'grid';
+    paginationEl.style.display = 'flex';
+    searchInput.style.display = 'block';
+
+    // Hide main list and controls when viewing article
     articlesEl.style.display = 'none';
     paginationEl.style.display = 'none';
     searchInput.style.display = 'none';
-    articleDropdown.style.display = 'none';
+
+    // Hide dropdown on article view (optional)
+    if(articleDropdown) articleDropdown.style.display = 'none';
   }
 
   backToListBtn.onclick = () => {
@@ -89,7 +97,7 @@ window.onload = () => {
     articlesEl.style.display = 'grid';
     paginationEl.style.display = 'flex';
     searchInput.style.display = 'block';
-    articleDropdown.style.display = 'inline-block';
+    if(articleDropdown) articleDropdown.style.display = 'inline-block';
   };
 
   function updateDropdown() {
@@ -153,5 +161,21 @@ window.onload = () => {
         navLinks.classList.toggle('open');
       });
     }
+  }
+
+  // Also call this after header loads to fill dropdown in nav
+  function loadArticlesListIntoDropdown() {
+    if(!articleDropdown) return;
+    fetch('data/articles.json')
+      .then(res => res.json())
+      .then(list => {
+        articleDropdown.innerHTML = '';
+        list.forEach(a => {
+          const o = document.createElement('option');
+          o.value = a.id;
+          o.textContent = a.title;
+          articleDropdown.appendChild(o);
+        });
+      });
   }
 };

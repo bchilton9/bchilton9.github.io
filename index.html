@@ -5,30 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Gadget Guide</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
+  <!-- Header will be loaded dynamically -->
   <div id="header-placeholder"></div>
 
   <main>
     <input type="text" id="searchInput" placeholder="Search articles..." />
-
-    <select id="articleDropdown" aria-label="Select article to view"></select>
-
-    <section id="articles" class="articles-list"></section>
-
+    <div id="articles" class="articles-list"></div>
+    <select id="articleDropdown" aria-label="Select Article" style="display:none;"></select>
     <div id="pagination"></div>
 
     <section id="articleView" style="display:none;">
       <button id="backToList">← Back to list</button>
-      <h1 id="articleTitle"></h1>
-      <img id="articleImage" alt="" style="max-width: 300px; width: 100%; border-radius:8px;" />
+      <h2 id="articleTitle"></h2>
+      <img id="articleImage" alt="" />
       <div id="articleBody"></div>
     </section>
   </main>
 
+  <!-- Footer will be loaded dynamically -->
   <div id="footer-placeholder"></div>
 
-  <script src="main.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
