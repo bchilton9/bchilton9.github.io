@@ -15,6 +15,7 @@
     background: #1e1e1e;
     padding: 1rem;
     text-align: center;
+    position: relative;
   }
   main {
     padding: 1rem;
@@ -31,14 +32,14 @@
   .card:hover {
     background: #2a2a2a;
   }
-  input, button, select, textarea {
+  input, button, select {
     margin: 0.5rem 0;
     padding: 0.5rem;
     border-radius: 4px;
     border: none;
-    font-family: monospace;
+    font-family: inherit;
   }
-  input {
+  input, select {
     width: 100%;
     box-sizing: border-box;
   }
@@ -57,45 +58,47 @@
   #articleView {
     display: none;
   }
-  #articleView h1 {
-    margin-top: 0;
+  #articleImage {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
   }
-  #backBtn, #editBtn, #saveBtn, #cancelBtn {
+  #backBtn {
     background: #444;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 5px;
     cursor: pointer;
-    margin: 0.5rem 0.3rem 1rem 0;
-  }
-  #articleImage {
-    max-width: 100%;
-    border-radius: 8px;
     margin-bottom: 1rem;
   }
-  #editorArea {
-    width: 100%;
-    height: 200px;
-    background: #222;
-    color: #eee;
-    border-radius: 6px;
-    display: none;
+  #articleTitle {
+    margin-top: 0;
   }
-  a {
-    color: #6cf;
+  a { color: #6cf; }
+
+  #dropdownWrapper {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
-<header><h1>The Gadget Guide</h1></header>
+<header>
+  <h1>The Gadget Guide</h1>
+  <div id="dropdownWrapper">
+    <select id="articleDropdown">
+      <option disabled selected>Jump to Article...</option>
+    </select>
+  </div>
+</header>
 
 <main>
   <div id="listView">
     <input type="text" id="searchInput" placeholder="Search articles..." />
-
     <div id="articlesContainer"></div>
     <div id="pagination"></div>
   </div>
@@ -104,12 +107,7 @@
     <button id="backBtn">← Back to Articles</button>
     <h1 id="articleTitle"></h1>
     <img id="articleImage" alt="" />
-    <div id="articleContent"></div>
-
-    <textarea id="editorArea"></textarea><br />
-    <button id="editBtn">Edit Article</button>
-    <button id="saveBtn" style="display:none;">Save Changes</button>
-    <button id="cancelBtn" style="display:none;">Cancel</button>
+    <article id="articleContent"></article>
   </div>
 </main>
 
@@ -117,27 +115,27 @@
 
 <script>
 (() => {
-  let articles = [
+  const articles = [
     {
       id: "smartphones-2025",
       title: "Top 5 Smartphones of 2025",
       summary: "A look at the latest flagship devices of the year.",
       image: "https://via.placeholder.com/400x200",
-      content: "## Smartphones of 2025\\n\\nHere are the best phones this year with exciting new features and innovations. Stay tuned for the full review."
+      content: "## Smartphones of 2025\\n\\nHere are the best phones this year with exciting new features and innovations."
     },
     {
       id: "laptop-trends",
       title: "Laptop Trends You Need to Know",
       summary: "The biggest trends in laptops for the coming year.",
       image: "https://via.placeholder.com/400x200",
-      content: "### Lightweight and powerful\\nThe new generation of laptops balances portability with performance, perfect for work and gaming."
+      content: "### Lightweight and powerful\\nThe new generation of laptops balances portability with performance."
     },
     {
       id: "smart-home",
       title: "Smart Home Devices Overview",
       summary: "Making your home smarter and more connected.",
       image: "https://via.placeholder.com/400x200",
-      content: "Smart home devices are evolving rapidly. From voice assistants to smart thermostats, find out what fits your lifestyle."
+      content: "Smart home devices are evolving rapidly. From voice assistants to smart thermostats..."
     }
   ];
 
@@ -151,13 +149,7 @@
   const articlesContainer = document.getElementById('articlesContainer');
   const pagination = document.getElementById('pagination');
   const searchInput = document.getElementById('searchInput');
-
-  const backBtn = document.getElementById('backBtn');
-  const editBtn = document.getElementById('editBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const editorArea = document.getElementById('editorArea');
-  const articleContent = document.getElementById('articleContent');
+  const dropdown = document.getElementById('articleDropdown');
 
   function renderArticles() {
     const start = (currentPage - 1) * perPage;
@@ -172,9 +164,7 @@
 
     renderPagination();
     [...articlesContainer.children].forEach(card => {
-      card.addEventListener('click', () => {
-        openArticle(card.getAttribute('data-id'));
-      });
+      card.addEventListener('click', () => openArticle(card.getAttribute('data-id')));
     });
   }
 
@@ -188,7 +178,7 @@
       btn.addEventListener('click', () => {
         currentPage = i;
         renderArticles();
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
       });
       pagination.appendChild(btn);
     }
@@ -200,63 +190,19 @@
     currentArticle = article;
     listView.style.display = 'none';
     articleView.style.display = 'block';
-    articleContent.style.display = 'block';
-    editorArea.style.display = 'none';
-    saveBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    editBtn.style.display = 'inline-block';
 
     document.getElementById('articleTitle').textContent = article.title;
     document.getElementById('articleImage').src = article.image;
     document.getElementById('articleImage').alt = article.title;
-    articleContent.innerHTML = marked.parse(article.content);
-    window.scrollTo(0,0);
+    document.getElementById('articleContent').innerHTML = marked.parse(article.content);
+    window.scrollTo(0, 0);
   }
 
-  backBtn.addEventListener('click', () => {
+  document.getElementById('backBtn').addEventListener('click', () => {
     articleView.style.display = 'none';
     listView.style.display = 'block';
     currentArticle = null;
-    window.scrollTo(0,0);
-  });
-
-  editBtn.addEventListener('click', () => {
-    if (!sessionStorage.getItem('editUnlocked')) {
-      const pass = prompt('Enter editor password:');
-      if (pass !== 'gadget123') {
-        alert('Incorrect password');
-        return;
-      }
-      sessionStorage.setItem('editUnlocked', 'true');
-    }
-    articleContent.style.display = 'none';
-    editorArea.style.display = 'block';
-    editorArea.value = currentArticle.content;
-    editBtn.style.display = 'none';
-    saveBtn.style.display = 'inline-block';
-    cancelBtn.style.display = 'inline-block';
-    editorArea.focus();
-  });
-
-  saveBtn.addEventListener('click', () => {
-    currentArticle.content = editorArea.value;
-    articleContent.innerHTML = marked.parse(currentArticle.content);
-    articleContent.style.display = 'block';
-    editorArea.style.display = 'none';
-    saveBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    editBtn.style.display = 'inline-block';
-
-    console.log('Updated article JSON:', JSON.stringify(currentArticle, null, 2));
-    alert('Changes saved locally! Refresh will lose changes unless you copy JSON from console.');
-  });
-
-  cancelBtn.addEventListener('click', () => {
-    articleContent.style.display = 'block';
-    editorArea.style.display = 'none';
-    saveBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    editBtn.style.display = 'inline-block';
+    window.scrollTo(0, 0);
   });
 
   searchInput.addEventListener('input', () => {
@@ -270,6 +216,16 @@
     renderArticles();
   });
 
+  dropdown.addEventListener('change', e => {
+    openArticle(e.target.value);
+  });
+
+  function renderDropdown() {
+    dropdown.innerHTML = '<option disabled selected>Jump to Article...</option>' +
+      articles.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
+  }
+
+  renderDropdown();
   renderArticles();
 })();
 </script>
