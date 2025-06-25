@@ -1,0 +1,40 @@
+body {
+  background: #121212;
+  color: #eee;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+header, footer {
+  background: #1e1e1e;
+  padding: 1rem;
+  text-align: center;
+}
+main {
+  padding: 1rem;
+  max-width: 800px;
+  margin: auto;
+}
+.card {
+  background: #1f1f1f;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.card:hover {
+  background: #292929;
+}
+img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+button {
+  padding: 0.5rem 1rem;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
