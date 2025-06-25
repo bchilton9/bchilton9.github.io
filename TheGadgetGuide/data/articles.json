@@ -1,20 +1,26 @@
 [
   {
+    "id": "smartphones-2025",
     "title": "Top 5 Smartphones of 2025",
     "summary": "We compare the latest flagship devices to help you choose the best.",
     "image": "https://via.placeholder.com/400x200?text=Smartphones+2025",
-    "url": "#"
+    "content": "Full article content for smartphones of 2025...",
+    "url": "article.html?id=smartphones-2025"
   },
   {
+    "id": "build-gaming-pc",
     "title": "How to Build a Custom Gaming PC",
     "summary": "A beginner-friendly guide to building your own high-performance rig.",
     "image": "https://via.placeholder.com/400x200?text=Gaming+PC+Guide",
-    "url": "#"
+    "content": "Step-by-step PC build instructions...",
+    "url": "article.html?id=build-gaming-pc"
   },
   {
+    "id": "budget-laptops",
     "title": "Best Budget Laptops for Students",
-    "summary": "Powerful and affordable laptops that won’t break the bank.",
+    "summary": "Affordable laptops that won’t break the bank.",
     "image": "https://via.placeholder.com/400x200?text=Budget+Laptops",
-    "url": "#"
+    "content": "Here’s our list of great budget laptops...",
+    "url": "article.html?id=budget-laptops"
   }
 ]
