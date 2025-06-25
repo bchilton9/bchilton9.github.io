@@ -66,3 +66,4 @@ function setupSearch() {
 }
 
 window.addEventListener("DOMContentLoaded", loadArticles);
+
