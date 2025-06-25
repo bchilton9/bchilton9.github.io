@@ -1,9 +1,0 @@
-.nav-link.active {
-  font-weight: bold;
-  color: #0dcaf0 !important;
-  border-bottom: 2px solid #0dcaf0;
-}
-.dropdown-item:hover {
-  background-color: #0dcaf0;
-  color: #000;
-}
