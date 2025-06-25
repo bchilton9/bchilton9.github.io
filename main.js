@@ -1,21 +1,19 @@
 window.onload = () => {
-  // Load header and footer
   fetch('header.html')
     .then(res => res.text())
     .then(data => {
       document.getElementById('header-placeholder').innerHTML = data;
       initHeaderScripts();
-      loadArticlesListIntoDropdown();
+      loadArticleLinks();
     });
+
   fetch('footer.html')
     .then(res => res.text())
     .then(data => {
       document.getElementById('footer-placeholder').innerHTML = data;
     });
 
-  // Elements
   const articlesEl = document.getElementById('articles');
-  const articleDropdown = document.getElementById('articleDropdown');
   const searchInput = document.getElementById('searchInput');
   const paginationEl = document.getElementById('pagination');
   const articleView = document.getElementById('articleView');
@@ -38,14 +36,12 @@ window.onload = () => {
     pageArticles.forEach(article => {
       const card = document.createElement('div');
       card.className = 'article-card';
-      card.tabIndex = 0;
       card.innerHTML = `
         <img src="${article.image}" alt="${article.title}" />
         <h3>${article.title}</h3>
         <p>${article.summary}</p>
       `;
       card.onclick = () => showArticle(article);
-      card.onkeypress = e => { if (e.key === 'Enter') showArticle(article); };
       articlesEl.appendChild(card);
     });
 
@@ -71,25 +67,15 @@ window.onload = () => {
   function showArticle(article) {
     articleTitle.textContent = article.title;
     articleImage.src = article.image;
-    articleImage.alt = article.title;
-    articleBody.innerHTML = '';
     fetch(`data/${article.id}.md`)
       .then(res => res.text())
       .then(md => {
         articleBody.innerHTML = marked.parse(md);
+        articleView.style.display = 'block';
+        articlesEl.style.display = 'none';
+        paginationEl.style.display = 'none';
+        searchInput.style.display = 'none';
       });
-    articleView.style.display = 'block';
-    articlesEl.style.display = 'grid';
-    paginationEl.style.display = 'flex';
-    searchInput.style.display = 'block';
-
-    // Hide main list and controls when viewing article
-    articlesEl.style.display = 'none';
-    paginationEl.style.display = 'none';
-    searchInput.style.display = 'none';
-
-    // Hide dropdown on article view (optional)
-    if(articleDropdown) articleDropdown.style.display = 'none';
   }
 
   backToListBtn.onclick = () => {
@@ -97,84 +83,67 @@ window.onload = () => {
     articlesEl.style.display = 'grid';
     paginationEl.style.display = 'flex';
     searchInput.style.display = 'block';
-    if(articleDropdown) articleDropdown.style.display = 'inline-block';
-  };
-
-  function updateDropdown() {
-    articleDropdown.innerHTML = '';
-    filteredArticles.forEach(article => {
-      const option = document.createElement('option');
-      option.value = article.id;
-      option.textContent = article.title;
-      articleDropdown.appendChild(option);
-    });
-  }
-
-  articleDropdown.onchange = () => {
-    const id = articleDropdown.value;
-    const selected = articles.find(a => a.id === id);
-    if (selected) showArticle(selected);
   };
 
   searchInput.oninput = () => {
     const term = searchInput.value.toLowerCase();
     filteredArticles = articles.filter(article =>
       article.title.toLowerCase().includes(term) ||
-      article.summary.toLowerCase().includes(term));
+      article.summary.toLowerCase().includes(term)
+    );
     currentPage = 1;
-    updateDropdown();
     renderArticlesList();
   };
 
-  // Fetch articles list
   fetch('data/articles.json')
     .then(res => res.json())
     .then(data => {
       articles = data;
-      filteredArticles = articles;
-      updateDropdown();
+      filteredArticles = [...articles];
       renderArticlesList();
     });
 
-  // Header scripts (hamburger and theme toggle)
   function initHeaderScripts() {
     const modeToggle = document.getElementById('modeToggle');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
+    if (localStorage.getItem('theme') === 'light') {
       document.body.classList.add('light-mode');
       if (modeToggle) modeToggle.textContent = '🌞';
     }
 
     if (modeToggle) {
-      modeToggle.addEventListener('click', () => {
+      modeToggle.onclick = () => {
         const isLight = document.body.classList.toggle('light-mode');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
         modeToggle.textContent = isLight ? '🌞' : '🌙';
-      });
+      };
     }
 
     if (menuToggle) {
-      menuToggle.addEventListener('click', () => {
+      menuToggle.onclick = () => {
         navLinks.classList.toggle('open');
-      });
+      };
     }
   }
 
-  // Also call this after header loads to fill dropdown in nav
-  function loadArticlesListIntoDropdown() {
-    if(!articleDropdown) return;
+  function loadArticleLinks() {
     fetch('data/articles.json')
       .then(res => res.json())
-      .then(list => {
-        articleDropdown.innerHTML = '';
-        list.forEach(a => {
-          const o = document.createElement('option');
-          o.value = a.id;
-          o.textContent = a.title;
-          articleDropdown.appendChild(o);
+      .then(articles => {
+        const container = document.getElementById('articleMenu');
+        if (!container) return;
+        articles.forEach(article => {
+          const link = document.createElement('a');
+          link.href = '#';
+          link.textContent = article.title;
+          link.onclick = e => {
+            e.preventDefault();
+            showArticle(article);
+            document.getElementById('navLinks')?.classList.remove('open');
+          };
+          container.appendChild(link);
         });
       });
   }

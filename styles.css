@@ -1,20 +1,21 @@
 /* Base Styles */
 body {
   margin: 0;
-  background: #121212;
-  color: #eee;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: #eee;
 }
 
-input, select, textarea {
+input, textarea {
+  width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
-  border-radius: 6px;
   border: none;
-  margin-bottom: 1rem;
-  background: #222;
+  border-radius: 6px;
+  background-color: #222;
   color: #eee;
+  margin-bottom: 1rem;
 }
 
 input::placeholder {
@@ -22,119 +23,11 @@ input::placeholder {
 }
 
 textarea {
-  width: 100%;
   height: 300px;
   resize: vertical;
 }
 
-/* Articles List */
-.articles-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.article-card {
-  background: #1f1f1f;
-  padding: 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.article-card:hover {
-  background: #333;
-}
-
-.article-card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-
-/* Pagination */
-#pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.page-btn {
-  background: #333;
-  border: none;
-  color: #eee;
-  padding: 0.5rem 0.8rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.page-btn:hover {
-  background: #555;
-}
-
-.page-btn.active {
-  background: #0a84ff;
-  font-weight: bold;
-}
-
-/* Article View */
-#articleView {
-  background: #1f1f1f;
-  padding: 1rem;
-  border-radius: 10px;
-}
-
-#articleBody {
-  margin-top: 1rem;
-}
-
-button#backToList, #downloadBtn {
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  background: #444;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #666;
-}
-
-/* Light Mode */
-body.light-mode {
-  background: #f2f2f2;
-  color: #111;
-}
-
-body.light-mode input,
-body.light-mode select,
-body.light-mode textarea {
-  background: #fff;
-  color: #111;
-}
-
-body.light-mode .article-card {
-  background: #eee;
-}
-
-body.light-mode #articleView {
-  background: #fff;
-}
-
-body.light-mode .site-header {
-  background: #ffffff;
-  color: #111;
-  border-bottom: 1px solid #ddd;
-}
-
-/* Modern & Rounded Header */
+/* Header */
 .site-header {
   background: #0a84ff;
   color: white;
@@ -146,15 +39,6 @@ body.light-mode .site-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 600;
-  font-size: 1.25rem;
-  user-select: none;
-  transition: background-color 0.3s ease;
-}
-
-.site-header:hover {
-  background: #0965d1;
-  box-shadow: 0 10px 20px rgba(9, 101, 209, 0.5);
 }
 
 .site-header .container {
@@ -170,146 +54,13 @@ body.light-mode .site-header {
   font-size: 1.5rem;
 }
 
+/* Nav Links */
 .nav-links {
-  display: flex;
-  gap: 1.2rem;
-  align-items: center;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  padding: 0.4rem 1rem;
-  border-radius: 12px;
-  transition: background-color 0.25s ease, color 0.25s ease;
-  font-weight: 600;
-}
-
-.nav-links a:hover,
-.nav-links a:focus {
-  background: rgba(255 255 255 / 0.2);
-  color: #dbe9ff;
-  outline: none;
-}
-
-.menu-icons {
-  display: flex;
-  gap: 0.75rem;
-}
-
-#modeToggle, #menuToggle {
-  background: rgba(255 255 255 / 0.15);
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  color: white;
-  font-size: 1.25rem;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: background-color 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#modeToggle:hover, #menuToggle:hover,
-#modeToggle:focus, #menuToggle:focus {
-  background: rgba(255 255 255 / 0.3);
-  outline: none;
-}
-
-/* Article dropdown inside nav */
-.nav-links select#articleDropdown {
-  background: rgba(255 255 255 / 0.15);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-  max-width: 250px;
-}
-
-.nav-links select#articleDropdown:hover,
-.nav-links select#articleDropdown:focus {
-  background: rgba(255 255 255 / 0.3);
-  outline: none;
-  color: #dbe9ff;
-}
-
-/* Responsive Nav */
-@media (max-width: 700px) {
-  .nav-links {
-    position: absolute;
-    top: 72px;
-    right: 1.5rem;
-    flex-direction: column;
-    background: #0a84ff;
-    padding: 1rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
-    display: none;
-    transition: opacity 0.3s ease;
-    z-index: 10;
-  }
-  .nav-links.open {
-    display: flex;
-  }
-  /* Show dropdown in hamburger menu */
-  .nav-links select#articleDropdown {
-    display: block;
-    margin-top: 1rem;
-    width: 100%;
-  }
-}
-
-/* On desktop hide dropdown */
-@media (min-width: 701px) {
-  .nav-links select#articleDropdown {
-    display: none;
-  }
-}
-
-/* Style dropdown inside nav to look like links */
-.nav-links select#articleDropdown {
-  background: transparent;
-  color: white;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.4rem 1rem;
-  margin: 0.2rem 0;
-  border-radius: 12px;
-  appearance: none;
-  width: 100%;
-  max-width: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  cursor: pointer;
-}
-
-.nav-links select#articleDropdown:hover,
-.nav-links select#articleDropdown:focus {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #dbe9ff;
-  outline: none;
-}
-
-/* Optional arrow styling for dropdown */
-.nav-links select#articleDropdown {
-  background-image: url("data:image/svg+xml,%3Csvg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-}
-
-/* On desktop, hide dropdown if you prefer */
-@media (min-width: 701px) {
-  .nav-links select#articleDropdown {
-    display: none;
-  }
-}
-
+  position: absolute;
+  top: 72px;
+  right: 1.5rem;
+  flex-direction: column;
+  background: #0a84ff;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0
