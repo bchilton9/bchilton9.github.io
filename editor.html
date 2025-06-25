@@ -13,14 +13,22 @@
     <h2>Markdown Article Editor</h2>
 
     <input type="text" id="editorTitle" placeholder="Article Title" />
-    <input type="text" id="editorImage" placeholder="Image URL" />
-    <textarea id="editorBody" placeholder="Write your article in markdown..."></textarea>
+    <input type="text" id="editorImage" placeholder="Image URL (for preview)" />
 
-    <button id="saveArticle">Save Article</button>
+    <button id="insertImage">🖼️ Insert Image</button>
+
+    <textarea id="editorBody" placeholder="Write your article in markdown..."></textarea>
+    <button id="saveArticle">💾 Save Markdown</button>
 
     <div style="margin-top:2rem;">
-      <h3>Preview</h3>
+      <h3>Live Preview</h3>
       <div id="preview" class="article-preview"></div>
+
+      <h3>Markdown Code</h3>
+      <pre><code id="rawMd" style="background:#222; padding:1rem; border-radius:8px;"></code></pre>
+
+      <h3>JSON Snippet for <code>articles.json</code></h3>
+      <pre><code id="jsonSnippet" style="background:#222; padding:1rem; border-radius:8px;"></code></pre>
     </div>
   </main>
 
