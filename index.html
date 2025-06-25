@@ -8,19 +8,26 @@
 </head>
 <body>
   <header>
-    <div class="nav">
+    <div class="nav-container">
       <h1>The Gadget Guide</h1>
-      <nav>
+
+      <!-- Hamburger for mobile -->
+      <button id="menu-toggle" aria-label="Toggle menu">☰</button>
+
+      <!-- Nav content -->
+      <nav id="nav-menu" class="collapsed">
         <select id="articleDropdown">
           <option disabled selected>All Articles</option>
         </select>
+
+        <input type="text" id="searchInput" placeholder="Search articles..." />
+
+        <button id="theme-toggle" aria-label="Toggle light/dark mode">🌙</button>
       </nav>
     </div>
   </header>
 
   <main id="content">
-    <input type="text" id="searchInput" placeholder="Search articles..." />
-    
     <!-- Article List -->
     <div id="articles"></div>
     <div id="pagination"></div>
