@@ -59,3 +59,4 @@ window.addEventListener("DOMContentLoaded", () => {
   loadLayoutPart("header", "partials/header.html");
   loadLayoutPart("footer", "partials/footer.html");
 });
+
