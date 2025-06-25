@@ -121,7 +121,7 @@ window.onload = () => {
       };
     }
 
-    if (menuToggle) {
+    if (menuToggle && navLinks) {
       menuToggle.onclick = () => {
         navLinks.classList.toggle('open');
       };

@@ -6,7 +6,6 @@ body {
   background-color: #121212;
   color: #eee;
 }
-
 input, textarea {
   width: 100%;
   padding: 0.5rem;
@@ -17,11 +16,9 @@ input, textarea {
   color: #eee;
   margin-bottom: 1rem;
 }
-
 input::placeholder {
   color: #aaa;
 }
-
 textarea {
   height: 300px;
   resize: vertical;
@@ -40,14 +37,12 @@ textarea {
   justify-content: space-between;
   align-items: center;
 }
-
 .site-header .container {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .site-title {
   font-weight: 700;
   letter-spacing: 1.2px;
@@ -56,6 +51,7 @@ textarea {
 
 /* Nav Links */
 .nav-links {
+  display: none;
   position: absolute;
   top: 72px;
   right: 1.5rem;
@@ -63,4 +59,224 @@ textarea {
   background: #0a84ff;
   padding: 1rem;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(10, 132, 255, 0
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.35);
+  gap: 0.5rem;
+  max-width: 300px;
+  width: 80%;
+  transition: all 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.nav-links.open {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-weight: 600;
+}
+.nav-links a:hover,
+.nav-links a:focus {
+  background: rgba(255, 255, 255, 0.2);
+  color: #dbe9ff;
+  outline: none;
+}
+
+/* Hamburger & Mode Buttons */
+.menu-icons {
+  display: flex;
+  gap: 0.75rem;
+}
+#modeToggle,
+#menuToggle {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: white;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.25s ease;
+}
+#modeToggle:hover,
+#menuToggle:hover,
+#modeToggle:focus,
+#menuToggle:focus {
+  background: rgba(255, 255, 255, 0.3);
+  outline: none;
+}
+
+/* Article Menu inside Nav */
+.article-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  scrollbar-width: thin;
+}
+.article-menu a {
+  color: white;
+  text-decoration: none;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-weight: 600;
+}
+.article-menu a:hover,
+.article-menu a:focus {
+  background: rgba(255, 255, 255, 0.2);
+  color: #dbe9ff;
+  outline: none;
+}
+
+/* Article Cards */
+.articles-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.article-card {
+  background: #1f1f1f;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.article-card:hover {
+  background: #333;
+}
+.article-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+/* Pagination */
+#pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.page-btn {
+  background: #333;
+  border: none;
+  color: #eee;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.page-btn:hover {
+  background: #555;
+}
+.page-btn.active {
+  background: #0a84ff;
+  font-weight: bold;
+}
+
+/* Article View */
+#articleView {
+  background: #1f1f1f;
+  padding: 1rem;
+  border-radius: 10px;
+}
+#articleBody {
+  margin-top: 1rem;
+}
+#articleView img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+/* Back Button */
+button#backToList {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: #444;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+button#backToList:hover {
+  background: #666;
+}
+
+/* Light Mode */
+body.light-mode {
+  background: #f2f2f2;
+  color: #111;
+}
+body.light-mode input,
+body.light-mode textarea {
+  background: #fff;
+  color: #111;
+}
+body.light-mode .article-card {
+  background: #eee;
+}
+body.light-mode .article-card:hover {
+  background: #ddd;
+}
+body.light-mode .site-header {
+  background: #ffffff;
+  color: #111;
+  border-bottom: 1px solid #ddd;
+}
+body.light-mode .nav-links {
+  background: #f9f9f9;
+}
+body.light-mode .nav-links a {
+  color: #111;
+}
+body.light-mode .article-menu a {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111;
+}
+body.light-mode .article-menu a:hover {
+  background: rgba(0, 0, 0, 0.15);
+  color: #000;
+}
+body.light-mode #pagination .page-btn {
+  background: #ddd;
+  color: #111;
+}
+body.light-mode #pagination .page-btn.active {
+  background: #0a84ff;
+  color: #fff;
+}
+
+/* Responsive */
+@media (min-width: 701px) {
+  .nav-links {
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    box-shadow: none;
+    display: flex !important;
+    gap: 1.5rem;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .article-menu {
+    display: none;
+  }
+}
