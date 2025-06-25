@@ -1,171 +1,157 @@
-// Elements
-const headerPlaceholder = document.getElementById('header-placeholder');
-const footerPlaceholder = document.getElementById('footer-placeholder');
+window.onload = () => {
+  // Load header and footer
+  fetch('header.html')
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('header-placeholder').innerHTML = data;
+      initHeaderScripts();
+    });
+  fetch('footer.html')
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('footer-placeholder').innerHTML = data;
+    });
 
-const articlesDiv = document.getElementById('articles');
-const paginationDiv = document.getElementById('pagination');
-const searchInput = document.getElementById('searchInput');
-const articleDropdown = document.getElementById('articleDropdown');
+  // Elements
+  const articlesEl = document.getElementById('articles');
+  const articleDropdown = document.getElementById('articleDropdown');
+  const searchInput = document.getElementById('searchInput');
+  const paginationEl = document.getElementById('pagination');
+  const articleView = document.getElementById('articleView');
+  const backToListBtn = document.getElementById('backToList');
+  const articleTitle = document.getElementById('articleTitle');
+  const articleImage = document.getElementById('articleImage');
+  const articleBody = document.getElementById('articleBody');
 
-const articleView = document.getElementById('articleView');
-const backToListBtn = document.getElementById('backToList');
-const title = document.getElementById('articleTitle');
-const image = document.getElementById('articleImage');
-const body = document.getElementById('articleBody');
+  let articles = [];
+  let filteredArticles = [];
+  let currentPage = 1;
+  const articlesPerPage = 4;
 
-let allArticles = [];
-let filteredArticles = [];
-let currentPage = 1;
-const articlesPerPage = 4;
+  function renderArticlesList() {
+    articlesEl.innerHTML = '';
+    const start = (currentPage - 1) * articlesPerPage;
+    const end = start + articlesPerPage;
+    const pageArticles = filteredArticles.slice(start, end);
 
-// Load header and footer
-async function loadLayout() {
-  const headerResp = await fetch('header.html');
-  headerPlaceholder.innerHTML = await headerResp.text();
+    pageArticles.forEach(article => {
+      const card = document.createElement('div');
+      card.className = 'article-card';
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <img src="${article.image}" alt="${article.title}" />
+        <h3>${article.title}</h3>
+        <p>${article.summary}</p>
+      `;
+      card.onclick = () => showArticle(article);
+      card.onkeypress = e => { if (e.key === 'Enter') showArticle(article); };
+      articlesEl.appendChild(card);
+    });
 
-  const footerResp = await fetch('footer.html');
-  footerPlaceholder.innerHTML = await footerResp.text();
-}
-
-// Load articles.json and initialize
-async function loadArticles() {
-  const res = await fetch('data/articles.json');
-  allArticles = await res.json();
-  filteredArticles = allArticles;
-  renderDropdown();
-  renderPage(1);
-}
-
-// Render article cards
-function renderPage(page) {
-  currentPage = page;
-  articlesDiv.innerHTML = '';
-  paginationDiv.innerHTML = '';
-
-  const start = (page - 1) * articlesPerPage;
-  const end = start + articlesPerPage;
-  const pageArticles = filteredArticles.slice(start, end);
-
-  if (pageArticles.length === 0) {
-    articlesDiv.innerHTML = '<p>No articles found.</p>';
-    return;
+    renderPagination();
   }
 
-  pageArticles.forEach(article => {
-    const card = document.createElement('div');
-    card.className = 'article-card';
-    card.tabIndex = 0;
-    card.setAttribute('role', 'button');
-    card.setAttribute('aria-pressed', 'false');
-    card.innerHTML = `
-      <img src="${article.image}" alt="${article.title}" />
-      <h3>${article.title}</h3>
-      <p>${article.summary}</p>
-      <button class="read-more">Read More</button>
-    `;
-    card.querySelector('.read-more').addEventListener('click', () => showArticle(article));
-    articlesDiv.appendChild(card);
-  });
-
-  // Pagination buttons
-  const pageCount = Math.ceil(filteredArticles.length / articlesPerPage);
-  for (let i = 1; i <= pageCount; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'page-btn' + (i === page ? ' active' : '');
-    btn.textContent = i;
-    btn.addEventListener('click', () => renderPage(i));
-    paginationDiv.appendChild(btn);
+  function renderPagination() {
+    paginationEl.innerHTML = '';
+    const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = 'page-btn';
+      if (i === currentPage) btn.classList.add('active');
+      btn.onclick = () => {
+        currentPage = i;
+        renderArticlesList();
+      };
+      paginationEl.appendChild(btn);
+    }
   }
-}
 
-// Search filtering
-searchInput.addEventListener('input', () => {
-  const query = searchInput.value.toLowerCase();
-  filteredArticles = allArticles.filter(a =>
-    a.title.toLowerCase().includes(query) ||
-    a.summary.toLowerCase().includes(query)
-  );
-  renderPage(1);
-  renderDropdown();
-});
-
-// Render dropdown for article quick select
-function renderDropdown() {
-  articleDropdown.innerHTML = '';
-  filteredArticles.forEach(article => {
-    const option = document.createElement('option');
-    option.value = article.id;
-    option.textContent = article.title;
-    articleDropdown.appendChild(option);
-  });
-}
-
-articleDropdown.addEventListener('change', () => {
-  const selectedId = articleDropdown.value;
-  const article = allArticles.find(a => a.id === selectedId);
-  if (article) showArticle(article);
-});
-
-// Show full article view, loading markdown dynamically
-async function showArticle(article) {
-  try {
-    const res = await fetch(`data/${article.id}.md`);
-    if (!res.ok) throw new Error('Markdown file not found');
-    const md = await res.text();
-
-    articlesDiv.style.display = 'none';
-    paginationDiv.style.display = 'none';
+  function showArticle(article) {
+    articleTitle.textContent = article.title;
+    articleImage.src = article.image;
+    articleImage.alt = article.title;
+    articleBody.innerHTML = '';
+    fetch(`data/${article.id}.md`)
+      .then(res => res.text())
+      .then(md => {
+        articleBody.innerHTML = marked.parse(md);
+      });
     articleView.style.display = 'block';
+    articlesEl.style.display = 'none';
+    paginationEl.style.display = 'none';
     searchInput.style.display = 'none';
     articleDropdown.style.display = 'none';
-
-    title.textContent = article.title;
-    image.src = article.image;
-    image.alt = article.title;
-    body.innerHTML = marked.parse(md);
-  } catch (err) {
-    title.textContent = article.title;
-    image.src = article.image;
-    image.alt = article.title;
-    body.innerHTML = '<p style="color:#f66;">Error loading article content.</p>';
   }
-}
 
-// Back button handler
-backToListBtn.addEventListener('click', () => {
-  articleView.style.display = 'none';
-  articlesDiv.style.display = 'grid';
-  paginationDiv.style.display = 'flex';
-  searchInput.style.display = 'block';
-  articleDropdown.style.display = 'inline-block';
-  body.innerHTML = '';
-});
+  backToListBtn.onclick = () => {
+    articleView.style.display = 'none';
+    articlesEl.style.display = 'grid';
+    paginationEl.style.display = 'flex';
+    searchInput.style.display = 'block';
+    articleDropdown.style.display = 'inline-block';
+  };
 
-// Initialize site
-window.onload = async () => {
-  await loadLayout();
-  await loadArticles();
+  function updateDropdown() {
+    articleDropdown.innerHTML = '';
+    filteredArticles.forEach(article => {
+      const option = document.createElement('option');
+      option.value = article.id;
+      option.textContent = article.title;
+      articleDropdown.appendChild(option);
+    });
+  }
+
+  articleDropdown.onchange = () => {
+    const id = articleDropdown.value;
+    const selected = articles.find(a => a.id === id);
+    if (selected) showArticle(selected);
+  };
+
+  searchInput.oninput = () => {
+    const term = searchInput.value.toLowerCase();
+    filteredArticles = articles.filter(article =>
+      article.title.toLowerCase().includes(term) ||
+      article.summary.toLowerCase().includes(term));
+    currentPage = 1;
+    updateDropdown();
+    renderArticlesList();
+  };
+
+  // Fetch articles list
+  fetch('data/articles.json')
+    .then(res => res.json())
+    .then(data => {
+      articles = data;
+      filteredArticles = articles;
+      updateDropdown();
+      renderArticlesList();
+    });
+
+  // Header scripts (hamburger and theme toggle)
+  function initHeaderScripts() {
+    const modeToggle = document.getElementById('modeToggle');
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+      if (modeToggle) modeToggle.textContent = '🌞';
+    }
+
+    if (modeToggle) {
+      modeToggle.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        modeToggle.textContent = isLight ? '🌞' : '🌙';
+      });
+    }
+
+    if (menuToggle) {
+      menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+      });
+    }
+  }
 };
-// Theme toggle
-const modeToggle = document.getElementById('modeToggle');
-const isLight = localStorage.getItem('theme') === 'light';
-
-if (isLight) {
-  document.body.classList.add('light-mode');
-  modeToggle.textContent = '🌞';
-}
-
-modeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('light-mode');
-  const isLight = document.body.classList.contains('light-mode');
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  modeToggle.textContent = isLight ? '🌞' : '🌙';
-});
-
-// Hamburger menu toggle
-const menuToggle = document.getElementById('menuToggle');
-const navLinks = document.getElementById('navLinks');
-
-menuToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('open');
-});
