@@ -1,175 +1,148 @@
-let allArticles = [];
-let currentPage = 1;
-const articlesPerPage = 3;
+// Elements
+const headerPlaceholder = document.getElementById('header-placeholder');
+const footerPlaceholder = document.getElementById('footer-placeholder');
 
 const articlesDiv = document.getElementById('articles');
-const articleView = document.getElementById('article-view');
-const backButton = document.getElementById('back-button');
-const title = document.getElementById('article-title');
-const body = document.getElementById('article-body');
-const image = document.getElementById('article-image');
-const searchInput = document.getElementById('searchInput');
-const dropdown = document.getElementById('articleDropdown');
 const paginationDiv = document.getElementById('pagination');
+const searchInput = document.getElementById('searchInput');
+const articleDropdown = document.getElementById('articleDropdown');
 
-const menuToggleBtn = document.getElementById('menu-toggle');
-const navMenu = document.getElementById('nav-menu');
-const themeToggleBtn = document.getElementById('theme-toggle');
+const articleView = document.getElementById('articleView');
+const backToListBtn = document.getElementById('backToList');
+const title = document.getElementById('articleTitle');
+const image = document.getElementById('articleImage');
+const body = document.getElementById('articleBody');
 
-// Load and render articles
-fetch('data/articles.json')
-  .then(res => res.json())
-  .then(data => {
-    allArticles = data;
-    populateDropdown(data);
-    renderArticles();
-  });
+let allArticles = [];
+let filteredArticles = [];
+let currentPage = 1;
+const articlesPerPage = 4;
 
-// Populate dropdown navigation
-function populateDropdown(articles) {
-  dropdown.innerHTML = '<option disabled selected>All Articles</option>';
-  articles.forEach(article => {
-    const opt = document.createElement('option');
-    opt.value = article.id;
-    opt.textContent = article.title;
-    dropdown.appendChild(opt);
-  });
+// Load header and footer
+async function loadLayout() {
+  const headerResp = await fetch('header.html');
+  headerPlaceholder.innerHTML = await headerResp.text();
 
-  dropdown.addEventListener('change', () => {
-    const selected = allArticles.find(a => a.id === dropdown.value);
-    if (selected) showArticle(selected);
-    closeMenuOnMobile();
-  });
+  const footerResp = await fetch('footer.html');
+  footerPlaceholder.innerHTML = await footerResp.text();
 }
 
-// Render paginated article cards
-function renderArticles() {
-  const filtered = filterArticles();
-  const start = (currentPage - 1) * articlesPerPage;
-  const end = start + articlesPerPage;
-  const pageArticles = filtered.slice(start, end);
+// Load articles.json and initialize
+async function loadArticles() {
+  const res = await fetch('data/articles.json');
+  allArticles = await res.json();
+  filteredArticles = allArticles;
+  renderDropdown();
+  renderPage(1);
+}
 
+// Render article cards
+function renderPage(page) {
+  currentPage = page;
   articlesDiv.innerHTML = '';
+  paginationDiv.innerHTML = '';
 
-  pageArticles.forEach((article, i) => {
+  const start = (page - 1) * articlesPerPage;
+  const end = start + articlesPerPage;
+  const pageArticles = filteredArticles.slice(start, end);
+
+  if (pageArticles.length === 0) {
+    articlesDiv.innerHTML = '<p>No articles found.</p>';
+    return;
+  }
+
+  pageArticles.forEach(article => {
     const card = document.createElement('div');
-    card.className = 'card';
-    card.style.animationDelay = `${i * 0.1}s`; // Stagger animation
+    card.className = 'article-card';
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-pressed', 'false');
     card.innerHTML = `
-      <img src="${article.image}" alt="${article.title}">
-      <h2>${article.title}</h2>
+      <img src="${article.image}" alt="${article.title}" />
+      <h3>${article.title}</h3>
       <p>${article.summary}</p>
+      <button class="read-more">Read More</button>
     `;
-    card.addEventListener('click', () => showArticle(article));
+    card.querySelector('.read-more').addEventListener('click', () => showArticle(article));
     articlesDiv.appendChild(card);
   });
 
-  renderPagination(filtered.length);
-}
-
-// Render pagination buttons
-function renderPagination(total) {
-  const totalPages = Math.ceil(total / articlesPerPage);
-  paginationDiv.innerHTML = '';
-
-  for (let i = 1; i <= totalPages; i++) {
+  // Pagination buttons
+  const pageCount = Math.ceil(filteredArticles.length / articlesPerPage);
+  for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement('button');
+    btn.className = 'page-btn' + (i === page ? ' active' : '');
     btn.textContent = i;
-    if (i === currentPage) btn.classList.add('active');
-    btn.addEventListener('click', () => {
-      currentPage = i;
-      renderArticles();
-      window.scrollTo(0, 0);
-    });
+    btn.addEventListener('click', () => renderPage(i));
     paginationDiv.appendChild(btn);
   }
 }
 
-// Filter articles by search term
-function filterArticles() {
-  const term = searchInput.value.trim().toLowerCase();
-  if (!term) return allArticles;
-  return allArticles.filter(a =>
-    a.title.toLowerCase().includes(term) ||
-    a.summary.toLowerCase().includes(term) ||
-    a.content.toLowerCase().includes(term)
+// Search filtering
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase();
+  filteredArticles = allArticles.filter(a =>
+    a.title.toLowerCase().includes(query) ||
+    a.summary.toLowerCase().includes(query)
   );
+  renderPage(1);
+  renderDropdown();
+});
+
+// Render dropdown for article quick select
+function renderDropdown() {
+  articleDropdown.innerHTML = '';
+  filteredArticles.forEach(article => {
+    const option = document.createElement('option');
+    option.value = article.id;
+    option.textContent = article.title;
+    articleDropdown.appendChild(option);
+  });
 }
 
-// Show full article view
-function showArticle(article) {
-  articlesDiv.style.display = 'none';
-  paginationDiv.style.display = 'none';
-  articleView.style.display = 'block';
-  articleView.classList.add('active');
-  searchInput.style.display = 'none';
+articleDropdown.addEventListener('change', () => {
+  const selectedId = articleDropdown.value;
+  const article = allArticles.find(a => a.id === selectedId);
+  if (article) showArticle(article);
+});
 
-  title.textContent = article.title;
-  body.innerHTML = marked.parse(article.content);
-  image.src = article.image;
-  image.alt = article.title;
+// Show full article view, loading markdown dynamically
+async function showArticle(article) {
+  try {
+    const res = await fetch(`data/${article.id}.md`);
+    if (!res.ok) throw new Error('Markdown file not found');
+    const md = await res.text();
 
-  closeMenuOnMobile();
+    articlesDiv.style.display = 'none';
+    paginationDiv.style.display = 'none';
+    articleView.style.display = 'block';
+    searchInput.style.display = 'none';
+    articleDropdown.style.display = 'none';
+
+    title.textContent = article.title;
+    image.src = article.image;
+    image.alt = article.title;
+    body.innerHTML = marked.parse(md);
+  } catch (err) {
+    title.textContent = article.title;
+    image.src = article.image;
+    image.alt = article.title;
+    body.innerHTML = '<p style="color:#f66;">Error loading article content.</p>';
+  }
 }
 
-// Return to article list view
-backButton.addEventListener('click', () => {
+// Back button handler
+backToListBtn.addEventListener('click', () => {
   articleView.style.display = 'none';
-  articleView.classList.remove('active');
-  articlesDiv.style.display = 'block';
+  articlesDiv.style.display = 'grid';
   paginationDiv.style.display = 'flex';
   searchInput.style.display = 'block';
-  window.scrollTo(0, 0);
+  articleDropdown.style.display = 'inline-block';
+  body.innerHTML = '';
 });
 
-// Live search input
-searchInput.addEventListener('input', () => {
-  currentPage = 1;
-  renderArticles();
-});
-
-// Nav menu toggle
-menuToggleBtn.addEventListener('click', () => {
-  navMenu.classList.toggle('expanded');
-});
-
-// Close menu when selecting article on mobile
-function closeMenuOnMobile() {
-  if (window.innerWidth <= 768) {
-    navMenu.classList.remove('expanded');
-  }
-}
-
-// Theme toggle
-themeToggleBtn.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  updateThemeIcon();
-  saveThemePreference();
-});
-
-function updateThemeIcon() {
-  if (document.body.classList.contains('light')) {
-    themeToggleBtn.textContent = '🌞';
-  } else {
-    themeToggleBtn.textContent = '🌙';
-  }
-}
-
-function saveThemePreference() {
-  if (document.body.classList.contains('light')) {
-    localStorage.setItem('gadgetGuideTheme', 'light');
-  } else {
-    localStorage.removeItem('gadgetGuideTheme');
-  }
-}
-
-function loadThemePreference() {
-  const saved = localStorage.getItem('gadgetGuideTheme');
-  if (saved === 'light') {
-    document.body.classList.add('light');
-  }
-  updateThemeIcon();
-}
-
-// Load saved theme on start
-loadThemePreference();
+// Initialize site
+window.onload = async () => {
+  await loadLayout();
+  await loadArticles();
+};

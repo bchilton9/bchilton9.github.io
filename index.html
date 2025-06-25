@@ -4,46 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Gadget Guide</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <header>
-    <div class="nav-container">
-      <h1>The Gadget Guide</h1>
+  <div id="header-placeholder"></div>
 
-      <!-- Hamburger for mobile -->
-      <button id="menu-toggle" aria-label="Toggle menu">☰</button>
+  <main>
+    <input type="text" id="searchInput" placeholder="Search articles..." />
 
-      <!-- Nav content -->
-      <nav id="nav-menu" class="collapsed">
-        <select id="articleDropdown">
-          <option disabled selected>All Articles</option>
-        </select>
+    <select id="articleDropdown" aria-label="Select article to view"></select>
 
-        <input type="text" id="searchInput" placeholder="Search articles..." />
+    <section id="articles" class="articles-list"></section>
 
-        <button id="theme-toggle" aria-label="Toggle light/dark mode">🌙</button>
-      </nav>
-    </div>
-  </header>
-
-  <main id="content">
-    <!-- Article List -->
-    <div id="articles"></div>
     <div id="pagination"></div>
 
-    <!-- Single Article View -->
-    <div id="article-view" style="display:none;">
-      <button id="back-button">← Back</button>
-      <h2 id="article-title"></h2>
-      <img id="article-image" />
-      <div id="article-body"></div>
-    </div>
+    <section id="articleView" style="display:none;">
+      <button id="backToList">← Back to list</button>
+      <h1 id="articleTitle"></h1>
+      <img id="articleImage" alt="" style="max-width: 300px; width: 100%; border-radius:8px;" />
+      <div id="articleBody"></div>
+    </section>
   </main>
 
-  <footer>&copy; 2025 The Gadget Guide</footer>
+  <div id="footer-placeholder"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="main.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Markdown Editor - The Gadget Guide</title>
+  <style>
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    select, textarea, button {
+      font-family: monospace;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+    select {
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 1rem;
+      background: #222;
+      color: #eee;
+    }
+    textarea {
+      flex: 1;
+      min-height: 300px;
+      background: #1f1f1f;
+      color: #eee;
+      padding: 1rem;
+      resize: vertical;
+      margin-bottom: 1rem;
+      width: 100%;
+      border: 1px solid #444;
+    }
+    #preview {
+      flex: 1;
+      background: #222;
+      color: #eee;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-y: auto;
+      min-height: 300px;
+      border: 1px solid #444;
+      white-space: normal;
+    }
+    button {
+      background: #444;
+      color: #eee;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-right: 1rem;
+    }
+    button:hover {
+      background: #555;
+    }
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    .buttons-row {
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      button {
+        margin: 0 0 1rem 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Markdown Editor</h1>
+    <button id="closeBtn">Back to Site</button>
+  </header>
+
+  <select id="articleSelect" aria-label="Select Article"></select>
+
+  <textarea id="mdInput" placeholder="Start editing markdown here..."></textarea>
+
+  <div id="preview"></div>
+
+  <div class="buttons-row">
+    <button id="downloadBtn">Download Markdown</button>
+  </div>
+
+  <footer>
+    &copy; 2025 The Gadget Guide
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const articleSelect = document.getElementById('articleSelect');
+    const mdInput = document.getElementById('mdInput');
+    const preview = document.getElementById('preview');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    // Load articles list from JSON
+    async function loadArticlesList() {
+      try {
+        const res = await fetch('data/articles.json');
+        if (!res.ok) throw new Error('Failed to load articles.json');
+        const articles = await res.json();
+
+        // Populate dropdown
+        articleSelect.innerHTML = '';
+        articles.forEach(article => {
+          const option = document.createElement('option');
+          option.value = article.id;
+          option.textContent = article.title;
+          articleSelect.appendChild(option);
+        });
+
+        if (articles.length > 0) {
+          loadArticleMarkdown(articles[0].id);
+          articleSelect.value = articles[0].id;
+        }
+      } catch (e) {
+        alert('Error loading articles list: ' + e.message);
+      }
+    }
+
+    // Load markdown file for selected article
+    async function loadArticleMarkdown(articleId) {
+      try {
+        const res = await fetch(`data/${articleId}.md`);
+        if (!res.ok) throw new Error('Markdown file not found');
+        const md = await res.text();
+        mdInput.value = md;
+        renderPreview();
+      } catch (e) {
+        mdInput.value = `# Error\nCould not load markdown for article ID: ${articleId}`;
+        preview.innerHTML = '';
+      }
+    }
+
+    // Render markdown preview
+    function renderPreview() {
+      preview.innerHTML = marked.parse(mdInput.value);
+    }
+
+    // Event listeners
+    mdInput.addEventListener('input', renderPreview);
+
+    articleSelect.addEventListener('change', () => {
+      loadArticleMarkdown(articleSelect.value);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([mdInput.value], {type: 'text/markdown'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${articleSelect.value}.md`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    closeBtn.addEventListener('click', () => {
+      // Go back to your main site index.html
+      window.location.href = 'index.html';
+    });
+
+    // Initialize on load
+    loadArticlesList();
+  </script>
+
+</body>
+</html>

@@ -1,16 +1,20 @@
 [
   {
-    "id": "top-smartphones-2025",
-    "title": "Top Smartphones of 2025",
-    "summary": "A look at the most powerful and sleek smartphones of the year.",
-    "image": "https://via.placeholder.com/400x200",
-    "content": "### Features\\n- Foldable screens\\n- AI camera enhancements\\n- All-day battery life"
+    "id": "1",
+    "title": "Cool Gadget One",
+    "summary": "An amazing gadget that will change your life.",
+    "image": "images/gadget1.jpg"
   },
   {
-    "id": "laptop-trends",
-    "title": "Laptop Trends to Watch",
-    "summary": "The hottest laptop tech of the year.",
-    "image": "https://via.placeholder.com/400x200",
-    "content": "Thin, light, and fast -- the trifecta of 2025 laptop design."
+    "id": "2",
+    "title": "Tech Wonder Two",
+    "summary": "The second generation tech wonder is here.",
+    "image": "images/gadget2.jpg"
+  },
+  {
+    "id": "3",
+    "title": "Ultimate Device Three",
+    "summary": "Ultimate device with cutting-edge features.",
+    "image": "images/gadget3.jpg"
   }
 ]
