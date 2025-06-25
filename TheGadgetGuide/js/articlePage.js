@@ -15,7 +15,7 @@ async function loadArticle() {
   document.getElementById("articleTitle").textContent = article.title;
   document.getElementById("articleImage").src = article.image;
   document.getElementById("articleImage").alt = article.title;
-  document.getElementById("articleBody").textContent = article.content;
-}
 
-window.addEventListener("DOMContentLoaded", loadArticle);
+  // Convert markdown to HTML
+  document.getElementById("articleBody").innerHTML = marked.parse(article.content);
+}
