@@ -1,6 +1,9 @@
 <?php include("includes/header.php"); ?>
 <div class="container mt-5">
     <h1>Welcome to The Gadget Guide</h1>
-    <p>Your source for unbiased tech reviews, tips, and guides.</p>
+    <p>
+My goal here is to create simple to follow tutorials for setting up all your gadgets. I personally don’t like video tutorials because you have to pause switch to whatever you’re working on switch back play. Then you can’t copy and paste from the video. These are all going to be text based with pictures and commands you can copy and paste plus links to the software or websites you will need. I’m going to make them as simple as I can so both the geeks like me and non tech people can follow them. 
+This is still a work in progress. There may be some mistakes and missing information. 
+I will be adding more guides soon. Thank you for visiting. </p>
 </div>
 <?php include("includes/footer.php"); ?>
