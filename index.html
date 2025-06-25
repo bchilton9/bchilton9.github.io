@@ -1,12 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Gadget Guide</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
 <body>
-  <div id="header"></div>
+  <header>
+    <div class="nav">
+      <h1>The Gadget Guide</h1>
+      <nav>
+        <select id="articleDropdown">
+          <option disabled selected>All Articles</option>
+        </select>
+      </nav>
+    </div>
+  </header>
 
   <main id="content">
-    <!-- Search -->
     <input type="text" id="searchInput" placeholder="Search articles..." />
-
+    
     <!-- Article List -->
     <div id="articles"></div>
+    <div id="pagination"></div>
 
     <!-- Single Article View -->
     <div id="article-view" style="display:none;">
@@ -17,8 +34,9 @@
     </div>
   </main>
 
-  <div id="footer"></div>
+  <footer>&copy; 2025 The Gadget Guide</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="js/main.js"></script>
 </body>
+</html>
