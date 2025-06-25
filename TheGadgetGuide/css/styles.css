@@ -9,3 +9,8 @@ a {
 a:hover {
     color: #0bb4d4;
 }
+.nav-link.active {
+  font-weight: bold;
+  color: #0dcaf0 !important;
+  border-bottom: 2px solid #0dcaf0;
+}
