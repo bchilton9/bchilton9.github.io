@@ -146,3 +146,26 @@ window.onload = async () => {
   await loadLayout();
   await loadArticles();
 };
+// Theme toggle
+const modeToggle = document.getElementById('modeToggle');
+const isLight = localStorage.getItem('theme') === 'light';
+
+if (isLight) {
+  document.body.classList.add('light-mode');
+  modeToggle.textContent = '🌞';
+}
+
+modeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  modeToggle.textContent = isLight ? '🌞' : '🌙';
+});
+
+// Hamburger menu toggle
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+});

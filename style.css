@@ -82,3 +82,88 @@ button#backToList {
 button#backToList:hover {
   background: #666;
 }
+/* Light/dark themes */
+body.light-mode {
+  background: #f2f2f2;
+  color: #111;
+}
+body.light-mode input,
+body.light-mode select,
+body.light-mode textarea {
+  background: #fff;
+  color: #111;
+}
+body.light-mode .article-card {
+  background: #eee;
+}
+body.light-mode #articleView {
+  background: #fff;
+}
+body.light-mode .site-header {
+  background: #ffffff;
+  color: #111;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Header styles */
+.site-header {
+  background: #0a84ff;
+  color: white;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #0a74d4;
+}
+.site-header .container {
+  max-width: 960px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.site-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
+.nav-links a:hover {
+  text-decoration: underline;
+}
+.menu-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#modeToggle, #menuToggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: white;
+}
+
+/* Responsive nav toggle */
+@media (max-width: 700px) {
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    flex-direction: column;
+    background: #0a84ff;
+    padding: 1rem;
+    border-radius: 8px;
+    display: none;
+    transition: opacity 0.3s ease;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+}
+
