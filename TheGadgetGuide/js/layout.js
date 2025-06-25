@@ -9,24 +9,22 @@ async function loadLayoutPart(id, url) {
 
   if (id === "header") {
     highlightActiveNavLink();
+    loadDropdownArticles();
   }
 }
 
-function highlightActiveNavLink() {
-  const current = window.location.pathname.split("/").pop();
-  const links = document.querySelectorAll("#header a.nav-link");
+async function loadDropdownArticles() {
+  try {
+    const res = await fetch("data/articles.json");
+    const articles = await res.json();
+    const menu = document.getElementById("articlesMenu");
 
-  links.forEach(link => {
-    const page = link.getAttribute("data-page");
-    if (page === current || (current === "" && page === "index.html")) {
-      link.classList.add("active");
-    } else {
-      link.classList.remove("active");
-    }
-  });
+    articles.forEach(article => {
+      const item = document.createElement("li");
+      item.innerHTML = `<a class="dropdown-item" href="${article.url}">${article.title}</a>`;
+      menu.appendChild(item);
+    });
+  } catch (err) {
+    console.error("Failed to load article list:", err);
+  }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  loadLayoutPart("header", "partials/header.html");
-  loadLayoutPart("footer", "partials/footer.html");
-});
