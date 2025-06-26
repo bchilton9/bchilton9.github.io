@@ -9,95 +9,169 @@
   <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
 
   <style>
+    /* Reset and base */
     body {
       font-family: system-ui, sans-serif;
       background: #111;
       color: #eee;
       margin: 0;
-      padding: 0 1rem 2rem;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-height: 100vh;
+      max-width: 100vw;
+      overflow-x: hidden;
     }
+
     #header-placeholder {
       margin-bottom: 1rem;
     }
+
+    h1 {
+      margin-bottom: 1rem;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #0af;
+    }
+
     label {
       display: block;
       margin: 1rem 0 0.3rem 0;
-      font-weight: bold;
+      font-weight: 600;
+      color: #aaf;
     }
+
     input[type=text], select {
       width: 100%;
-      max-width: 400px;
-      padding: 0.4rem 0.6rem;
+      max-width: 600px;
+      padding: 0.5rem 0.75rem;
       font-size: 1rem;
-      border-radius: 4px;
+      border-radius: 5px;
       border: 1px solid #444;
       background: #222;
       color: #eee;
+      transition: border-color 0.2s ease;
     }
+    input[type=text]:focus, select:focus {
+      outline: none;
+      border-color: #0af;
+      background: #1a1a3d;
+    }
+
     #categoryCheckboxes label {
       cursor: pointer;
       display: inline-block;
-      margin-right: 1rem;
+      margin-right: 1.25rem;
       font-weight: normal;
       user-select: none;
+      color: #ccddee;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
     }
     #categoryCheckboxes input[type=checkbox] {
-      margin-right: 0.3rem;
+      margin-right: 0.4rem;
       cursor: pointer;
+      transform: scale(1.1);
+      vertical-align: middle;
     }
+
+    #newCategory {
+      max-width: 300px;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      display: inline-block;
+    }
+
+    #addCategoryBtn {
+      background: #0af;
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #addCategoryBtn:hover {
+      background: #09e;
+    }
+
     #quillEditor {
-      height: 280px;
-      background: white;
-      color: black;
+      height: 320px;
+      max-width: 100%;
       border-radius: 6px;
       margin-top: 0.5rem;
+      background: white;
+      color: black;
+      box-shadow: 0 0 8px rgba(10, 170, 255, 0.3);
     }
-    #markdownContent, #jsonOutput {
+
+    pre#markdownContent,
+    pre#jsonOutput {
       background: #222;
       color: #eee;
-      padding: 1rem;
-      border-radius: 6px;
+      padding: 1rem 1.5rem 1.5rem 1rem;
+      border-radius: 8px;
       white-space: pre-wrap;
-      max-height: 300px;
+      max-height: 320px;
       overflow-y: auto;
-      font-family: monospace;
+      font-family: 'Source Code Pro', monospace, monospace;
       font-size: 0.9rem;
       margin-top: 1rem;
       position: relative;
+      user-select: text;
+      box-shadow: 0 0 6px rgba(0,0,0,0.5);
     }
+
     .copy-corner-btn {
       position: absolute;
-      top: 5px;
-      right: 5px;
+      top: 8px;
+      right: 8px;
       background: #0af;
       border: none;
       color: white;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.8rem;
       cursor: pointer;
-      z-index: 10;
+      font-weight: 700;
+      box-shadow: 0 0 6px rgba(10,170,255,0.7);
+      user-select: none;
+      transition: background-color 0.2s ease;
+      z-index: 20;
     }
-    button {
+    .copy-corner-btn:hover {
+      background: #09e;
+    }
+
+    button#downloadMd,
+    button#downloadJson {
       background: #0af;
       border: none;
-      padding: 0.5rem 1rem;
+      padding: 0.7rem 1.3rem;
       border-radius: 6px;
       color: white;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 1rem;
-      margin-right: 0.5rem;
+      margin-top: 1.25rem;
+      margin-right: 0.8rem;
+      box-shadow: 0 0 8px rgba(10, 170, 255, 0.4);
+      transition: background-color 0.2s ease;
     }
-    @media (max-width: 600px) {
-      #quillEditor {
-        height: 200px;
-      }
-      input[type=text], select {
+    button#downloadMd:hover,
+    button#downloadJson:hover {
+      background: #09e;
+    }
+
+    @media (max-width: 700px) {
+      input[type=text], select, #newCategory {
         max-width: 100%;
+      }
+      #quillEditor {
+        height: 220px;
+      }
+      pre#markdownContent,
+      pre#jsonOutput {
+        max-height: 240px;
       }
     }
   </style>
@@ -114,37 +188,37 @@
   </select>
 
   <label for="id">Article ID</label>
-  <input type="text" id="id" placeholder="Unique article ID" />
+  <input type="text" id="id" placeholder="Unique article ID" autocomplete="off" />
 
   <label for="title">Title</label>
-  <input type="text" id="title" placeholder="Article Title" />
+  <input type="text" id="title" placeholder="Article Title" autocomplete="off" />
 
   <label for="summary">Summary</label>
-  <input type="text" id="summary" placeholder="Brief summary" />
+  <input type="text" id="summary" placeholder="Brief summary" autocomplete="off" />
 
   <label for="image">Image URL</label>
-  <input type="text" id="image" placeholder="Image path or URL" />
+  <input type="text" id="image" placeholder="Image path or URL" autocomplete="off" />
 
   <label>Categories</label>
-  <div id="categoryCheckboxes"></div>
-  <input type="text" id="newCategory" placeholder="Add new category" />
-  <button id="addCategoryBtn" type="button">Add Category</button>
+  <div id="categoryCheckboxes" aria-label="Category selection"></div>
+  <input type="text" id="newCategory" placeholder="Add new category" autocomplete="off" />
+  <button id="addCategoryBtn" type="button" aria-label="Add new category">Add Category</button>
 
   <label for="quillEditor">Content Editor (WYSIWYG)</label>
-  <div id="quillEditor"></div>
+  <div id="quillEditor" role="textbox" aria-multiline="true" tabindex="0"></div>
 
   <label for="markdownContent">Markdown Output</label>
-  <pre id="markdownContent">
-    <button class="copy-corner-btn" id="copyMarkdownBtn" title="Copy Markdown">Copy</button>
+  <pre id="markdownContent" tabindex="0" aria-label="Markdown output">
+    <button class="copy-corner-btn" id="copyMarkdownBtn" title="Copy Markdown to clipboard">Copy</button>
   </pre>
 
   <label for="jsonOutput">JSON Output (All Articles)</label>
-  <pre id="jsonOutput">
-    <button class="copy-corner-btn" id="copyJsonBtn" title="Copy JSON">Copy</button>
+  <pre id="jsonOutput" tabindex="0" aria-label="JSON output">
+    <button class="copy-corner-btn" id="copyJsonBtn" title="Copy JSON to clipboard">Copy</button>
   </pre>
 
-  <button id="downloadMd">Download Markdown (.md)</button>
-  <button id="downloadJson">Download JSON (articles.json)</button>
+  <button id="downloadMd" type="button">Download Markdown (.md)</button>
+  <button id="downloadJson" type="button">Download JSON (articles.json)</button>
 
   <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -178,7 +252,7 @@
     const downloadMdBtn = document.getElementById('downloadMd');
     const downloadJsonBtn = document.getElementById('downloadJson');
 
-    // Quill init
+    // Initialize Quill editor
     const quill = new Quill('#quillEditor', {
       theme: 'snow',
       modules: {
@@ -192,7 +266,7 @@
       }
     });
 
-    // Helper: build article JSON from fields
+    // Build JSON object for current article
     function buildArticleJson() {
       const selectedCategories = Array.from(categoryCheckboxes.querySelectorAll('input[type=checkbox]:checked'))
         .map(cb => cb.value);
@@ -212,13 +286,6 @@
       allArticles.forEach(a => {
         (a.categories || []).forEach(c => cats.add(c));
       });
-
-      // Add currently selected categories too (in case new article)
-      const currentCats = new Set(
-        categoryCheckboxes.querySelectorAll('input[type=checkbox]')
-          .forEach(cb => cats.add(cb.value))
-      );
-
       categoryCheckboxes.innerHTML = '';
       Array.from(cats).sort().forEach(cat => {
         const label = document.createElement('label');
@@ -242,7 +309,7 @@
       });
     }
 
-    // Load markdown text from article id
+    // Load markdown content from article markdown file
     async function loadArticleMarkdown(articleId) {
       try {
         const res = await fetch(`articles/${articleId}.md`);
@@ -253,7 +320,7 @@
       }
     }
 
-    // Load article data into form and quill
+    // Load article into form and quill editor
     async function loadArticle(articleId) {
       if (!articleId) {
         clearForm();
@@ -277,14 +344,13 @@
       });
 
       const md = await loadArticleMarkdown(article.id);
-      // Convert markdown to HTML and load into Quill
       const html = marked.parse(md || '');
       quill.root.innerHTML = html;
       updateMarkdownOutput();
       updateJsonOutput();
     }
 
-    // Clear form inputs and editor
+    // Clear all inputs and editor
     function clearForm() {
       idInput.value = '';
       titleInput.value = '';
@@ -296,7 +362,7 @@
       updateJsonOutput();
     }
 
-    // Update markdown preview from quill editor
+    // Update markdown output area from Quill content
     function updateMarkdownOutput() {
       const html = quill.root.innerHTML;
       const turndownService = new TurndownService();
@@ -304,24 +370,22 @@
       markdownContent.textContent = md.trim();
     }
 
-    // Update JSON output with current article merged into allArticles
+    // Update JSON output with current article merged
     function updateJsonOutput() {
       const currentArticle = buildArticleJson();
       if (!currentArticle.id) {
         jsonOutput.textContent = JSON.stringify(allArticles, null, 2);
         return;
       }
-
-      // Remove any old article with same id, then add current article
       const updated = allArticles.filter(a => a.id !== currentArticle.id);
       updated.push(currentArticle);
       jsonOutput.textContent = JSON.stringify(updated, null, 2);
     }
 
-    // Copy helpers
+    // Copy helper (supports fallback)
     function copyText(text) {
       if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+        navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
       } else {
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -332,31 +396,31 @@
         ta.select();
         try {
           document.execCommand('copy');
-          alert('Copied!');
+          alert('Copied to clipboard!');
         } catch {
-          alert('Copy failed');
+          alert('Failed to copy');
         }
         document.body.removeChild(ta);
       }
     }
 
-    // Event Listeners
+    // Event listeners
 
-    // On article loader change
+    // Load article when selection changes
     articleLoader.addEventListener('change', e => {
       loadArticle(e.target.value);
     });
 
-    // Add new category button
+    // Add new category
     addCategoryBtn.addEventListener('click', () => {
       const newCat = newCategoryInput.value.trim();
-      if (!newCat) return alert('Please enter a category name');
-      // Check if category exists
-      if ([...categoryCheckboxes.querySelectorAll('input')].some(cb => cb.value.toLowerCase() === newCat.toLowerCase())) {
-        alert('Category already exists');
+      if (!newCat) return alert('Please enter a category name.');
+      const exists = Array.from(categoryCheckboxes.querySelectorAll('input'))
+        .some(cb => cb.value.toLowerCase() === newCat.toLowerCase());
+      if (exists) {
+        alert('Category already exists.');
         return;
       }
-      // Add new checkbox
       const label = document.createElement('label');
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -366,15 +430,16 @@
       label.appendChild(document.createTextNode(newCat));
       categoryCheckboxes.appendChild(label);
       newCategoryInput.value = '';
+      updateJsonOutput();
     });
 
-    // Update markdown and JSON on Quill text change
+    // Update markdown & JSON on Quill text change
     quill.on('text-change', () => {
       updateMarkdownOutput();
       updateJsonOutput();
     });
 
-    // Update JSON output on input changes
+    // Update JSON on form changes
     [idInput, titleInput, summaryInput, imageInput, categoryCheckboxes].forEach(el => {
       el.addEventListener('input', updateJsonOutput);
       el.addEventListener('change', updateJsonOutput);
@@ -384,12 +449,11 @@
     copyMarkdownBtn.addEventListener('click', () => {
       copyText(markdownContent.textContent);
     });
-
     copyJsonBtn.addEventListener('click', () => {
       copyText(jsonOutput.textContent);
     });
 
-    // Download buttons
+    // Download markdown
     downloadMdBtn.addEventListener('click', () => {
       const filename = (idInput.value.trim() || 'article') + '.md';
       const blob = new Blob([markdownContent.textContent], {type: 'text/markdown'});
@@ -401,6 +465,7 @@
       URL.revokeObjectURL(url);
     });
 
+    // Download JSON
     downloadJsonBtn.addEventListener('click', () => {
       const blob = new Blob([jsonOutput.textContent], {type: 'application/json'});
       const url = URL.createObjectURL(blob);
@@ -411,7 +476,7 @@
       URL.revokeObjectURL(url);
     });
 
-    // Initial load articles.json
+    // Load articles.json on start
     fetch('articles.json')
       .then(r => r.json())
       .then(data => {
