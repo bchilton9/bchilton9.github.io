@@ -5,23 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Gadget Guide</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <div id="header-placeholder"></div>
 
   <main>
-    <input type="text" id="searchBox" placeholder="Search articles..." />
-    <div id="categoryFilters" class="category-filters"></div> 
-    <div id="articles"></div>
-    <div id="articleContent" class="article-viewer" style="display: none;"></div>
-    <button id="backButton" style="display: none;">← Back to list</button>
-    <div id="pagination" class="pagination"></div>
+    <input
+      type="search"
+      id="searchBox"
+      placeholder="Search articles..."
+      aria-label="Search articles"
+    />
+
+    <nav class="category-filters" id="categoryFilters" aria-label="Article categories">
+      <!-- Buttons added by JS -->
+    </nav>
+
+    <section id="articles" aria-live="polite" aria-atomic="true">
+      <!-- Article summaries loaded here -->
+    </section>
+
+    <section id="articleContent" class="article-viewer" style="display:none;"></section>
+
+    <div class="pagination" id="pagination"></div>
+
+    <button id="backButton" style="display:none;">← Back to Articles</button>
   </main>
 
   <div id="footer-placeholder"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="main.js"></script>
+  <script src="main.js" defer></script>
 </body>
 </html>
-
