@@ -34,6 +34,12 @@ input[type="text"], select, textarea {
   margin-top: 0.25rem;
 }
 
+textarea[readonly] {
+  background: #111;
+  color: #aaa;
+  font-family: monospace;
+}
+
 .export-buttons {
   margin-top: 1rem;
   display: flex;
@@ -50,17 +56,4 @@ input[type="text"], select, textarea {
   cursor: pointer;
   flex-grow: 1;
   min-width: 140px;
-}
-
-#articleListDisplay {
-  margin-top: 1rem;
-  color: #aaa;
-  white-space: pre-wrap;
-  background: #222;
-  padding: 1rem;
-  border-radius: 6px;
-  max-height: 300px;
-  overflow-y: auto;
-  font-family: monospace;
-  font-size: 0.9rem;
 }

@@ -22,6 +22,7 @@ const quill = new Quill('#quillEditor', {
 let allArticles = [];
 let allCategories = new Set();
 
+const articleSelect = document.getElementById("articleSelect");
 const idInput = document.getElementById("idInput");
 const titleInput = document.getElementById("titleInput");
 const summaryInput = document.getElementById("summaryInput");
@@ -29,9 +30,10 @@ const imageInput = document.getElementById("imageInput");
 const categoriesSelect = document.getElementById("categoriesSelect");
 const newCategoryInput = document.getElementById("newCategoryInput");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
-const articleListDisplay = document.getElementById("articleListDisplay");
 
-// Load articles.json and populate categories
+const markdownOutput = document.getElementById("markdownOutput");
+const jsonOutput = document.getElementById("jsonOutput");
+
 async function loadArticles() {
   try {
     const res = await fetch("articles.json");
@@ -41,6 +43,7 @@ async function loadArticles() {
     allArticles.forEach(a => a.categories.forEach(c => allCategories.add(c)));
 
     populateCategories();
+    populateArticleSelect();
     displayArticleList();
   } catch (e) {
     console.error("Failed to load articles.json", e);
@@ -58,6 +61,63 @@ function populateCategories() {
   });
 }
 
+function populateArticleSelect() {
+  articleSelect.innerHTML = '<option value="">➕ New Article</option>';
+  allArticles.forEach(article => {
+    const option = document.createElement("option");
+    option.value = article.id;
+    option.textContent = article.title;
+    articleSelect.appendChild(option);
+  });
+}
+
+// When user selects article from dropdown, populate form + editor
+articleSelect.addEventListener("change", () => {
+  const id = articleSelect.value;
+  if (!id) {
+    clearForm();
+    return;
+  }
+  const article = allArticles.find(a => a.id === id);
+  if (!article) return;
+
+  idInput.value = article.id;
+  titleInput.value = article.title;
+  summaryInput.value = article.summary;
+  imageInput.value = article.image || "";
+
+  // Select categories
+  Array.from(categoriesSelect.options).forEach(opt => {
+    opt.selected = article.categories.includes(opt.value);
+  });
+
+  // Load markdown content from articles folder and set in editor
+  fetch(`articles/${id}.md`)
+    .then(res => res.text())
+    .then(md => {
+      quill.setText(""); // Clear first
+      quill.clipboard.dangerouslyPasteHTML(marked.parse(md));
+      updateMarkdownOutput(md);
+      updateJsonOutput();
+    })
+    .catch(() => {
+      quill.setText("");
+      updateMarkdownOutput("");
+      updateJsonOutput();
+    });
+});
+
+function clearForm() {
+  idInput.value = "";
+  titleInput.value = "";
+  summaryInput.value = "";
+  imageInput.value = "";
+  Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
+  quill.setText("");
+  updateMarkdownOutput("");
+  updateJsonOutput();
+}
+
 addCategoryBtn.addEventListener("click", () => {
   const newCat = newCategoryInput.value.trim();
   if (newCat && !allCategories.has(newCat)) {
@@ -71,50 +131,6 @@ addCategoryBtn.addEventListener("click", () => {
   }
 });
 
-// Load article data by ID
-idInput.addEventListener("change", () => {
-  const id = idInput.value.trim();
-  if (!id) {
-    clearForm();
-    return;
-  }
-  const article = allArticles.find(a => a.id === id);
-  if (article) {
-    titleInput.value = article.title;
-    summaryInput.value = article.summary;
-    imageInput.value = article.image || "";
-    // Select categories
-    Array.from(categoriesSelect.options).forEach(opt => {
-      opt.selected = article.categories.includes(opt.value);
-    });
-
-    // Load markdown content from articles folder
-    fetch(`articles/${id}.md`)
-      .then(res => res.text())
-      .then(md => {
-        // Load markdown into Quill by converting markdown to HTML
-        quill.setText(""); // clear first
-        quill.clipboard.dangerouslyPasteHTML(marked.parse(md));
-      })
-      .catch(() => quill.setText(""));
-  } else {
-    titleInput.value = "";
-    summaryInput.value = "";
-    imageInput.value = "";
-    Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
-    quill.setText("");
-  }
-});
-
-function clearForm() {
-  idInput.value = "";
-  titleInput.value = "";
-  summaryInput.value = "";
-  imageInput.value = "";
-  Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
-  quill.setText("");
-}
-
 function buildArticleJson() {
   return {
     id: idInput.value.trim(),
@@ -125,7 +141,6 @@ function buildArticleJson() {
   };
 }
 
-// Convert Quill HTML content to Markdown (basic)
 function quillToMarkdown() {
   const html = quill.root.innerHTML;
   const tempDiv = document.createElement('div');
@@ -162,6 +177,27 @@ function quillToMarkdown() {
   return nodeToMarkdown(tempDiv);
 }
 
+function updateMarkdownOutput(md) {
+  markdownOutput.value = md || quillToMarkdown();
+}
+
+function updateJsonOutput() {
+  const newArticle = buildArticleJson();
+  const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+  jsonOutput.value = JSON.stringify(updated, null, 2);
+}
+
+// Sync Markdown output when Quill content changes
+quill.on('text-change', () => {
+  updateMarkdownOutput();
+  updateJsonOutput();
+});
+
+// Sync JSON output when any input changes
+[idInput, titleInput, summaryInput, imageInput, categoriesSelect].forEach(el =>
+  el.addEventListener('input', updateJsonOutput)
+);
+
 document.getElementById("downloadMdBtn").addEventListener("click", () => {
   const id = idInput.value.trim();
   if (!id) {
@@ -182,21 +218,13 @@ document.getElementById("copyMdBtn").addEventListener("click", () => {
 });
 
 document.getElementById("copyJsonBtn").addEventListener("click", () => {
-  const newArticle = buildArticleJson();
-  const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-  navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => alert("JSON copied!"));
+  navigator.clipboard.writeText(jsonOutput.value).then(() => alert("JSON copied!"));
 });
 
 document.getElementById("downloadJsonBtn").addEventListener("click", () => {
-  const newArticle = buildArticleJson();
-  const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-  const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+  const blob = new Blob([jsonOutput.value], { type: "application/json" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = "articles.json";
   link.click();
 });
-
-function displayArticleList() {
-  articleListDisplay.textContent = JSON.stringify(allArticles, null, 2);
-}
