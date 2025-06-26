@@ -1,3 +1,4 @@
+<!-- Save this as editor.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -45,10 +47,11 @@
       display: block;
     }
 
-    #title, #summary, #image, #categories {
+    #title, #summary, #image, #categories, #id {
       width: 100%;
       padding: 0.5rem;
       margin-bottom: 1rem;
+      font-size: 1rem;
     }
 
     textarea, input, select {
@@ -104,10 +107,77 @@
         height: 200px;
       }
     }
+
+    /* Minimal header and menu for embedded use */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1e1e2f;
+      color: white;
+      padding: 0.75rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .site-logo {
+      height: 40px;
+      border-radius: 6px;
+    }
+
+    .menu-icons button {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .nav-links {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      width: 260px;
+      height: 100vh;
+      background: #222;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+      z-index: 999;
+    }
+
+    .nav-links.open {
+      transform: translateX(0);
+    }
+
+    .nav-links a {
+      display: block;
+      padding: 0.5rem;
+      color: #ddd;
+      text-decoration: none;
+      border-bottom: 1px solid #444;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      background: #333;
+      color: #fff;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <div id="header-placeholder"></div>
+  <header>
+    <a href="index.html"><img id="siteLogo" src="images/logo-dark.png" alt="Logo" class="site-logo" /></a>
+    <div class="menu-icons">
+      <button id="menuToggle" title="Menu">☰</button>
+    </div>
+  </header>
+
+  <nav class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+  </nav>
 
   <main>
     <h2>🛠️ Article Editor</h2>
@@ -150,14 +220,21 @@
     </div>
   </main>
 
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
   <script>
-    // Load header
-    fetch("header.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("header-placeholder").innerHTML = html;
-      });
+    // Hamburger menu
+    function initHeaderScripts() {
+      const menuToggle = document.getElementById("menuToggle");
+      const navLinks = document.getElementById("navLinks");
+      if (menuToggle && navLinks) {
+        menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
+        document.addEventListener("click", (e) => {
+          if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
+            navLinks.classList.remove("open");
+          }
+        });
+      }
+    }
+    initHeaderScripts();
 
     // Tabs
     document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -243,7 +320,7 @@
 
     document.getElementById("downloadMd").addEventListener("click", () => {
       const id = document.getElementById("id").value.trim();
-      const md = document.getElementById("markdownEditor").value;
+      const md = wysiwyg.value;
       const blob = new Blob([md], { type: "text/markdown" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -252,7 +329,7 @@
     });
 
     document.getElementById("copyMd").addEventListener("click", () => {
-      const md = document.getElementById("markdownEditor").value;
+      const md = wysiwyg.value;
       navigator.clipboard.writeText(md).then(() => {
         alert("Markdown copied!");
       });
