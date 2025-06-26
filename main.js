@@ -47,7 +47,7 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Load all articles and categories
+// Load and display articles
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
@@ -57,28 +57,28 @@ function loadArticles() {
       const filterContainer = document.getElementById('categoryFilters');
 
       const allCategories = new Set();
-
-      data.forEach(article => {
-        article.categories.forEach(cat => allCategories.add(cat));
-      });
-
+      data.forEach(article => article.categories.forEach(cat => allCategories.add(cat)));
       const sortedCats = Array.from(allCategories).sort();
 
-      // Build nav menu
+      // Render side menu as buttons for iOS compatibility
       menuList.innerHTML = '';
       sortedCats.forEach(cat => {
-        const link = document.createElement('a');
-        link.href = `?cat=${encodeURIComponent(cat)}`;
-        link.textContent = cat;
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
+        const btn = document.createElement('button');
+        btn.className = 'nav-cat-btn';
+        btn.textContent = cat;
+        btn.addEventListener('click', () => {
           filterByCategory(cat);
           history.replaceState(null, '', `?cat=${encodeURIComponent(cat)}`);
+          document.getElementById('navLinks').classList.remove('open');
         });
-        menuList.appendChild(link);
+        btn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          filterByCategory(cat);
+        });
+        menuList.appendChild(btn);
       });
 
-      // Build filter buttons
+      // Filter buttons
       filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
       sortedCats.forEach(cat => {
         const btn = document.createElement('button');
@@ -102,6 +102,7 @@ function loadArticles() {
       const initialCat = urlParams.get('cat') || 'all';
       filterByCategory(initialCat);
 
+      // Load hash-based article if present
       const hash = window.location.hash.slice(1);
       if (hash) {
         setTimeout(() => loadMarkdown(hash), 300);
@@ -109,7 +110,6 @@ function loadArticles() {
     });
 }
 
-// Render a page of articles
 function renderArticles(articles) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
@@ -134,15 +134,12 @@ function renderArticles(articles) {
     container.appendChild(card);
   });
 
-  // Pagination controls
   renderPagination(articles.length);
 
-  // Read more buttons
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
   });
 
-  // Share buttons
   document.querySelectorAll('.shareLink').forEach(btn => {
     btn.addEventListener('click', () => {
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
@@ -156,7 +153,6 @@ function renderArticles(articles) {
   });
 }
 
-// Pagination UI
 function renderPagination(totalCount) {
   const container = document.getElementById('articles');
   const totalPages = Math.ceil(totalCount / articlesPerPage);
@@ -169,7 +165,7 @@ function renderPagination(totalCount) {
   prev.disabled = currentPage === 1;
   prev.onclick = () => {
     currentPage--;
-    updateView();
+    setTimeout(updateView, 0); // ensures iOS applies changes
   };
 
   const next = document.createElement('button');
@@ -177,7 +173,7 @@ function renderPagination(totalCount) {
   next.disabled = currentPage === totalPages;
   next.onclick = () => {
     currentPage++;
-    updateView();
+    setTimeout(updateView, 0);
   };
 
   nav.appendChild(prev);
@@ -185,13 +181,11 @@ function renderPagination(totalCount) {
   container.appendChild(nav);
 }
 
-// Update article view
 function updateView() {
   const selected = document.querySelector('.category-filters button.active')?.dataset.cat || 'all';
   filterByCategory(selected);
 }
 
-// Filter by category
 function filterByCategory(cat) {
   currentPage = 1;
   let filtered = allArticles;
@@ -203,7 +197,6 @@ function filterByCategory(cat) {
   renderArticles(filtered);
 }
 
-// Load markdown article
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => res.text())
@@ -233,7 +226,6 @@ function loadMarkdown(id) {
     });
 }
 
-// Back to list
 document.getElementById('backButton').addEventListener('click', () => {
   document.getElementById('articles').style.display = 'block';
   document.getElementById('searchBox').style.display = 'block';
@@ -244,7 +236,6 @@ document.getElementById('backButton').addEventListener('click', () => {
   updateView();
 });
 
-// Search box
 document.addEventListener('input', e => {
   if (e.target.id === 'searchBox') {
     const term = e.target.value.toLowerCase();
