@@ -35,6 +35,23 @@
       color: #fff;
     }
 
+    .checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkboxes label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: #1e1e2f;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: normal;
+    }
+
     .ql-container {
       background: #fff;
       color: #000;
@@ -48,6 +65,8 @@
       border-radius: 6px;
       margin-top: 1rem;
       overflow-x: auto;
+      max-height: 400px;
+      white-space: pre-wrap;
     }
 
     .output-box button.copy-btn {
@@ -114,8 +133,9 @@
     <label for="image">Image URL</label>
     <input id="image" type="text" />
 
-    <label for="categories">Categories (comma separated)</label>
-    <input id="categories" type="text" placeholder="e.g. Steam Deck, Gaming" />
+    <label>Categories</label>
+    <div class="checkboxes" id="categoryCheckboxes"></div>
+    <input type="text" id="newCategory" placeholder="Add new category and press Enter" />
 
     <label>WYSIWYG Editor</label>
     <div id="editor" style="background:#fff; color:#000;"></div>
@@ -125,11 +145,13 @@
       <button onclick="downloadJSON()">Download JSON</button>
     </div>
 
+    <label>Markdown Output</label>
     <div class="output-box">
       <button class="copy-btn" onclick="copyOutput('markdownOutput')">Copy</button>
       <code id="markdownOutput"></code>
     </div>
 
+    <label>JSON Output</label>
     <div class="output-box">
       <button class="copy-btn" onclick="copyOutput('jsonOutput')">Copy</button>
       <code id="jsonOutput"></code>
@@ -140,22 +162,23 @@
   <script>
     // Load header.html
     fetch("header.html")
-      .then((res) => res.text())
-      .then((html) => {
+      .then(res => res.text())
+      .then(html => {
         document.getElementById("header-placeholder").innerHTML = html;
       });
 
-    const quill = new Quill("#editor", {
-      theme: "snow"
-    });
+    const quill = new Quill("#editor", { theme: "snow" });
 
-    // Load existing articles.json
     let allArticles = [];
+    let allCategories = new Set();
+
     fetch("articles.json")
       .then(res => res.json())
       .then(data => {
         allArticles = data;
         populateArticleSelect();
+        gatherCategories(data);
+        renderCategoryCheckboxes();
       });
 
     function populateArticleSelect() {
@@ -168,6 +191,37 @@
       });
     }
 
+    function gatherCategories(data) {
+      data.forEach(article => {
+        article.categories.forEach(cat => allCategories.add(cat));
+      });
+    }
+
+    function renderCategoryCheckboxes() {
+      const container = document.getElementById("categoryCheckboxes");
+      container.innerHTML = "";
+      [...allCategories].sort().forEach(cat => {
+        const label = document.createElement("label");
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.value = cat;
+        label.appendChild(box);
+        label.append(" " + cat);
+        container.appendChild(label);
+      });
+    }
+
+    document.getElementById("newCategory").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const newCat = e.target.value.trim();
+        if (newCat && !allCategories.has(newCat)) {
+          allCategories.add(newCat);
+          renderCategoryCheckboxes();
+        }
+        e.target.value = "";
+      }
+    });
+
     document.getElementById("articleSelect").addEventListener("change", (e) => {
       const id = e.target.value;
       if (!id) return;
@@ -179,7 +233,12 @@
       document.getElementById("title").value = article.title;
       document.getElementById("summary").value = article.summary;
       document.getElementById("image").value = article.image;
-      document.getElementById("categories").value = article.categories.join(", ");
+
+      renderCategoryCheckboxes();
+      const checkboxes = document.querySelectorAll("#categoryCheckboxes input");
+      checkboxes.forEach(cb => {
+        cb.checked = article.categories.includes(cb.value);
+      });
 
       fetch(`articles/${id}.md`)
         .then(res => res.text())
@@ -190,16 +249,20 @@
         });
     });
 
+    function getSelectedCategories() {
+      const checkboxes = document.querySelectorAll("#categoryCheckboxes input");
+      return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+    }
+
     function updateJSONPreview() {
       const article = {
         id: document.getElementById("id").value.trim(),
         title: document.getElementById("title").value.trim(),
         summary: document.getElementById("summary").value.trim(),
         image: document.getElementById("image").value.trim(),
-        categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
+        categories: getSelectedCategories()
       };
-      const json = JSON.stringify(article, null, 2);
-      document.getElementById("jsonOutput").textContent = json;
+      document.getElementById("jsonOutput").textContent = JSON.stringify(article, null, 2);
     }
 
     function downloadMarkdown() {
