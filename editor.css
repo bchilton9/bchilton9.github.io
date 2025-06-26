@@ -1,3 +1,18 @@
+/* Editor specific styles */
+
+body {
+  background: #111;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  margin: 0;
+}
+
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 1rem;
+}
+
 .editor-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -23,22 +38,28 @@
 
 .tab-content {
   display: none;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .tab-content.active {
   display: block;
 }
 
-textarea, input {
+input, textarea, select {
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 1rem;
-  background: #1e1e2f;
-  color: white;
-  border: none;
-  border-radius: 6px;
   font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background: #1e1e2f;
+  color: #fff;
+  resize: vertical;
+}
+
+textarea#wysiwygEditor, textarea#markdownEditor {
+  height: 250px;
+  font-family: monospace, monospace;
 }
 
 .export-buttons {
@@ -57,30 +78,52 @@ textarea, input {
   cursor: pointer;
 }
 
+#articleListDisplay {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  white-space: pre-wrap;
+  background: #222;
+  padding: 1rem;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Images tab */
 #imageList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-#imageList img {
-  width: 100%;
-  border-radius: 6px;
+#imageList img.thumb {
+  width: 100px;
+  height: 80px;
+  object-fit: contain;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  transition: border-color 0.3s;
 }
 
-#imageList img:hover {
-  transform: scale(1.05);
+#imageList img.thumb:hover {
+  border-color: #0af;
 }
 
+/* Responsive tweaks */
 @media (max-width: 600px) {
   .editor-tabs button {
     font-size: 0.9rem;
     padding: 0.5rem;
   }
 
-  textarea {
+  textarea#wysiwygEditor, textarea#markdownEditor {
     height: 150px;
+  }
+
+  #imageList img.thumb {
+    width: 80px;
+    height: 60px;
   }
 }

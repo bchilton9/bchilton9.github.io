@@ -1,35 +1,71 @@
-// Load header and activate menu
+// editor.js
+
+// Load header
 fetch("header.html")
   .then(res => res.text())
   .then(html => {
     document.getElementById("header-placeholder").innerHTML = html;
-    const menuToggle = document.getElementById("menuToggle");
-    const navLinks = document.getElementById("navLinks");
-    menuToggle?.addEventListener("click", () => {
-      navLinks.classList.toggle("open");
-    });
   });
 
-// Tabs
+// Tab switching
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
     btn.classList.add("active");
-    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+
+    const tabId = "tab-" + btn.dataset.tab;
+    document.querySelectorAll(".tab-content").forEach(tab => {
+      tab.classList.remove("active");
+    });
+    document.getElementById(tabId).classList.add("active");
   });
 });
 
-const wysiwygEditor = document.getElementById("wysiwygEditor");
-const markdownEditor = document.getElementById("markdownEditor");
+const wysiwyg = document.getElementById("wysiwygEditor");
+const markdown = document.getElementById("markdownEditor");
+const articleLoader = document.getElementById("articleLoader");
+const articleListDisplay = document.getElementById("articleListDisplay");
 
-wysiwygEditor.addEventListener("input", () => {
-  markdownEditor.value = wysiwygEditor.value;
-});
-markdownEditor.addEventListener("input", () => {
-  wysiwygEditor.value = markdownEditor.value;
-});
+let allArticles = [];
 
+// Simulated images list, since JS cannot read directories on client side
+const images = [
+  "images/IMG_1289.png",
+  "images/IMG_1291.png",
+  "images/IMG_1301.png",
+  "images/IMG_1328.png",
+  "images/IMG_1334.png",
+  "images/IMG_1330.png"
+];
+
+// Populate images tab
+function loadImages() {
+  const container = document.getElementById("imageList");
+  container.innerHTML = "";
+  images.forEach(img => {
+    const imgElem = document.createElement("img");
+    imgElem.src = img;
+    imgElem.alt = img.split("/").pop();
+    imgElem.className = "thumb";
+    imgElem.title = "Click to insert URL";
+    imgElem.addEventListener("click", () => {
+      document.getElementById("image").value = img;
+      alert(`Image URL inserted: ${img}`);
+    });
+    container.appendChild(imgElem);
+  });
+}
+
+// Load articles.json and populate dropdown + articleList display
+fetch("articles.json")
+  .then(res => res.json())
+  .then(data => {
+    allArticles = data;
+    updateArticleListUI();
+    populateLoaderDropdown();
+  });
+
+// Build JSON object from form fields
 function buildArticleJson() {
   return {
     id: document.getElementById("id").value.trim(),
@@ -40,62 +76,60 @@ function buildArticleJson() {
   };
 }
 
-let allArticles = [];
-
-fetch("articles.json")
-  .then(res => res.json())
-  .then(data => {
-    allArticles = data;
-    updateArticleListUI();
-    populateLoaderDropdown();
-  });
-
 function populateLoaderDropdown() {
-  const loader = document.getElementById("articleLoader");
+  articleLoader.innerHTML = '<option value="">➕ New Article</option>';
   allArticles.forEach(article => {
     const option = document.createElement("option");
     option.value = article.id;
     option.textContent = article.title;
-    loader.appendChild(option);
+    articleLoader.appendChild(option);
   });
 }
 
-document.getElementById("articleLoader").addEventListener("change", (e) => {
+// When article selected, fill form and load markdown
+articleLoader.addEventListener("change", e => {
   const id = e.target.value;
-  if (!id) return clearForm();
-
-  const article = allArticles.find(a => a.id === id);
-  if (article) {
-    document.getElementById("id").value = article.id;
-    document.getElementById("title").value = article.title;
-    document.getElementById("summary").value = article.summary;
-    document.getElementById("image").value = article.image;
-    document.getElementById("categories").value = article.categories.join(", ");
-    fetch(`articles/${article.id}.md`)
-      .then(res => res.text())
-      .then(md => {
-        markdownEditor.value = md;
-        wysiwygEditor.value = md;
-      });
+  if (!id) {
+    clearForm();
+    return;
   }
+  const article = allArticles.find(a => a.id === id);
+  if (!article) return;
+  document.getElementById("id").value = article.id;
+  document.getElementById("title").value = article.title;
+  document.getElementById("summary").value = article.summary;
+  document.getElementById("image").value = article.image;
+  document.getElementById("categories").value = article.categories.join(", ");
+
+  fetch(`articles/${article.id}.md`)
+    .then(res => res.text())
+    .then(md => {
+      markdown.value = md;
+      wysiwyg.value = md;
+    });
 });
 
 function clearForm() {
   ["id", "title", "summary", "image", "categories"].forEach(id => {
     document.getElementById(id).value = "";
   });
-  wysiwygEditor.value = "";
-  markdownEditor.value = "";
+  markdown.value = "";
+  wysiwyg.value = "";
 }
 
 function updateArticleListUI() {
-  document.getElementById("articleListDisplay").textContent = JSON.stringify(allArticles, null, 2);
+  articleListDisplay.textContent = JSON.stringify(allArticles, null, 2);
 }
 
 // Export buttons
 document.getElementById("downloadMd").addEventListener("click", () => {
   const id = document.getElementById("id").value.trim();
-  const blob = new Blob([markdownEditor.value], { type: "text/markdown" });
+  const md = markdown.value;
+  if (!id) {
+    alert("Enter an article ID before downloading.");
+    return;
+  }
+  const blob = new Blob([md], { type: "text/markdown" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = id + ".md";
@@ -103,17 +137,30 @@ document.getElementById("downloadMd").addEventListener("click", () => {
 });
 
 document.getElementById("copyMd").addEventListener("click", () => {
-  navigator.clipboard.writeText(markdownEditor.value).then(() => alert("Markdown copied!"));
+  const md = markdown.value;
+  navigator.clipboard.writeText(md).then(() => {
+    alert("Markdown copied!");
+  });
 });
 
 document.getElementById("copyJson").addEventListener("click", () => {
   const newArticle = buildArticleJson();
+  if (!newArticle.id) {
+    alert("Enter an article ID before copying JSON.");
+    return;
+  }
   const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-  navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => alert("JSON copied!"));
+  navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
+    alert("JSON copied!");
+  });
 });
 
 document.getElementById("downloadJson").addEventListener("click", () => {
   const newArticle = buildArticleJson();
+  if (!newArticle.id) {
+    alert("Enter an article ID before downloading JSON.");
+    return;
+  }
   const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
   const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
   const link = document.createElement("a");
@@ -122,20 +169,13 @@ document.getElementById("downloadJson").addEventListener("click", () => {
   link.click();
 });
 
-// Image tab: auto-list .png/.jpg from /images
-fetch("images/").then(res => res.text()).then(html => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const links = Array.from(doc.querySelectorAll('a')).map(a => a.getAttribute('href'));
-  const imageList = document.getElementById("imageList");
-  links.filter(href => /\.(png|jpe?g|webp|gif)$/i.test(href)).forEach(src => {
-    const img = document.createElement("img");
-    img.src = "images/" + src;
-    img.alt = src;
-    img.onclick = () => {
-      document.getElementById("image").value = img.src;
-      alert("Image selected: " + img.src);
-    };
-    imageList.appendChild(img);
-  });
+// Sync wysiwyg and markdown tabs bi-directionally
+wysiwyg.addEventListener("input", () => {
+  markdown.value = wysiwyg.value;
 });
+markdown.addEventListener("input", () => {
+  wysiwyg.value = markdown.value;
+});
+
+// Initialize images tab when page loads
+loadImages();
