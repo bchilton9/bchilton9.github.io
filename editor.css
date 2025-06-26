@@ -1,0 +1,78 @@
+.editor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #333;
+  background: #222;
+}
+.editor-tabs button {
+  flex: 1;
+  padding: 0.75rem;
+  background: #222;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-weight: bold;
+  border-right: 1px solid #333;
+}
+.editor-tabs button.active {
+  background: #333;
+  color: #fff;
+}
+.tab-content {
+  display: none;
+  padding: 1rem;
+}
+.tab-content.active {
+  display: block;
+}
+#title, #summary, #image, #categories, #id {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+textarea, input, select {
+  font-size: 1rem;
+}
+#markdownEditor {
+  width: 100%;
+  height: 300px;
+  background: #1e1e2f;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 6px;
+}
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.export-buttons button {
+  background: #0af;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+#articleLoader {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+}
+#articleListDisplay {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  white-space: pre-wrap;
+}
+@media (max-width: 600px) {
+  .editor-tabs button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+  #markdownEditor {
+    height: 200px;
+  }
+}

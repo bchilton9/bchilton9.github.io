@@ -4,33 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-  <style>
-    /* ... (previous styles remain) ... */
-    .editor-tabs { /* ... */ } /* same */
-    /* New image tab styles */
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 0.5rem;
-    }
-    .image-grid img {
-      width: 100%;
-      border-radius: 4px;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .image-grid img.selected {
-      border-color: #0af;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="editor.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
 </head>
 <body>
   <div id="header-placeholder"></div>
 
   <main>
     <h2>🛠️ Article Editor</h2>
-    <select id="articleLoader">...</select>
+
+    <select id="articleLoader">
+      <option value="">➕ New Article</option>
+    </select>
 
     <div class="editor-tabs">
       <button class="tab-btn active" data-tab="details">Details</button>
@@ -40,158 +26,183 @@
       <button class="tab-btn" data-tab="export">Export</button>
     </div>
 
-    <div id="tab-details" class="tab-content active">…</div>
-    <div id="tab-wysiwyg" class="tab-content"><div id="editorContainer"></div></div>
-    <div id="tab-markdown" class="tab-content"><textarea id="markdownEditor"></textarea></div>
-
-    <div id="tab-images" class="tab-content">
-      <h3>Select an image to insert</h3>
-      <div id="imageGrid" class="image-grid">Loading images…</div>
+    <div class="tab-content active" id="tab-details">
+      <input type="text" id="title" placeholder="Title" />
+      <input type="text" id="summary" placeholder="Summary" />
+      <input type="text" id="image" placeholder="Image URL" />
+      <input type="text" id="categories" placeholder="Categories (comma separated)" />
+      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
     </div>
 
-    <div id="tab-export" class="tab-content">…</div>
+    <div class="tab-content" id="tab-wysiwyg">
+      <rich-text-editor id="wysiwygEditor" style="min-height: 300px;"></rich-text-editor>
+    </div>
+
+    <div class="tab-content" id="tab-markdown">
+      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
+    </div>
+
+    <div class="tab-content" id="tab-images">
+      <div id="imageGallery">Loading images...</div>
+    </div>
+
+    <div class="tab-content" id="tab-export">
+      <div class="export-buttons">
+        <button id="downloadMd">Download .md</button>
+        <button id="copyMd">Copy Markdown</button>
+        <button id="copyJson">Copy JSON</button>
+        <button id="downloadJson">Download JSON</button>
+      </div>
+      <pre id="articleListDisplay"></pre>
+    </div>
   </main>
 
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // Load header and init hamburger menu
+    // Load shared header
     fetch("header.html").then(res => res.text()).then(html => {
       document.getElementById("header-placeholder").innerHTML = html;
-      const menuToggle = document.getElementById("menuToggle"), nav = document.getElementById("navLinks");
-      menuToggle.addEventListener("click", () => nav.classList.toggle("open"));
-      document.addEventListener("click", e => {
-        if (!menuToggle.contains(e.target) && !nav.contains(e.target)) nav.classList.remove("open");
-      });
     });
 
     // Tabs
-    document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      const id = "tab-" + btn.dataset.tab;
-      document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-    }));
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
 
-    // Quill editor setup
-    const quill = new Quill('#editorContainer', { theme: 'snow' });
-    quill.on('text-change', () => {
-      const html = quill.root.innerHTML;
-      document.getElementById("markdownEditor").value = htmlToMarkdown(html);
-    });
-    document.getElementById("markdownEditor").addEventListener("input", e => {
-      const html = marked.parse(e.target.value);
-      quill.root.innerHTML = html;
-    });
-
-    function htmlToMarkdown(html) {
-      return html
-        .replace(/<img[^>]*src="([^"]+)"[^>]*>/g, '![]($1)')
-        .replace(/<h1>(.*?)<\/h1>/g, '# $1\n\n')
-        .replace(/<h2>(.*?)<\/h2>/g, '## $1\n\n')
-        .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
-        .replace(/<em>(.*?)<\/em>/g, '*$1*')
-        .replace(/<p>(.*?)<\/p>/g, '$1\n\n')
-        .replace(/<br\s*\/?>/g, '\n')
-        .replace(/<\/?[^>]+(>|$)/g, "");
-    }
-
-    // Load JSON and images
-    let allArticles = [];
-    fetch("articles.json").then(r=>r.json()).then(data => {
-      allArticles = data;
-      populateLoaderDropdown();
-      updateJSON();
-    });
-
-    const mdInput = document.getElementById("markdownEditor");
-    document.getElementById("downloadMd").onclick = copyToFile(mdInput.value, "md");
-    document.getElementById("copyMd").onclick = () => { navigator.clipboard.writeText(mdInput.value); alert("MD copied"); };
-    document.getElementById("copyJson").onclick = () => {
-      navigator.clipboard.writeText(JSON.stringify(buildJSON(), null,2));
-      alert("JSON copied");
-    };
-    document.getElementById("downloadJson").onclick = copyToFile(JSON.stringify(buildJSON(), null,2), "json");
-
-    async function loadImages(){
-      try {
-        const res = await fetch("images/");
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(await res.text(), 'text/html');
-        const images = Array.from(doc.querySelectorAll('a')).filter(a=>a.href.match(/\.(jpe?g|png|gif)$/));
-        const grid = document.getElementById("imageGrid");
-        grid.innerHTML = '';
-        images.forEach(a=>{
-          const img = document.createElement("img");
-          img.src = `images/${a.textContent}`;
-          img.alt = a.textContent;
-          img.onclick = ()=>{
-            document.querySelectorAll("#imageGrid img").forEach(i=>i.classList.remove("selected"));
-            img.classList.add("selected");
-            quill.focus();
-            const range = quill.getSelection(true);
-            quill.insertEmbed(range.index, 'image', img.src);
-          };
-          grid.appendChild(img);
+        const tabId = "tab-" + btn.dataset.tab;
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
         });
-      } catch (e){
-        document.getElementById("imageGrid").textContent = "Could not load images.";
-      }
-    }
-    loadImages();
+        document.getElementById(tabId).classList.add("active");
+      });
+    });
 
-    // Helpers
-    function buildJSON(){
+    const wysiwyg = document.getElementById("wysiwygEditor");
+
+    function buildArticleJson() {
       return {
         id: document.getElementById("id").value.trim(),
         title: document.getElementById("title").value.trim(),
         summary: document.getElementById("summary").value.trim(),
         image: document.getElementById("image").value.trim(),
-        categories: document.getElementById("categories").value.split(",").map(c=>c.trim()).filter(Boolean)
+        categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
       };
     }
 
-    function populateLoaderDropdown(){
-      const sel = document.getElementById("articleLoader");
-      allArticles.forEach(a=>{
-        const o = document.createElement("option");
-        o.value = a.id; o.textContent = a.title;
-        sel.appendChild(o);
+    // Load articles.json
+    let allArticles = [];
+    fetch("articles.json")
+      .then((res) => res.json())
+      .then((data) => {
+        allArticles = data;
+        updateArticleListUI();
+        populateLoaderDropdown();
+      });
+
+    function populateLoaderDropdown() {
+      const loader = document.getElementById("articleLoader");
+      allArticles.forEach(article => {
+        const option = document.createElement("option");
+        option.value = article.id;
+        option.textContent = article.title;
+        loader.appendChild(option);
       });
     }
-    document.getElementById("articleLoader").onchange = async e => {
-      if (!e.target.value) return clearAll();
-      const art = allArticles.find(a=>a.id===e.target.value);
-      document.getElementById("id").value = art.id;
-      document.getElementById("title").value = art.title;
-      document.getElementById("summary").value = art.summary;
-      document.getElementById("image").value = art.image;
-      document.getElementById("categories").value = art.categories.join(", ");
-      const md = await (await fetch(`articles/${art.id}.md`)).text();
-      mdInput.value = md;
-      quill.root.innerHTML = marked.parse(md);
-    };
 
-    function clearAll(){
-      ["id","title","summary","image","categories"].forEach(i=>document.getElementById(i).value="");
-      mdInput.value = "";
-      quill.setText("");
+    document.getElementById("articleLoader").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (!id) return clearForm();
+
+      const article = allArticles.find((a) => a.id === id);
+      if (article) {
+        document.getElementById("id").value = article.id;
+        document.getElementById("title").value = article.title;
+        document.getElementById("summary").value = article.summary;
+        document.getElementById("image").value = article.image;
+        document.getElementById("categories").value = article.categories.join(", ");
+        fetch(`articles/${article.id}.md`)
+          .then((res) => res.text())
+          .then((md) => {
+            document.getElementById("markdownEditor").value = md;
+            wysiwyg.value = md;
+          });
+      }
+    });
+
+    function clearForm() {
+      ["id", "title", "summary", "image", "categories"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("markdownEditor").value = "";
+      wysiwyg.value = "";
     }
 
-    function updateJSON(){
-      document.getElementById("articleListDisplay").textContent = JSON.stringify(allArticles, null,2);
+    function updateArticleListUI() {
+      const json = JSON.stringify(allArticles, null, 2);
+      document.getElementById("articleListDisplay").textContent = json;
     }
 
-    function copyToFile(content, ext){
-      return () => {
-        const blob = new Blob([content], {type: ext==="md"? "text/markdown":"application/json"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = ext==="md" ? "article.md": "articles.json";
-        a.click();
-      };
-    }
+    document.getElementById("downloadMd").addEventListener("click", () => {
+      const id = document.getElementById("id").value.trim();
+      const md = document.getElementById("markdownEditor").value;
+      const blob = new Blob([md], { type: "text/markdown" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = id + ".md";
+      link.click();
+    });
+
+    document.getElementById("copyMd").addEventListener("click", () => {
+      const md = document.getElementById("markdownEditor").value;
+      navigator.clipboard.writeText(md).then(() => {
+        alert("Markdown copied!");
+      });
+    });
+
+    document.getElementById("copyJson").addEventListener("click", () => {
+      const newArticle = buildArticleJson();
+      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
+        alert("JSON copied!");
+      });
+    });
+
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      const newArticle = buildArticleJson();
+      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "articles.json";
+      link.click();
+    });
+
+    // Load images from images folder
+    fetch("images/")
+      .then(res => res.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const files = Array.from(doc.links)
+          .map(link => link.getAttribute("href"))
+          .filter(href => href && href.match(/\.(jpg|jpeg|png|gif)$/i));
+
+        const gallery = document.getElementById("imageGallery");
+        gallery.innerHTML = "";
+        files.forEach(filename => {
+          const img = document.createElement("img");
+          img.src = "images/" + filename;
+          img.alt = filename;
+          img.style.maxWidth = "100px";
+          img.style.margin = "0.5rem";
+          img.style.cursor = "pointer";
+          img.onclick = () => {
+            document.getElementById("image").value = "images/" + filename;
+            alert("Image selected!");
+          };
+          gallery.appendChild(img);
+        });
+      });
   </script>
 </body>
 </html>
