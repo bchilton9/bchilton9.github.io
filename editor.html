@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       margin: 0;
@@ -12,33 +12,58 @@
       background: #111;
       color: #fff;
     }
+
     main {
-      max-width: 960px;
-      margin: 0 auto;
+      max-width: 1000px;
+      margin: auto;
       padding: 1rem;
     }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+
     label {
-      font-weight: bold;
       display: block;
       margin-top: 1rem;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
     }
-    input, textarea {
+
+    input[type="text"], textarea, select {
       width: 100%;
       padding: 0.5rem;
-      border-radius: 6px;
-      border: none;
       font-size: 1rem;
       background: #222;
       color: #fff;
-      margin-top: 0.25rem;
+      border: 1px solid #444;
+      border-radius: 4px;
     }
-    #quillEditor {
-      height: 200px;
-      background: #fff;
-      color: #000;
-      margin-top: 0.5rem;
+
+    #categoriesDropdown {
+      margin-bottom: 0.5rem;
     }
-    #markdownOutput, #jsonOutput {
+
+    .dropdown-container {
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 0.5rem;
+      background: #222;
+    }
+
+    .dropdown-container label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dropdown-container input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+
+    .output-box {
       background: #222;
       color: #0f0;
       padding: 1rem;
@@ -48,194 +73,117 @@
       font-family: monospace;
       position: relative;
       min-height: 200px;
+      overflow: auto;
     }
-    .copy-btn {
+
+    .copy-button {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
-      background: #0af;
-      color: white;
+      background: transparent;
+      color: #ccc;
       border: none;
-      border-radius: 4px;
-      padding: 0.25rem 0.5rem;
+      font-size: 1rem;
       cursor: pointer;
-      font-size: 0.8rem;
+      opacity: 0.6;
     }
-    button {
-      background: #0af;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
+
+    .copy-button:hover {
+      opacity: 1;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
       margin-top: 1rem;
+    }
+
+    .button-row button {
+      background: #0af;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
       cursor: pointer;
     }
-    #categoryDropdown {
-      margin-top: 0.25rem;
-      border: 1px solid #444;
-      padding: 0.5rem;
-      background: #222;
-      border-radius: 6px;
-    }
-    #categoryCheckboxes {
-      display: none;
-      background: #333;
-      padding: 0.5rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    #categoryCheckboxes label {
-      font-weight: normal;
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-    #articleSelect {
-      width: 100%;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
+
+    @media (max-width: 600px) {
+      .button-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <div id="header-placeholder"></div>
-  <main>
-    <h1>✏️ Gadget Guide Editor</h1>
 
+  <main>
+    <h1>🛠️ Gadget Guide Editor</h1>
+
+    <label for="articleSelect">Edit Existing Article</label>
     <select id="articleSelect">
       <option value="">➕ New Article</option>
     </select>
 
     <label for="id">Article ID</label>
-    <input id="id" placeholder="e.g. SteamDeckTips" />
+    <input type="text" id="id" placeholder="Unique ID for the article" />
 
     <label for="title">Title</label>
-    <input id="title" placeholder="e.g. Steam Deck Tips" />
+    <input type="text" id="title" placeholder="Article title" />
 
     <label for="summary">Summary</label>
-    <input id="summary" placeholder="A quick overview..." />
+    <input type="text" id="summary" placeholder="Short summary of the article" />
 
     <label for="image">Image Path</label>
-    <input id="image" placeholder="e.g. images/steamdeck.png" />
+    <input type="text" id="image" placeholder="images/example.png" />
 
-    <label>Categories</label>
-    <button id="dropdownToggle">Select Categories</button>
-    <div id="categoryCheckboxes"></div>
-    <input id="newCategory" placeholder="➕ Add Category" />
+    <label for="categoriesDropdown">Categories</label>
+    <div class="dropdown-container" id="categoriesDropdown"></div>
+    <input type="text" id="newCategory" placeholder="➕ Add new category and press Enter" />
 
-    <label for="quillEditor">WYSIWYG Editor</label>
-    <div id="quillEditor"></div>
+    <label for="markdown">Markdown Content</label>
+    <textarea id="markdown" rows="10" placeholder="## Markdown goes here..."></textarea>
 
-    <label for="markdownOutput">Markdown Output</label>
-    <div id="markdownOutput"><button class="copy-btn" onclick="copyOutput('markdownOutput')">📋</button></div>
+    <div class="button-row">
+      <button onclick="downloadMarkdown()">Download .md</button>
+      <button onclick="downloadJSON()">Download JSON</button>
+    </div>
 
-    <label for="jsonOutput">articles.json Output</label>
-    <div id="jsonOutput"><button class="copy-btn" onclick="copyOutput('jsonOutput')">📋</button></div>
+    <label>Markdown Output</label>
+    <div id="markdownOutput" class="output-box">
+      <button class="copy-button" onclick="copyOutput('markdownOutput', this)">📋</button>
+    </div>
 
-    <button id="downloadMd">Download .md</button>
-    <button id="downloadJson">Download articles.json</button>
+    <label>Full articles.json Output</label>
+    <div id="jsonOutput" class="output-box">
+      <button class="copy-button" onclick="copyOutput('jsonOutput', this)">📋</button>
+    </div>
   </main>
 
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script>
-    const quill = new Quill("#quillEditor", { theme: "snow" });
+    // Load header
+    fetch("header.html").then(res => res.text()).then(html => {
+      document.getElementById("header-placeholder").innerHTML = html;
+    });
+
     let allArticles = [];
 
-    fetch("header.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("header-placeholder").innerHTML = html;
-      });
-
-    fetch("articles.json")
-      .then(res => res.json())
-      .then(data => {
-        allArticles = data;
-        updateArticleDropdown();
-        renderCategoryCheckboxes();
-        updateOutputs();
-      });
-
-    document.getElementById("dropdownToggle").addEventListener("click", () => {
-      const box = document.getElementById("categoryCheckboxes");
-      box.style.display = box.style.display === "block" ? "none" : "block";
-    });
-
-    document.getElementById("newCategory").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const val = e.target.value.trim();
-        if (val) {
-          const checkbox = document.createElement("label");
-          checkbox.innerHTML = `<input type="checkbox" class="category-option" value="${val}" checked> ${val}`;
-          document.getElementById("categoryCheckboxes").appendChild(checkbox);
-          e.target.value = "";
-          updateCategoryLabel();
-        }
-      }
-    });
-
-    function renderCategoryCheckboxes() {
-      const box = document.getElementById("categoryCheckboxes");
-      const unique = new Set();
-      allArticles.forEach(a => a.categories.forEach(c => unique.add(c)));
-      box.innerHTML = "";
-      Array.from(unique).sort().forEach(cat => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" class="category-option" value="${cat}"> ${cat}`;
-        box.appendChild(label);
-      });
+    function loadArticles() {
+      fetch("articles.json")
+        .then(res => res.json())
+        .then(data => {
+          allArticles = data;
+          updateSelectMenu();
+          updateCategoriesDropdown();
+          updateOutputs();
+        });
     }
 
-    function updateCategoryLabel() {
-      const selected = document.querySelectorAll(".category-option:checked").length;
-      document.getElementById("dropdownToggle").textContent = selected ? `Select Categories (${selected})` : "Select Categories";
-    }
-
-    document.getElementById("categoryCheckboxes").addEventListener("change", updateCategoryLabel);
-
-    function getCheckedCategories() {
-      return Array.from(document.querySelectorAll(".category-option:checked")).map(cb => cb.value);
-    }
-
-    function updateOutputs() {
-      const id = document.getElementById("id").value.trim();
-      const title = document.getElementById("title").value.trim();
-      const summary = document.getElementById("summary").value.trim();
-      const image = document.getElementById("image").value.trim();
-      const categories = getCheckedCategories();
-      const md = quill.root.innerHTML;
-
-      document.getElementById("markdownOutput").textContent = md;
-
-      const updatedList = [
-        ...allArticles.filter(a => a.id !== id),
-        { id, title, summary, image, categories }
-      ];
-
-      document.getElementById("jsonOutput").textContent = JSON.stringify(updatedList, null, 2);
-    }
-
-    ["id", "title", "summary", "image"].forEach(id =>
-      document.getElementById(id).addEventListener("input", updateOutputs)
-    );
-
-    quill.on("text-change", updateOutputs);
-
-    function copyOutput(id) {
-      const el = document.getElementById(id);
-      const text = el.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = el.querySelector("button");
-        const original = btn.textContent;
-        btn.textContent = "✅";
-        setTimeout(() => btn.textContent = original, 1500);
-      });
-    }
-
-    function updateArticleDropdown() {
+    function updateSelectMenu() {
       const select = document.getElementById("articleSelect");
+      select.innerHTML = '<option value="">➕ New Article</option>';
       allArticles.forEach(article => {
         const opt = document.createElement("option");
         opt.value = article.id;
@@ -244,47 +192,128 @@
       });
     }
 
-    document.getElementById("articleSelect").addEventListener("change", (e) => {
-      const id = e.target.value;
-      if (!id) return clearForm();
-      const article = allArticles.find(a => a.id === id);
-      if (!article) return;
-      document.getElementById("id").value = article.id;
-      document.getElementById("title").value = article.title;
-      document.getElementById("summary").value = article.summary;
-      document.getElementById("image").value = article.image;
-      document.querySelectorAll(".category-option").forEach(cb => {
-        cb.checked = article.categories.includes(cb.value);
+    function updateCategoriesDropdown() {
+      const dropdown = document.getElementById("categoriesDropdown");
+      dropdown.innerHTML = "";
+      const allCats = new Set();
+      allArticles.forEach(a => a.categories.forEach(c => allCats.add(c)));
+
+      Array.from(allCats).sort().forEach(cat => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = cat;
+        label.appendChild(checkbox);
+        label.append(cat);
+        dropdown.appendChild(label);
       });
-      updateCategoryLabel();
-      fetch(`articles/${id}.md`).then(res => res.text()).then(md => {
-        quill.root.innerHTML = md;
-        updateOutputs();
-      });
+    }
+
+    function getSelectedCategories() {
+      return Array.from(document.querySelectorAll("#categoriesDropdown input:checked")).map(cb => cb.value);
+    }
+
+    document.getElementById("newCategory").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const val = e.target.value.trim();
+        if (val) {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = val;
+          checkbox.checked = true;
+          label.appendChild(checkbox);
+          label.append(val);
+          document.getElementById("categoriesDropdown").appendChild(label);
+          e.target.value = "";
+        }
+      }
     });
 
-    function clearForm() {
-      ["id", "title", "summary", "image"].forEach(id => document.getElementById(id).value = "");
-      document.querySelectorAll(".category-option").forEach(cb => cb.checked = false);
-      quill.root.innerHTML = "";
+    document.getElementById("articleSelect").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (!id) {
+        resetForm();
+        return;
+      }
+
+      const article = allArticles.find(a => a.id === id);
+      if (article) {
+        document.getElementById("id").value = article.id;
+        document.getElementById("title").value = article.title;
+        document.getElementById("summary").value = article.summary;
+        document.getElementById("image").value = article.image;
+        fetch(`articles/${article.id}.md`)
+          .then(res => res.text())
+          .then(md => {
+            document.getElementById("markdown").value = md;
+            updateOutputs();
+          });
+        document.querySelectorAll("#categoriesDropdown input").forEach(cb => {
+          cb.checked = article.categories.includes(cb.value);
+        });
+      }
+    });
+
+    function resetForm() {
+      ["id", "title", "summary", "image", "markdown"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.querySelectorAll("#categoriesDropdown input").forEach(cb => cb.checked = false);
       updateOutputs();
     }
 
-    document.getElementById("downloadMd").addEventListener("click", () => {
-      const blob = new Blob([quill.root.innerHTML], { type: "text/markdown" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${document.getElementById("id").value.trim()}.md`;
-      a.click();
-    });
+    function buildArticleObject() {
+      return {
+        id: document.getElementById("id").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        summary: document.getElementById("summary").value.trim(),
+        image: document.getElementById("image").value.trim(),
+        categories: getSelectedCategories()
+      };
+    }
 
-    document.getElementById("downloadJson").addEventListener("click", () => {
-      const blob = new Blob([document.getElementById("jsonOutput").textContent], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "articles.json";
-      a.click();
+    function updateOutputs() {
+      const md = document.getElementById("markdown").value;
+      const json = [...allArticles.filter(a => a.id !== document.getElementById("id").value.trim()), buildArticleObject()];
+      document.getElementById("markdownOutput").textContent = md;
+      document.getElementById("jsonOutput").textContent = JSON.stringify(json, null, 2);
+    }
+
+    document.getElementById("markdown").addEventListener("input", updateOutputs);
+    document.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", updateOutputs);
     });
+    document.getElementById("categoriesDropdown").addEventListener("change", updateOutputs);
+
+    function copyOutput(id, btn) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "✅";
+        setTimeout(() => btn.textContent = "📋", 1500);
+      });
+    }
+
+    function downloadMarkdown() {
+      const id = document.getElementById("id").value.trim();
+      const blob = new Blob([document.getElementById("markdown").value], { type: "text/markdown" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${id}.md`;
+      link.click();
+    }
+
+    function downloadJSON() {
+      const updated = [...allArticles.filter(a => a.id !== document.getElementById("id").value.trim()), buildArticleObject()];
+      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "articles.json";
+      link.click();
+    }
+
+    loadArticles();
   </script>
 </body>
 </html>
