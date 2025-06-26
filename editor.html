@@ -2,128 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Gadget Guide Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="editor.css" />
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-  <style>
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin-top: 0.25rem;
-    }
-
-    .dropdown {
-      margin-top: 0.5rem;
-    }
-
-    .dropdown-toggle {
-      background: #333;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      margin-bottom: 0.5rem;
-    }
-
-    .category-list {
-      display: none;
-      padding: 0.5rem;
-      background: #1e1e2f;
-      border-radius: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .category-list label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: normal;
-    }
-
-    .output-box {
-      background: #1e1e2f;
-      color: #0f0;
-      padding: 1rem;
-      white-space: pre-wrap;
-      border-radius: 6px;
-      margin-top: 1rem;
-    }
-
-    .button-row {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    #editor {
-      background: #fff;
-      color: #000;
-      min-height: 300px;
-    }
-  </style>
 </head>
 <body>
   <div id="header-placeholder"></div>
 
-  <main>
-    <h2>🛠️ Article Editor</h2>
+  <main class="editor-container">
+    <h1>🛠️ Article Editor</h1>
 
-    <label for="articleSelect">Edit Existing Article:</label>
+    <label for="articleSelect">📄 Edit Existing</label>
     <select id="articleSelect">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="id">Article ID:</label>
-    <input id="id" />
+    <label for="id">🆔 Article ID</label>
+    <input id="id" type="text" placeholder="e.g., EmuDeckInstall" />
 
-    <label for="title">Title:</label>
-    <input id="title" />
+    <label for="title">📝 Title</label>
+    <input id="title" type="text" placeholder="Article Title" />
 
-    <label for="summary">Summary:</label>
-    <input id="summary" />
+    <label for="summary">📃 Summary</label>
+    <input id="summary" type="text" placeholder="Short summary..." />
 
-    <label for="image">Main Image Path:</label>
-    <input id="image" />
+    <label for="image">🖼️ Main Image Path</label>
+    <input id="image" type="text" placeholder="images/example.png" />
 
-    <label>Categories:</label>
+    <label>📂 Categories</label>
     <div class="dropdown">
-      <button class="dropdown-toggle" id="toggleCategories">Select Categories ▼</button>
-      <div class="category-list" id="categoryCheckboxes"></div>
+      <button type="button" class="dropdown-toggle" onclick="toggleCategoryDropdown()">Select Categories</button>
+      <div class="category-list" id="categoryList"></div>
+      <input type="text" id="newCategory" placeholder="➕ Add new category..." onkeydown="handleNewCategory(event)" />
     </div>
 
-    <label>Markdown Content:</label>
-    <div id="editor"></div>
+    <label>✍️ WYSIWYG Editor</label>
+    <div id="quillEditor" class="quill-container"></div>
 
-    <div class="button-row">
-      <button id="downloadMd">Download .md</button>
-      <button id="copyJson">Copy JSON</button>
-      <button id="downloadJson">Download JSON</button>
+    <label>📝 Markdown Content</label>
+    <textarea id="markdownEditor" placeholder="Paste or edit Markdown here..."></textarea>
+
+    <label>📦 JSON Output</label>
+    <div class="output-box" id="jsonOutputBox">
+      <button class="copy-btn" data-copy-target="jsonOutputBox">📋</button>
+      <pre id="jsonOutput"></pre>
     </div>
 
-    <label>📦 JSON Output:</label>
-    <div class="output-box" id="jsonOutput"></div>
-
-    <label>📝 Markdown Output:</label>
-    <div class="output-box" id="markdownOutput"></div>
+    <label>🗒️ Markdown Output</label>
+    <div class="output-box" id="markdownOutputBox">
+      <button class="copy-btn" data-copy-target="markdownOutputBox">📋</button>
+      <pre id="markdownOutput"></pre>
+    </div>
   </main>
 
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-  <script src="editor.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="editor.js" type="module"></script>
 </body>
 </html>
