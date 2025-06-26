@@ -2,195 +2,239 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gadget Guide Editor</title>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
-      background: #111;
-      color: #fff;
       margin: 0;
       font-family: system-ui, sans-serif;
-    }
-
-    main {
-      padding: 1rem;
-      max-width: 100%;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: none;
-      background: #1e1e2f;
+      background: #111;
       color: #fff;
     }
-
-    #editor {
-      background: #fff;
-      color: #000;
-      border-radius: 6px;
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
       margin-top: 1rem;
     }
-
-    .ql-editor {
-      min-height: 200px;
-    }
-
-    .dropdown {
-      margin-top: 0.5rem;
-    }
-
-    .dropdown-toggle {
-      background: #0af;
-      color: white;
-      padding: 0.5rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    input, textarea {
       width: 100%;
-      text-align: left;
-    }
-
-    .dropdown-content {
-      display: none;
-      background: #1e1e2f;
       padding: 0.5rem;
       border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      background: #222;
+      color: #fff;
+      margin-top: 0.25rem;
+    }
+    #quillEditor {
+      height: 200px;
+      background: #fff;
+      color: #000;
       margin-top: 0.5rem;
     }
-
-    .dropdown-content label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .output-box {
-      position: relative;
-      background: #1e1e2f;
+    #markdownOutput, #jsonOutput {
+      background: #222;
+      color: #0f0;
       padding: 1rem;
       border-radius: 6px;
       margin-top: 1rem;
-      overflow-x: auto;
-      max-height: 500px;
       white-space: pre-wrap;
+      font-family: monospace;
+      position: relative;
+      min-height: 200px;
     }
-
-    .output-box button.copy-btn {
+    .copy-btn {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
       background: #0af;
       color: white;
       border: none;
-      padding: 0.3rem 0.6rem;
       border-radius: 4px;
-      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
       cursor: pointer;
+      font-size: 0.8rem;
     }
-
-    .btn-group {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .btn-group button {
+    button {
       background: #0af;
       color: white;
-      border: none;
       padding: 0.5rem 1rem;
+      border: none;
       border-radius: 6px;
+      margin-top: 1rem;
       cursor: pointer;
+    }
+    #categoryDropdown {
+      margin-top: 0.25rem;
+      border: 1px solid #444;
+      padding: 0.5rem;
+      background: #222;
+      border-radius: 6px;
+    }
+    #categoryCheckboxes {
+      display: none;
+      background: #333;
+      padding: 0.5rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    #categoryCheckboxes label {
+      font-weight: normal;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    #articleSelect {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
     }
   </style>
 </head>
 <body>
   <div id="header-placeholder"></div>
-
   <main>
-    <h2>🛠️ Article Editor</h2>
+    <h1>✏️ Gadget Guide Editor</h1>
 
-    <label for="articleSelect">Edit Existing Article</label>
     <select id="articleSelect">
       <option value="">➕ New Article</option>
     </select>
 
     <label for="id">Article ID</label>
-    <input id="id" type="text" placeholder="e.g. MyArticle123" />
+    <input id="id" placeholder="e.g. SteamDeckTips" />
 
     <label for="title">Title</label>
-    <input id="title" type="text" />
+    <input id="title" placeholder="e.g. Steam Deck Tips" />
 
     <label for="summary">Summary</label>
-    <input id="summary" type="text" />
+    <input id="summary" placeholder="A quick overview..." />
 
-    <label for="image">Image URL</label>
-    <input id="image" type="text" />
+    <label for="image">Image Path</label>
+    <input id="image" placeholder="e.g. images/steamdeck.png" />
 
     <label>Categories</label>
-    <div class="dropdown">
-      <button class="dropdown-toggle" onclick="toggleDropdown()">▼ Select Categories</button>
-      <div class="dropdown-content" id="categoryCheckboxes"></div>
-    </div>
-    <input type="text" id="newCategory" placeholder="Add new category and press Enter" />
+    <button id="dropdownToggle">Select Categories</button>
+    <div id="categoryCheckboxes"></div>
+    <input id="newCategory" placeholder="➕ Add Category" />
 
-    <label>WYSIWYG Editor</label>
-    <div id="editor"></div>
+    <label for="quillEditor">WYSIWYG Editor</label>
+    <div id="quillEditor"></div>
 
-    <div class="btn-group">
-      <button onclick="downloadMarkdown()">Download .md</button>
-      <button onclick="downloadJSON()">Download JSON</button>
-    </div>
+    <label for="markdownOutput">Markdown Output</label>
+    <div id="markdownOutput"><button class="copy-btn" onclick="copyOutput('markdownOutput')">📋</button></div>
 
-    <label>Markdown Output</label>
-    <div class="output-box">
-      <button class="copy-btn" onclick="copyOutput('markdownOutput')">Copy</button>
-      <code id="markdownOutput"></code>
-    </div>
+    <label for="jsonOutput">articles.json Output</label>
+    <div id="jsonOutput"><button class="copy-btn" onclick="copyOutput('jsonOutput')">📋</button></div>
 
-    <label>JSON Output (Full File)</label>
-    <div class="output-box">
-      <button class="copy-btn" onclick="copyOutput('jsonOutput')">Copy</button>
-      <code id="jsonOutput"></code>
-    </div>
+    <button id="downloadMd">Download .md</button>
+    <button id="downloadJson">Download articles.json</button>
   </main>
 
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script>
-    // Header
-    fetch("header.html").then(r => r.text()).then(html => {
-      document.getElementById("header-placeholder").innerHTML = html;
-    });
-
-    const quill = new Quill("#editor", { theme: "snow" });
+    const quill = new Quill("#quillEditor", { theme: "snow" });
     let allArticles = [];
-    let allCategories = new Set();
+
+    fetch("header.html")
+      .then((res) => res.text())
+      .then((html) => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
 
     fetch("articles.json")
       .then(res => res.json())
       .then(data => {
         allArticles = data;
-        populateArticleSelect();
-        gatherCategories(data);
+        updateArticleDropdown();
         renderCategoryCheckboxes();
-        updateJSONPreview();
+        updateOutputs();
       });
 
-    function populateArticleSelect() {
+    document.getElementById("dropdownToggle").addEventListener("click", () => {
+      const box = document.getElementById("categoryCheckboxes");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    });
+
+    document.getElementById("newCategory").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const val = e.target.value.trim();
+        if (val) {
+          const checkbox = document.createElement("label");
+          checkbox.innerHTML = `<input type="checkbox" class="category-option" value="${val}" checked> ${val}`;
+          document.getElementById("categoryCheckboxes").appendChild(checkbox);
+          e.target.value = "";
+          updateCategoryLabel();
+        }
+      }
+    });
+
+    function renderCategoryCheckboxes() {
+      const box = document.getElementById("categoryCheckboxes");
+      const unique = new Set();
+      allArticles.forEach(a => a.categories.forEach(c => unique.add(c)));
+      box.innerHTML = "";
+      Array.from(unique).sort().forEach(cat => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" class="category-option" value="${cat}"> ${cat}`;
+        box.appendChild(label);
+      });
+    }
+
+    function updateCategoryLabel() {
+      const selected = document.querySelectorAll(".category-option:checked").length;
+      document.getElementById("dropdownToggle").textContent = selected ? `Select Categories (${selected})` : "Select Categories";
+    }
+
+    document.getElementById("categoryCheckboxes").addEventListener("change", updateCategoryLabel);
+
+    function getCheckedCategories() {
+      return Array.from(document.querySelectorAll(".category-option:checked")).map(cb => cb.value);
+    }
+
+    function updateOutputs() {
+      const id = document.getElementById("id").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const summary = document.getElementById("summary").value.trim();
+      const image = document.getElementById("image").value.trim();
+      const categories = getCheckedCategories();
+      const md = quill.root.innerHTML;
+
+      document.getElementById("markdownOutput").textContent = md;
+
+      const updatedList = [
+        ...allArticles.filter(a => a.id !== id),
+        { id, title, summary, image, categories }
+      ];
+
+      document.getElementById("jsonOutput").textContent = JSON.stringify(updatedList, null, 2);
+    }
+
+    ["id", "title", "summary", "image"].forEach(id =>
+      document.getElementById(id).addEventListener("input", updateOutputs)
+    );
+
+    quill.on("text-change", updateOutputs);
+
+    function copyOutput(id) {
+      const el = document.getElementById(id);
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = el.querySelector("button");
+        const original = btn.textContent;
+        btn.textContent = "✅";
+        setTimeout(() => btn.textContent = original, 1500);
+      });
+    }
+
+    function updateArticleDropdown() {
       const select = document.getElementById("articleSelect");
       allArticles.forEach(article => {
         const opt = document.createElement("option");
@@ -200,131 +244,47 @@
       });
     }
 
-    function gatherCategories(data) {
-      data.forEach(article => {
-        article.categories.forEach(cat => allCategories.add(cat));
-      });
-    }
-
-    function renderCategoryCheckboxes() {
-      const container = document.getElementById("categoryCheckboxes");
-      container.innerHTML = "";
-      [...allCategories].sort().forEach(cat => {
-        const label = document.createElement("label");
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = cat;
-        label.appendChild(cb);
-        label.append(" " + cat);
-        container.appendChild(label);
-      });
-    }
-
-    document.getElementById("newCategory").addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        const newCat = e.target.value.trim();
-        if (newCat && !allCategories.has(newCat)) {
-          allCategories.add(newCat);
-          renderCategoryCheckboxes();
-        }
-        e.target.value = "";
-      }
-    });
-
-    function toggleDropdown() {
-      const content = document.getElementById("categoryCheckboxes");
-      content.style.display = content.style.display === "block" ? "none" : "block";
-    }
-
-    document.getElementById("articleSelect").addEventListener("change", e => {
+    document.getElementById("articleSelect").addEventListener("change", (e) => {
       const id = e.target.value;
-      if (!id) return;
-
+      if (!id) return clearForm();
       const article = allArticles.find(a => a.id === id);
       if (!article) return;
-
       document.getElementById("id").value = article.id;
       document.getElementById("title").value = article.title;
       document.getElementById("summary").value = article.summary;
       document.getElementById("image").value = article.image;
-
-      renderCategoryCheckboxes();
-      const checkboxes = document.querySelectorAll("#categoryCheckboxes input");
-      checkboxes.forEach(cb => {
+      document.querySelectorAll(".category-option").forEach(cb => {
         cb.checked = article.categories.includes(cb.value);
       });
-
-      fetch(`articles/${id}.md`)
-        .then(res => res.text())
-        .then(md => {
-          quill.setText(md);
-          document.getElementById("markdownOutput").textContent = md;
-          updateJSONPreview();
-        });
+      updateCategoryLabel();
+      fetch(`articles/${id}.md`).then(res => res.text()).then(md => {
+        quill.root.innerHTML = md;
+        updateOutputs();
+      });
     });
 
-    function getSelectedCategories() {
-      return Array.from(document.querySelectorAll("#categoryCheckboxes input"))
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+    function clearForm() {
+      ["id", "title", "summary", "image"].forEach(id => document.getElementById(id).value = "");
+      document.querySelectorAll(".category-option").forEach(cb => cb.checked = false);
+      quill.root.innerHTML = "";
+      updateOutputs();
     }
 
-    function updateJSONPreview() {
-      const newArticle = {
-        id: document.getElementById("id").value.trim(),
-        title: document.getElementById("title").value.trim(),
-        summary: document.getElementById("summary").value.trim(),
-        image: document.getElementById("image").value.trim(),
-        categories: getSelectedCategories()
-      };
-
-      const updatedList = [
-        ...allArticles.filter(a => a.id !== newArticle.id),
-        newArticle
-      ].sort((a, b) => a.title.localeCompare(b.title));
-
-      document.getElementById("jsonOutput").textContent = JSON.stringify(updatedList, null, 2);
-    }
-
-    quill.on('text-change', () => {
-      document.getElementById("markdownOutput").textContent = quill.getText();
-      updateJSONPreview();
+    document.getElementById("downloadMd").addEventListener("click", () => {
+      const blob = new Blob([quill.root.innerHTML], { type: "text/markdown" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${document.getElementById("id").value.trim()}.md`;
+      a.click();
     });
 
-    function downloadMarkdown() {
-      const id = document.getElementById("id").value.trim() || "article";
-      const md = quill.getText();
-      const blob = new Blob([md], { type: "text/markdown" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = id + ".md";
-      link.click();
-    }
-
-    function downloadJSON() {
-      updateJSONPreview();
-      const json = document.getElementById("jsonOutput").textContent;
-      const blob = new Blob([json], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "articles.json";
-      link.click();
-    }
-
-    function copyOutput(id) {
-      const text = document.getElementById(id).textContent;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => alert("Copied!"));
-      } else {
-        const temp = document.createElement("textarea");
-        temp.value = text;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-        alert("Copied!");
-      }
-    }
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      const blob = new Blob([document.getElementById("jsonOutput").textContent], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "articles.json";
+      a.click();
+    });
   </script>
 </body>
 </html>
