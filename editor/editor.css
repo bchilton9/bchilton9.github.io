@@ -1,0 +1,125 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #fff;
+}
+
+.editor-container {
+  max-width: 960px;
+  margin: auto;
+  padding: 1rem;
+}
+
+h2 {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+input[type="text"],
+select,
+#newCategory {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.category-dropdown {
+  margin-bottom: 1rem;
+}
+
+#categoryCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#categoryCheckboxes label {
+  background: #222;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#categoryCheckboxes input[type="checkbox"] {
+  margin-right: 0.25rem;
+}
+
+/* Quill Editor */
+#quillEditor {
+  height: 300px;
+  background: #fff;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+/* Output boxes */
+.code-box {
+  position: relative;
+  background: #1e1e2f;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.code-box pre {
+  margin: 0;
+  color: #0f0;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #0af;
+  color: #fff;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Export buttons */
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.export-buttons button {
+  background: #0af;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  #quillEditor {
+    height: 200px;
+  }
+}

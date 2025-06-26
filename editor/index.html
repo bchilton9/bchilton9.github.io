@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gadget Guide Editor</title>
+  <link rel="stylesheet" href="editor.css" />
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="editor-container">
+    <h2>🛠️ Article Editor</h2>
+
+    <label for="articleLoader">Edit Existing Article</label>
+    <select id="articleLoader">
+      <option value="">➕ New Article</option>
+    </select>
+
+    <label for="id">Article ID</label>
+    <input type="text" id="id" placeholder="Unique ID for the article" />
+
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Article title" />
+
+    <label for="summary">Summary</label>
+    <input type="text" id="summary" placeholder="Short summary" />
+
+    <label for="image">Image URL</label>
+    <input type="text" id="image" placeholder="images/example.png" />
+
+    <label>Categories</label>
+    <div class="category-dropdown">
+      <select id="categoryDropdown">
+        <option value="">➕ Add New</option>
+      </select>
+      <input type="text" id="newCategory" placeholder="New category..." style="display:none" />
+      <div id="categoryCheckboxes"></div>
+    </div>
+
+    <label>Markdown Content (Rich Text)</label>
+    <div id="quillEditor"></div>
+
+    <label>Raw Markdown Output</label>
+    <div class="code-box">
+      <pre id="markdownOutput"></pre>
+      <button class="copy-btn" data-copy="markdownOutput">📋</button>
+    </div>
+
+    <label>Article JSON</label>
+    <div class="code-box">
+      <pre id="jsonOutput"></pre>
+      <button class="copy-btn" data-copy="jsonOutput">📋</button>
+    </div>
+
+    <div class="export-buttons">
+      <button id="downloadMd">Download .md</button>
+      <button id="downloadJson">Download JSON</button>
+    </div>
+  </main>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script type="module" src="editor.js"></script>
+
+  <script>
+    // Load the shared header from root
+    fetch("/header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
+  </script>
+</body>
+</html>
