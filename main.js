@@ -1,3 +1,4 @@
+// Initialize header behavior
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
@@ -15,11 +16,12 @@ function initHeaderScripts() {
   }
 
   const modeToggle = document.getElementById('modeToggle');
+  const siteLogo = document.getElementById('siteLogo');
+
   if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
     if (modeToggle) modeToggle.textContent = '🌞';
-    const logo = document.getElementById('siteLogo');
-    if (logo) logo.src = 'images/logolight.jpeg';
+    if (siteLogo) siteLogo.src = 'images/logo-light.png';
   }
 
   if (modeToggle) {
@@ -27,12 +29,9 @@ function initHeaderScripts() {
       const isLight = document.body.classList.toggle('light-mode');
       localStorage.setItem('theme', isLight ? 'light' : 'dark');
       modeToggle.textContent = isLight ? '🌞' : '🌙';
-      
-        // Swap logo
-        const logo = document.getElementById('siteLogo');
-        if (logo) {
-          logo.src = isLight ? 'images/logolight.jpeg' : 'images/logodark.jpeg';
-        }
+      if (siteLogo) {
+        siteLogo.src = isLight ? 'images/logo-light.png' : 'images/logo-dark.png';
+      }
     };
   }
 }
@@ -48,7 +47,7 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Load and display list of articles
+// Load and display articles
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
@@ -63,7 +62,6 @@ function loadArticles() {
 
       const allCategories = new Set();
 
-      // Create cards and collect categories
       data.forEach(article => {
         const card = document.createElement('article');
         card.setAttribute('data-categories', article.categories.join(','));
@@ -72,13 +70,14 @@ function loadArticles() {
           <h2>${article.title}</h2>
           ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
           <p>${article.summary}</p>
-          <button data-id="${article.id}" class="readMore">Read more →</button>
-          <button data-id="${article.id}" class="shareLink">🔗 Share</button>
+          <div class="card-buttons">
+            <button data-id="${article.id}" class="readMore">Read more →</button>
+            <button data-id="${article.id}" class="shareLink">🔗 Share</button>
+          </div>
         `;
         container.appendChild(card);
 
-        article.categories.forEach(cat => allCategories.add(cat));
-
+        // Side/hamburger menu list
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = article.title;
@@ -87,9 +86,11 @@ function loadArticles() {
           loadMarkdown(article.id);
         });
         menuList.appendChild(link);
+
+        article.categories.forEach(cat => allCategories.add(cat));
       });
 
-      // Create filter buttons
+      // Filter buttons
       const sortedCats = Array.from(allCategories).sort();
       filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
       sortedCats.forEach(cat => {
@@ -99,7 +100,6 @@ function loadArticles() {
         filterContainer.appendChild(btn);
       });
 
-      // Add filtering logic
       filterContainer.addEventListener('click', (e) => {
         if (e.target.tagName !== 'BUTTON') return;
         const selected = e.target.dataset.cat;
@@ -115,64 +115,68 @@ function loadArticles() {
         });
       });
 
-      // Add read more button listeners
+      // Read more
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
+
+      // Share buttons
+      document.querySelectorAll('.shareLink').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
+          navigator.clipboard.writeText(link).then(() => {
+            btn.textContent = "✅ Copied!";
+            setTimeout(() => {
+              btn.textContent = "🔗 Share";
+            }, 1500);
+          });
+        });
+      });
     });
-    
-document.querySelectorAll('.shareLink').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-    navigator.clipboard.writeText(link).then(() => {
-      btn.textContent = "✅ Copied!";
-      setTimeout(() => {
-        btn.textContent = "🔗 Share";
-      }, 1500);
-    });
-  });
-}); 
 }
 
-
-// Load a markdown file and display it
+// Load markdown article into page
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => res.text())
     .then(markdown => {
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
-      document.getElementById('articleContent').innerHTML = marked.parse(markdown);
-      document.getElementById('articleContent').style.display = 'block';
+      document.getElementById('categoryFilters').style.display = 'none';
+
+      const viewer = document.getElementById('articleContent');
+      viewer.innerHTML = marked.parse(markdown);
+
+      // Add share button below article
+      const share = document.createElement('button');
+      share.textContent = '🔗 Share';
+      share.onclick = () => {
+        const link = `${window.location.origin}${window.location.pathname}#${id}`;
+        navigator.clipboard.writeText(link).then(() => {
+          share.textContent = '✅ Copied!';
+          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+        });
+      };
+      share.style.marginTop = '1rem';
+      viewer.appendChild(share);
+
+      viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
-      
-      
-const share = document.createElement('button');
-share.textContent = '🔗 Share';
-share.style.marginTop = '1rem';
-share.onclick = () => {
-  const link = `${window.location.origin}${window.location.pathname}#${id}`;
-  navigator.clipboard.writeText(link).then(() => {
-    share.textContent = '✅ Copied!';
-    setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-  }); 
-      
-};
-
-document.getElementById('articleContent').appendChild(share); 
     });
 }
 
-// Return to list view
+// Back button returns to main article list
 document.getElementById('backButton').addEventListener('click', () => {
   document.getElementById('articles').style.display = 'block';
   document.getElementById('searchBox').style.display = 'block';
+  document.getElementById('categoryFilters').style.display = 'flex';
   document.getElementById('articleContent').style.display = 'none';
   document.getElementById('backButton').style.display = 'none';
+  window.location.hash = '';
 });
 
-// Filter articles by search
+// Search filter
 document.addEventListener('input', e => {
   if (e.target.id === 'searchBox') {
     const term = e.target.value.toLowerCase();
@@ -183,10 +187,10 @@ document.addEventListener('input', e => {
   }
 });
 
+// Load article by URL hash (if present)
 window.addEventListener('load', () => {
   const hash = window.location.hash.slice(1);
   if (hash) {
-    // Wait until articles are loaded
     setTimeout(() => loadMarkdown(hash), 300);
   }
 });
