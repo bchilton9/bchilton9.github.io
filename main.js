@@ -55,11 +55,20 @@ function loadArticles() {
     .then(data => {
       const container = document.getElementById('articles');
       const menuList = document.getElementById('articleList');
+      const categoryFilter = document.getElementById('categoryFilter');
+
       container.innerHTML = '';
       menuList.innerHTML = '';
 
+      const categories = new Set();
+
       data.forEach(article => {
+        // Save category
+        if (article.category) categories.add(article.category);
+
+        // Create article card
         const card = document.createElement('article');
+        card.setAttribute('data-category', article.category || 'Uncategorized');
         card.innerHTML = `
           <h2>${article.title}</h2>
           ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
@@ -68,6 +77,7 @@ function loadArticles() {
         `;
         container.appendChild(card);
 
+        // Menu link
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = article.title;
@@ -77,6 +87,29 @@ function loadArticles() {
         });
         menuList.appendChild(link);
       });
+
+      // Populate category dropdown
+      if (categoryFilter) {
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        Array.from(categories).sort().forEach(cat => {
+          categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+        });
+
+        categoryFilter.addEventListener('change', () => {
+          const selected = categoryFilter.value;
+          document.querySelectorAll('#articles article').forEach(article => {
+            const matches = selected === 'all' || article.dataset.category === selected;
+            article.style.display = matches ? 'block' : 'none';
+          });
+        });
+      }
+
+      // Read more buttons
+      document.querySelectorAll('.readMore').forEach(btn => {
+        btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
+      });
+    });
+}
 
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
