@@ -1,11 +1,13 @@
-// Load header
+// editor.js
+
+// Load header.html into header placeholder
 fetch("header.html")
   .then((res) => res.text())
   .then((html) => {
     document.getElementById("header-placeholder").innerHTML = html;
   });
 
-// Tabs switching
+// Tabs logic
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
@@ -19,116 +21,185 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
   });
 });
 
-// Initialize Quill editor
+// Initialize QuillJS editor
 const quill = new Quill("#quillEditor", {
   theme: "snow",
+  placeholder: "Compose your article here...",
   modules: {
     toolbar: [
-      [{ header: [1, 2, false] }],
       ["bold", "italic", "underline", "strike"],
-      ["blockquote", "code-block"],
+      ["link", "image", "code-block"],
       [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
+      [{ header: [1, 2, 3, false] }],
+      [{ color: [] }, { background: [] }],
       ["clean"],
     ],
   },
 });
 
-const wysiwygEditor = quill;
 const markdownEditor = document.getElementById("markdownEditor");
+const categoriesSelect = document.getElementById("categories");
+const addCategoryBtn = document.getElementById("addCategoryBtn");
+const newCategoryInput = document.getElementById("newCategory");
+const articleLoader = document.getElementById("articleLoader");
 
-// Sync Quill content to Markdown textarea (convert delta to markdown)
-quill.on("text-change", () => {
+let allArticles = [];
+
+// Sync Quill HTML → Markdown textarea (simple)
+function quillToMarkdown() {
   const html = quill.root.innerHTML;
-  markdownEditor.value = turndownService.turndown(html);
-});
+  // Use a simple converter: Quill HTML to Markdown with turndown
+  if (window.TurndownService) {
+    const turndownService = new TurndownService();
+    markdownEditor.value = turndownService.turndown(html);
+  } else {
+    markdownEditor.value = html;
+  }
+}
 
-// Sync Markdown textarea to Quill (parse markdown to HTML)
-markdownEditor.addEventListener("input", () => {
+// Sync Markdown textarea → Quill editor
+function markdownToQuill() {
   const md = markdownEditor.value;
-  const html = marked.parse(md);
-  quill.root.innerHTML = html;
-});
+  // Use marked.js to convert md → html
+  if (window.marked) {
+    quill.root.innerHTML = marked.parse(md);
+  } else {
+    quill.root.innerHTML = md;
+  }
+}
 
-// Build article JSON data from form fields
+// Build JSON from form
 function buildArticleJson() {
   return {
     id: document.getElementById("id").value.trim(),
     title: document.getElementById("title").value.trim(),
     summary: document.getElementById("summary").value.trim(),
     image: document.getElementById("image").value.trim(),
-    categories: document
-      .getElementById("categories")
-      .value.split(",")
-      .map((c) => c.trim())
-      .filter(Boolean),
+    categories: Array.from(categoriesSelect.selectedOptions).map((opt) => opt.value),
   };
 }
 
-// Load articles.json
-let allArticles = [];
-fetch("articles.json")
-  .then((res) => res.json())
-  .then((data) => {
-    allArticles = data;
-    updateArticleListUI();
-    populateLoaderDropdown();
+// Clear form inputs
+function clearForm() {
+  ["id", "title", "summary", "image"].forEach((id) => {
+    document.getElementById(id).value = "";
+  });
+  // Clear categories selection
+  for (const option of categoriesSelect.options) {
+    option.selected = false;
+  }
+  markdownEditor.value = "";
+  quill.root.innerHTML = "";
+  newCategoryInput.value = "";
+  articleLoader.value = "";
+}
+
+// Populate categories multi-select dropdown from articles
+function populateCategoriesSelect() {
+  const categorySet = new Set();
+  allArticles.forEach((article) => {
+    article.categories.forEach((cat) => categorySet.add(cat));
   });
 
+  categoriesSelect.innerHTML = "";
+  [...categorySet].sort().forEach((cat) => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    categoriesSelect.appendChild(option);
+  });
+}
+
+// Populate article dropdown
 function populateLoaderDropdown() {
-  const loader = document.getElementById("articleLoader");
+  articleLoader.innerHTML = `<option value="">➕ New Article</option>`;
   allArticles.forEach((article) => {
     const option = document.createElement("option");
     option.value = article.id;
     option.textContent = article.title;
-    loader.appendChild(option);
+    articleLoader.appendChild(option);
   });
 }
 
-document.getElementById("articleLoader").addEventListener("change", (e) => {
+// Set selected categories when loading an article
+function setSelectedCategories(categories) {
+  for (const option of categoriesSelect.options) {
+    option.selected = categories.includes(option.value);
+  }
+}
+
+// Load articles.json and initialize editor dropdowns etc
+fetch("articles.json")
+  .then((res) => res.json())
+  .then((data) => {
+    allArticles = data;
+    populateLoaderDropdown();
+    populateCategoriesSelect();
+    updateArticleListUI();
+  });
+
+// Load selected article data into form and editors
+articleLoader.addEventListener("change", (e) => {
   const id = e.target.value;
   if (!id) {
     clearForm();
     return;
   }
   const article = allArticles.find((a) => a.id === id);
-  if (article) {
-    document.getElementById("id").value = article.id;
-    document.getElementById("title").value = article.title;
-    document.getElementById("summary").value = article.summary;
-    document.getElementById("image").value = article.image;
-    document.getElementById("categories").value = article.categories.join(", ");
-    fetch(`articles/${article.id}.md`)
-      .then((res) => res.text())
-      .then((md) => {
-        markdownEditor.value = md;
-        const html = marked.parse(md);
-        quill.root.innerHTML = html;
-      });
-  }
+  if (!article) return;
+
+  document.getElementById("id").value = article.id;
+  document.getElementById("title").value = article.title;
+  document.getElementById("summary").value = article.summary;
+  document.getElementById("image").value = article.image;
+  setSelectedCategories(article.categories);
+
+  fetch(`articles/${article.id}.md`)
+    .then((res) => res.text())
+    .then((md) => {
+      markdownEditor.value = md;
+      markdownToQuill();
+    });
 });
 
-function clearForm() {
-  ["id", "title", "summary", "image", "categories"].forEach((id) => {
-    document.getElementById(id).value = "";
-  });
-  markdownEditor.value = "";
-  quill.root.innerHTML = "";
-}
+// Add new category button
+addCategoryBtn.addEventListener("click", () => {
+  const newCat = newCategoryInput.value.trim();
+  if (!newCat) return;
 
-function updateArticleListUI() {
-  const json = JSON.stringify(allArticles, null, 2);
-  document.getElementById("articleListDisplay").textContent = json;
-}
+  // Avoid duplicates
+  for (const opt of categoriesSelect.options) {
+    if (opt.value.toLowerCase() === newCat.toLowerCase()) {
+      alert("Category already exists");
+      newCategoryInput.value = "";
+      return;
+    }
+  }
+
+  const option = document.createElement("option");
+  option.value = newCat;
+  option.textContent = newCat;
+  option.selected = true;
+  categoriesSelect.appendChild(option);
+  newCategoryInput.value = "";
+});
+
+// Sync editors on change
+
+// When Quill changes, update Markdown textarea
+quill.on("text-change", () => {
+  quillToMarkdown();
+});
+
+// When Markdown textarea changes, update Quill
+markdownEditor.addEventListener("input", () => {
+  markdownToQuill();
+});
 
 // Export buttons
 document.getElementById("downloadMd").addEventListener("click", () => {
-  const id = document.getElementById("id").value.trim();
+  const id = document.getElementById("id").value.trim() || "article";
   const md = markdownEditor.value;
-  if (!id) {
-    alert("Please enter an Article ID");
-    return;
-  }
   const blob = new Blob([md], { type: "text/markdown" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -160,3 +231,9 @@ document.getElementById("downloadJson").addEventListener("click", () => {
   link.download = "articles.json";
   link.click();
 });
+
+// Show current JSON in export tab
+function updateArticleListUI() {
+  const pre = document.getElementById("articleListDisplay");
+  pre.textContent = JSON.stringify(allArticles, null, 2);
+}
