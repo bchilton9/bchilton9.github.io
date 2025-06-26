@@ -5,6 +5,11 @@ body {
   margin: 0;
   padding: 0 1rem 3rem;
 }
+main {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 1rem; /* optional: keep some horizontal padding */
+}
 #header-placeholder {
   margin-bottom: 1rem;
 }
