@@ -83,7 +83,7 @@ header h1 {
 
 .nav-links {
   position: absolute;
-  top: 70px;
+  top: 90px;
   right: 1.5rem;
   flex-direction: column;
   background: var(--header-bg);

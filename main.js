@@ -19,7 +19,7 @@ function initHeaderScripts() {
     document.body.classList.add('light-mode');
     if (modeToggle) modeToggle.textContent = '🌞';
     const logo = document.getElementById('siteLogo');
-    if (logo) logo.src = 'images/logo-light.png';
+    if (logo) logo.src = 'images/logolight.jpeg';
   }
 
   if (modeToggle) {
