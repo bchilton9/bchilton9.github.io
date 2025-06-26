@@ -8,7 +8,6 @@ const articlesPerPage = 4;
 let allArticles = [];
 let filteredArticles = [];
 
-// Initialize header scripts & theme selector
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
@@ -29,10 +28,8 @@ function initHeaderScripts() {
   loadColorTheme();
 }
 
-// Dynamically create the color selector dropdown inside the header
 function createColorSelector() {
-  const containerExists = document.getElementById('colorSelectorContainer');
-  if (containerExists) return; // Prevent duplicates
+  if (document.getElementById('colorSelectorContainer')) return; // avoid duplicates
 
   const menuIcons = document.querySelector('.menu-icons');
   if (!menuIcons) return;
@@ -72,7 +69,6 @@ function createColorSelector() {
   menuIcons.appendChild(container);
 }
 
-// Apply color theme class to body and save to localStorage
 function setColorTheme(theme) {
   colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
   if (theme && colorThemes.includes(theme)) {
@@ -81,7 +77,6 @@ function setColorTheme(theme) {
   }
 }
 
-// Load color theme from localStorage or default to blue
 function loadColorTheme() {
   const savedTheme = localStorage.getItem('colorTheme') || 'blue';
   const selector = document.getElementById('colorSelector');
@@ -91,7 +86,6 @@ function loadColorTheme() {
   setColorTheme(savedTheme);
 }
 
-// Load header and footer, then initialize
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
@@ -102,7 +96,6 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Render category buttons in the hamburger menu
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
   menuList.innerHTML = '';
@@ -112,27 +105,26 @@ function renderCategories(categories) {
     btn.className = 'nav-cat-btn';
     btn.textContent = cat;
     btn.type = 'button';
-    btn.onclick = () => {
+    btn.addEventListener('click', () => {
       currentPage = 1;
       filterArticlesByCategory(cat);
       document.getElementById('navLinks').classList.remove('open');
-    };
+    });
     menuList.appendChild(btn);
   });
 }
 
-// Filter articles by category and update view
 function filterArticlesByCategory(category) {
   if (category === 'All') {
     filteredArticles = allArticles.slice();
   } else {
     filteredArticles = allArticles.filter(article => article.categories.includes(category));
   }
+  currentPage = 1;
   renderArticlesPage(filteredArticles, currentPage);
   renderPagination(filteredArticles.length);
 }
 
-// Render a page of articles with pagination
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
@@ -148,8 +140,8 @@ function renderArticlesPage(data, page) {
       ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
       <p>${article.summary}</p>
       <div class="card-buttons">
-        <button data-id="${article.id}" class="readMore">Read more →</button>
-        <button data-id="${article.id}" class="shareLink">🔗 Share</button>
+        <button data-id="${article.id}" class="readMore" type="button">Read more →</button>
+        <button data-id="${article.id}" class="shareLink" type="button">🔗 Share</button>
       </div>
     `;
     container.appendChild(card);
@@ -158,7 +150,6 @@ function renderArticlesPage(data, page) {
   attachArticleButtons();
 }
 
-// Add event listeners to Read More and Share buttons
 function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.onclick = () => loadMarkdown(btn.dataset.id);
@@ -178,44 +169,54 @@ function attachArticleButtons() {
   });
 }
 
-// Render pagination buttons and attach their handlers
 function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
     pagination = document.createElement('div');
     pagination.className = 'pagination';
     pagination.innerHTML = `
-      <button id="prevPage">← Previous</button>
-      <button id="nextPage">Next →</button>
+      <button id="prevPage" type="button">← Previous</button>
+      <button id="nextPage" type="button">Next →</button>
     `;
     document.getElementById('articles').after(pagination);
 
-    document.getElementById('prevPage').onclick = () => {
+    // Attach event listeners to pagination buttons once
+    document.getElementById('prevPage').addEventListener('click', () => {
       if (currentPage > 1) {
         currentPage--;
         renderArticlesPage(filteredArticles, currentPage);
         updatePaginationButtons(totalArticles);
+        scrollToTopArticles();
       }
-    };
+    });
 
-    document.getElementById('nextPage').onclick = () => {
+    document.getElementById('nextPage').addEventListener('click', () => {
       if (currentPage * articlesPerPage < totalArticles) {
         currentPage++;
         renderArticlesPage(filteredArticles, currentPage);
         updatePaginationButtons(totalArticles);
+        scrollToTopArticles();
       }
-    };
+    });
   }
   updatePaginationButtons(totalArticles);
 }
 
-// Enable or disable pagination buttons based on page
 function updatePaginationButtons(totalArticles) {
-  document.getElementById('prevPage').disabled = currentPage === 1;
-  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  if (!prevBtn || !nextBtn) return;
+
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
-// Load articles.json and initialize the interface
+// Scroll back to top of articles list on pagination
+function scrollToTopArticles() {
+  const articlesContainer = document.getElementById('articles');
+  if (articlesContainer) articlesContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
@@ -233,10 +234,12 @@ function loadArticles() {
 
       setupSearch();
       setupCategoryFilters(categories);
+    })
+    .catch(e => {
+      console.error('Failed to load articles:', e);
     });
 }
 
-// Setup search box filtering
 function setupSearch() {
   const searchBox = document.getElementById('searchBox');
   searchBox.oninput = () => {
@@ -252,7 +255,6 @@ function setupSearch() {
   };
 }
 
-// Setup category filter buttons below search
 function setupCategoryFilters(categories) {
   const filterContainer = document.getElementById('categoryFilters');
   filterContainer.innerHTML = '';
@@ -272,7 +274,6 @@ function setupCategoryFilters(categories) {
   });
 }
 
-// Load markdown content for an article by id
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => res.text())
@@ -282,17 +283,12 @@ function loadMarkdown(id) {
       document.getElementById('categoryFilters').style.display = 'none';
 
       const viewer = document.getElementById('articleContent');
-      if (!viewer) {
-        const newViewer = document.createElement('div');
-        newViewer.id = 'articleContent';
-        newViewer.className = 'article-viewer';
-        document.querySelector('main').appendChild(newViewer);
-      }
-      document.getElementById('articleContent').innerHTML = marked.parse(markdown);
+      viewer.innerHTML = marked.parse(markdown);
 
       // Add share button below article content
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
+      share.type = 'button';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
         navigator.clipboard.writeText(link).then(() => {
@@ -303,27 +299,30 @@ function loadMarkdown(id) {
         });
       };
       share.style.marginTop = '1rem';
-      document.getElementById('articleContent').appendChild(share);
+      viewer.appendChild(share);
 
-      document.getElementById('articleContent').style.display = 'block';
+      viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
+    })
+    .catch(err => {
+      alert('Failed to load article content.');
+      console.error(err);
     });
 }
 
-// Back button: return to article list
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('backButton').addEventListener('click', () => {
+  const backBtn = document.getElementById('backButton');
+  backBtn.addEventListener('click', () => {
     document.getElementById('articles').style.display = 'block';
     document.getElementById('searchBox').style.display = 'block';
     document.getElementById('categoryFilters').style.display = 'flex';
     const articleContent = document.getElementById('articleContent');
     if(articleContent) articleContent.style.display = 'none';
-    document.getElementById('backButton').style.display = 'none';
+    backBtn.style.display = 'none';
     window.location.hash = '';
   });
 
-  // On page load, if URL has hash, load article
   const hash = window.location.hash.slice(1);
   if (hash) {
     setTimeout(() => loadMarkdown(hash), 300);
