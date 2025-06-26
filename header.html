@@ -3,13 +3,33 @@
   
   <div class="menu-icons">
     <button id="menuToggle" title="Menu" aria-label="Toggle menu">☰</button>
-    <!-- color selector will be injected here by JS -->
+  </div>
+
+  <div id="colorSelectorContainer" aria-label="Select theme color">
+    <label for="colorSelector">Theme:</label>
+    <select id="colorSelector" aria-live="polite" aria-haspopup="listbox">
+      <option value="blue" selected>Blue</option>
+      <option value="green">Green</option>
+      <option value="purple">Purple</option>
+      <option value="red">Red</option>
+      <option value="orange">Orange</option>
+      <option value="gray">Gray</option>
+      <option value="yellow">Yellow</option>
+      <option value="pink">Pink</option>
+      <option value="cyan">Cyan</option>
+      <option value="lime">Lime</option>
+      <option value="teal">Teal</option>
+      <option value="indigo">Indigo</option>
+      <option value="brown">Brown</option>
+      <option value="amber">Amber</option>
+      <option value="deeporange">Deep Orange</option>
+    </select>
   </div>
 </header>
 
-<nav class="nav-links" id="navLinks" aria-label="Main navigation">
+<nav class="nav-links" id="navLinks">
   <a href="index.html">Home</a>
   <div class="article-scroll" id="articleList">
-    <!-- JS will load categories here -->
+    <!-- JS will load categories or articles here -->
   </div>
 </nav>

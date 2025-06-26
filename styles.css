@@ -1,142 +1,92 @@
-/* General resets & layout */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--background);
-  color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
+/* --- General dark theme variables --- */
+:root {
+  --background: #121212;
+  --foreground: #e0e0e0;
+  --button-bg: #333;
+  --button-hover-bg: #555;
+  --select-bg: #222;
+  --link-color: #68a0f0;
+  --link-hover: #a0c8ff;
 }
 
+/* Body dark theme base */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header and nav */
 header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
-  background-color: var(--header-bg);
-  position: relative;
+  padding: 0.8rem 1rem;
+  background-color: #1f1f1f;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
   z-index: 1000;
 }
 
-/* Site logo */
 .site-logo {
   height: 40px;
   user-select: none;
 }
 
-/* Menu icons container */
-.menu-icons {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Hamburger menu button */
-#menuToggle {
-  font-size: 1.6rem;
+/* Menu icon */
+.menu-icons button {
+  font-size: 1.8rem;
   background: none;
   border: none;
+  color: var(--foreground);
   cursor: pointer;
-  color: var(--foreground);
   user-select: none;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-}
-
-#menuToggle:hover,
-#menuToggle:focus {
-  background-color: var(--button-hover-bg);
-  outline: none;
-}
-
-/* Color selector container */
-#colorSelectorContainer {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-#colorSelectorContainer label {
-  color: var(--foreground);
-  font-weight: 600;
-  font-size: 0.9rem;
-  user-select: none;
-}
-
-#colorSelector {
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  background-color: var(--select-bg);
-  color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-#colorSelector:hover,
-#colorSelector:focus {
-  background-color: var(--button-hover-bg);
-  outline: none;
 }
 
 /* Nav links container */
 .nav-links {
+  background-color: #1f1f1f;
   position: fixed;
-  top: 0;
-  right: 0; /* Align right */
-  height: 100vh;
-  width: 280px;
-  background-color: var(--nav-bg);
-  box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+  top: 60px;
+  right: 0;
+  width: 260px;
+  height: calc(100% - 60px);
   transform: translateX(100%);
   transition: transform 0.3s ease;
-  padding: 3.5rem 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  z-index: 999;
   overflow-y: auto;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.7);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding: 1rem;
 }
 
 .nav-links.open {
   transform: translateX(0);
 }
 
-/* Home link */
-.nav-links > a {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--foreground);
-  margin-bottom: 1rem;
-  text-decoration: none;
-  user-select: none;
-}
-
-.nav-links > a:hover,
-.nav-links > a:focus {
-  text-decoration: underline;
-  outline: none;
-}
-
-/* Article scroll / category buttons container */
+/* Article scroll container inside nav */
 .article-scroll {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
-/* Category buttons inside hamburger menu */
+/* Category buttons in menu */
 .nav-cat-btn {
   background-color: var(--button-bg);
+  color: var(--foreground);
   border: none;
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
   text-align: left;
   font-weight: 600;
-  color: var(--foreground);
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  user-select: none;
+  transition: background-color 0.3s ease;
 }
 
 .nav-cat-btn:hover,
@@ -145,126 +95,101 @@ header {
   outline: none;
 }
 
-/* Articles container */
-#articles {
-  padding: 1rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* Article cards */
-#articles article {
-  background-color: var(--card-bg);
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--card-shadow);
-  transition: background-color 0.3s ease;
-}
-
-#articles article h2 {
-  margin-top: 0;
-  font-size: 1.4rem;
-}
-
-#articles article img {
-  max-width: 100%;
-  border-radius: 6px;
-  margin: 0.5rem 0;
-}
-
-/* Card buttons container */
-.card-buttons {
-  margin-top: 1rem;
+/* Color selector container */
+#colorSelectorContainer {
   display: flex;
-  gap: 1rem;
-}
-
-/* Read more and Share buttons */
-.card-buttons button {
-  background-color: var(--button-bg);
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--foreground);
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+  user-select: none;
+  margin-left: auto;
 }
 
-.card-buttons button:hover,
-.card-buttons button:focus {
+#colorSelectorContainer label {
+  user-select: none;
+}
+
+#colorSelector {
+  background-color: var(--select-bg);
+  color: var(--foreground);
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 120px;
+}
+
+#colorSelector:hover,
+#colorSelector:focus {
   background-color: var(--button-hover-bg);
   outline: none;
 }
 
-/* Pagination container */
+/* Article cards */
+article {
+  background-color: #222;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+article img {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+  margin: 0.5rem auto;
+}
+
+/* Card buttons */
+.card-buttons {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.card-buttons button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--button-bg);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.card-buttons button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin: 1rem auto 2rem;
-  max-width: 900px;
+  margin: 1rem 0;
 }
 
 .pagination button {
   background-color: var(--button-bg);
   border: none;
-  border-radius: 12px;
-  padding: 0.6rem 1.2rem;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   color: var(--foreground);
+  font-weight: 700;
+  cursor: pointer;
   transition: background-color 0.3s ease;
-}
-
-.pagination button:hover:not(:disabled),
-.pagination button:focus:not(:disabled) {
-  background-color: var(--button-hover-bg);
-  outline: none;
 }
 
 .pagination button:disabled {
   opacity: 0.4;
-  cursor: not-allowed;
+  cursor: default;
 }
 
-/* Scrollbar for nav menu */
-.nav-links::-webkit-scrollbar {
-  width: 8px;
-}
-
-.nav-links::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 4px;
-}
-
-/* -- Theme variables (example for dark theme) -- */
-
-:root {
-  --background: #121212;
-  --foreground: #e0e0e0;
-  --header-bg: #1f1f1f;
-  --nav-bg: #222222;
-  --card-bg: #1e1e1e;
-  --card-shadow: 0 2px 6px rgba(0,0,0,0.7);
-  --button-bg: #333333;
-  --button-hover-bg: #555555;
-  --select-bg: #222222;
-  --scrollbar-thumb: #444444;
-}
-
-/* Add smooth transitions globally */
-* {
-  transition-property: background-color, color, transform;
-  transition-duration: 0.3s;
-  transition-timing-function: ease;
-}
-
-/* Responsive */
-@media (min-width: 800px) {
-  .nav-links {
-    width: 320px;
-  }
+.pagination button:hover:not(:disabled) {
+  background-color: var(--button-hover-bg);
 }

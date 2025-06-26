@@ -1,12 +1,12 @@
-const colorThemes = [
-  'blue', 'green', 'purple', 'red', 'orange', 'gray', 'yellow', 'pink',
-  'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
-];
-
 let currentPage = 1;
 const articlesPerPage = 4;
 let allArticles = [];
 let filteredArticles = [];
+
+const colorThemes = [
+  'blue', 'green', 'purple', 'red', 'orange', 'gray', 'yellow', 'pink',
+  'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
+];
 
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
@@ -24,49 +24,18 @@ function initHeaderScripts() {
     });
   }
 
-  createColorSelector();
+  // Initialize color theme selector UI
+  initColorSelector();
   loadColorTheme();
 }
 
-function createColorSelector() {
-  if (document.getElementById('colorSelectorContainer')) return; // avoid duplicates
+function initColorSelector() {
+  const select = document.getElementById('colorSelector');
+  if (!select) return;
 
-  const menuIcons = document.querySelector('.menu-icons');
-  if (!menuIcons) return;
-
-  const container = document.createElement('div');
-  container.id = 'colorSelectorContainer';
-  container.style.marginLeft = '1rem';
-
-  const label = document.createElement('label');
-  label.htmlFor = 'colorSelector';
-  label.textContent = 'Theme: ';
-  label.style.color = 'var(--foreground)';
-  label.style.fontSize = '0.9rem';
-  label.style.userSelect = 'none';
-
-  const select = document.createElement('select');
-  select.id = 'colorSelector';
-  select.style.padding = '0.2rem 0.5rem';
-  select.style.borderRadius = '6px';
-  select.style.border = 'none';
-  select.style.cursor = 'pointer';
-  select.style.fontSize = '1rem';
-
-  colorThemes.forEach(theme => {
-    const option = document.createElement('option');
-    option.value = theme;
-    option.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
-    select.appendChild(option);
-  });
-
-  select.addEventListener('change', () => {
+  select.onchange = () => {
     setColorTheme(select.value);
-  });
-
-  container.appendChild(label);
-  container.appendChild(select);
-  menuIcons.appendChild(container);
+  };
 }
 
 function setColorTheme(theme) {
@@ -86,15 +55,27 @@ function loadColorTheme() {
   setColorTheme(savedTheme);
 }
 
-fetch('header.html').then(res => res.text()).then(html => {
-  document.getElementById('header-placeholder').innerHTML = html;
-  initHeaderScripts();
-  loadArticles();
-});
+fetch('header.html')
+  .then(res => {
+    if (!res.ok) throw new Error('Failed to load header.html');
+    return res.text();
+  })
+  .then(html => {
+    document.getElementById('header-placeholder').innerHTML = html;
+    initHeaderScripts();
+    loadArticles();
+  })
+  .catch(err => console.error(err));
 
-fetch('footer.html').then(res => res.text()).then(html => {
-  document.getElementById('footer-placeholder').innerHTML = html;
-});
+fetch('footer.html')
+  .then(res => {
+    if (!res.ok) throw new Error('Failed to load footer.html');
+    return res.text();
+  })
+  .then(html => {
+    document.getElementById('footer-placeholder').innerHTML = html;
+  })
+  .catch(err => console.error(err));
 
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
@@ -104,12 +85,11 @@ function renderCategories(categories) {
     const btn = document.createElement('button');
     btn.className = 'nav-cat-btn';
     btn.textContent = cat;
-    btn.type = 'button';
-    btn.addEventListener('click', () => {
+    btn.onclick = () => {
       currentPage = 1;
       filterArticlesByCategory(cat);
       document.getElementById('navLinks').classList.remove('open');
-    });
+    };
     menuList.appendChild(btn);
   });
 }
@@ -120,7 +100,6 @@ function filterArticlesByCategory(category) {
   } else {
     filteredArticles = allArticles.filter(article => article.categories.includes(category));
   }
-  currentPage = 1;
   renderArticlesPage(filteredArticles, currentPage);
   renderPagination(filteredArticles.length);
 }
@@ -140,8 +119,8 @@ function renderArticlesPage(data, page) {
       ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
       <p>${article.summary}</p>
       <div class="card-buttons">
-        <button data-id="${article.id}" class="readMore" type="button">Read more →</button>
-        <button data-id="${article.id}" class="shareLink" type="button">🔗 Share</button>
+        <button data-id="${article.id}" class="readMore">Read more →</button>
+        <button data-id="${article.id}" class="shareLink">🔗 Share</button>
       </div>
     `;
     container.appendChild(card);
@@ -159,12 +138,14 @@ function attachArticleButtons() {
     btn.onclick = (e) => {
       const btn = e.target;
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-      navigator.clipboard.writeText(link).then(() => {
-        btn.textContent = "✅ Copied!";
-        setTimeout(() => btn.textContent = "🔗 Share", 1500);
-      }).catch(() => {
-        alert('Failed to copy link. Please copy manually:\n' + link);
-      });
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          btn.textContent = "✅ Copied!";
+          setTimeout(() => btn.textContent = "🔗 Share", 1500);
+        }).catch(() => alert('Failed to copy. Please copy manually:\n' + link));
+      } else {
+        alert('Clipboard not supported. Copy manually:\n' + link);
+      }
     };
   });
 }
@@ -175,55 +156,46 @@ function renderPagination(totalArticles) {
     pagination = document.createElement('div');
     pagination.className = 'pagination';
     pagination.innerHTML = `
-      <button id="prevPage" type="button">← Previous</button>
-      <button id="nextPage" type="button">Next →</button>
+      <button id="prevPage">← Previous</button>
+      <button id="nextPage">Next →</button>
     `;
     document.getElementById('articles').after(pagination);
 
-    // Attach event listeners to pagination buttons once
-    document.getElementById('prevPage').addEventListener('click', () => {
+    document.getElementById('prevPage').onclick = () => {
       if (currentPage > 1) {
         currentPage--;
         renderArticlesPage(filteredArticles, currentPage);
         updatePaginationButtons(totalArticles);
-        scrollToTopArticles();
       }
-    });
+    };
 
-    document.getElementById('nextPage').addEventListener('click', () => {
+    document.getElementById('nextPage').onclick = () => {
       if (currentPage * articlesPerPage < totalArticles) {
         currentPage++;
         renderArticlesPage(filteredArticles, currentPage);
         updatePaginationButtons(totalArticles);
-        scrollToTopArticles();
       }
-    });
+    };
   }
   updatePaginationButtons(totalArticles);
 }
 
 function updatePaginationButtons(totalArticles) {
-  const prevBtn = document.getElementById('prevPage');
-  const nextBtn = document.getElementById('nextPage');
-  if (!prevBtn || !nextBtn) return;
-
-  prevBtn.disabled = currentPage === 1;
-  nextBtn.disabled = currentPage * articlesPerPage >= totalArticles;
-}
-
-// Scroll back to top of articles list on pagination
-function scrollToTopArticles() {
-  const articlesContainer = document.getElementById('articles');
-  if (articlesContainer) articlesContainer.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('prevPage').disabled = currentPage === 1;
+  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
 function loadArticles() {
   fetch('articles.json')
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to load articles.json');
+      return res.json();
+    })
     .then(data => {
       allArticles = data;
       filteredArticles = allArticles.slice();
 
+      // Extract categories + "All"
       const allCategoriesSet = new Set();
       allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
       const categories = ['All', ...Array.from(allCategoriesSet).sort()];
@@ -235,9 +207,7 @@ function loadArticles() {
       setupSearch();
       setupCategoryFilters(categories);
     })
-    .catch(e => {
-      console.error('Failed to load articles:', e);
-    });
+    .catch(err => console.error(err));
 }
 
 function setupSearch() {
@@ -276,27 +246,37 @@ function setupCategoryFilters(categories) {
 
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to load markdown article');
+      return res.text();
+    })
     .then(markdown => {
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      const viewer = document.getElementById('articleContent');
+      let viewer = document.getElementById('articleContent');
+      if (!viewer) {
+        viewer = document.createElement('div');
+        viewer.id = 'articleContent';
+        viewer.className = 'article-viewer';
+        document.querySelector('main').appendChild(viewer);
+      }
       viewer.innerHTML = marked.parse(markdown);
 
-      // Add share button below article content
+      // Share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
-      share.type = 'button';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
-        navigator.clipboard.writeText(link).then(() => {
-          share.textContent = '✅ Copied!';
-          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-        }).catch(() => {
-          alert('Failed to copy link. Please copy manually:\n' + link);
-        });
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(link).then(() => {
+            share.textContent = '✅ Copied!';
+            setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+          }).catch(() => alert('Failed to copy. Please copy manually:\n' + link));
+        } else {
+          alert('Clipboard not supported. Copy manually:\n' + link);
+        }
       };
       share.style.marginTop = '1rem';
       viewer.appendChild(share);
@@ -306,23 +286,24 @@ function loadMarkdown(id) {
       document.getElementById('navLinks').classList.remove('open');
     })
     .catch(err => {
-      alert('Failed to load article content.');
+      alert("Failed to load article content.");
       console.error(err);
     });
 }
 
+// Back button returns to main list
 document.addEventListener('DOMContentLoaded', () => {
-  const backBtn = document.getElementById('backButton');
-  backBtn.addEventListener('click', () => {
+  document.getElementById('backButton').addEventListener('click', () => {
     document.getElementById('articles').style.display = 'block';
     document.getElementById('searchBox').style.display = 'block';
     document.getElementById('categoryFilters').style.display = 'flex';
-    const articleContent = document.getElementById('articleContent');
-    if(articleContent) articleContent.style.display = 'none';
-    backBtn.style.display = 'none';
+    const viewer = document.getElementById('articleContent');
+    if (viewer) viewer.style.display = 'none';
+    document.getElementById('backButton').style.display = 'none';
     window.location.hash = '';
   });
 
+  // Load article from hash on load
   const hash = window.location.hash.slice(1);
   if (hash) {
     setTimeout(() => loadMarkdown(hash), 300);
