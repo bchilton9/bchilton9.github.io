@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "title": "Cool Gadget One",
+    "summary": "An amazing gadget that will change your life.",
+    "image": "images/gadget1.jpg"
+  },
+  {
+    "id": "2",
+    "title": "Tech Wonder Two",
+    "summary": "The second generation tech wonder is here.",
+    "image": "images/gadget2.jpg"
+  },
+  {
+    "id": "3",
+    "title": "Ultimate Device Three",
+    "summary": "Ultimate device with cutting-edge features.",
+    "image": "images/gadget3.jpg"
+  }
+]
