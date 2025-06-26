@@ -24,46 +24,61 @@ function initHeaderScripts() {
     });
   }
 
-  const modeToggle = document.getElementById('modeToggle');
-  const siteLogo = document.getElementById('siteLogo');
-
-  // Load dark/light mode from localStorage
-  if (localStorage.getItem('theme') === 'light') {
-    document.body.classList.add('light-mode');
-    if (modeToggle) modeToggle.textContent = '🌞';
-    if (siteLogo) siteLogo.src = 'images/logo-light.png';
-  }
-
-  if (modeToggle) {
-    modeToggle.onclick = () => {
-      const isLight = document.body.classList.toggle('light-mode');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-      modeToggle.textContent = isLight ? '🌞' : '🌙';
-      if (siteLogo) {
-        siteLogo.src = isLight ? 'images/logo-light.png' : 'images/logo-dark.png';
-      }
-    };
-  }
-
-  // Initialize existing color selector in header.html
-  initColorSelector();
+  // Initialize color theme selector UI
+  createColorSelector();
+  loadColorTheme();
 }
 
-// Initialize the static color selector dropdown from header.html
-function initColorSelector() {
-  const selector = document.getElementById('colorSelector');
-  if (!selector) return;
+// Create the color theme selector dropdown and add it to header
+function createColorSelector() {
+  const header = document.querySelector('header');
+  if (!header) return;
 
-  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
-  selector.value = savedTheme;
-  setColorTheme(savedTheme);
+  const container = document.createElement('div');
+  container.id = 'colorSelectorContainer';
+  container.style.marginLeft = '1rem';
+  container.style.position = 'relative';
+  container.style.display = 'inline-block';
 
-  selector.onchange = () => {
-    setColorTheme(selector.value);
+  const label = document.createElement('label');
+  label.htmlFor = 'colorSelector';
+  label.textContent = 'Theme: ';
+  label.style.color = 'var(--foreground)';
+  label.style.fontSize = '0.9rem';
+  label.style.userSelect = 'none';
+
+  const select = document.createElement('select');
+  select.id = 'colorSelector';
+  select.style.padding = '0.3rem 0.8rem';
+  select.style.borderRadius = '8px';
+  select.style.border = 'none';
+  select.style.cursor = 'pointer';
+  select.style.fontSize = '1.2rem';
+  select.style.fontFamily = 'inherit';
+  select.style.backgroundColor = 'var(--background)';
+  select.style.color = 'var(--foreground)';
+  select.style.appearance = 'none';
+  select.style.WebkitAppearance = 'none';
+  select.style.MozAppearance = 'none';
+  select.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+  select.style.paddingRight = '2rem'; // space for custom arrow
+
+  colorThemes.forEach(theme => {
+    const option = document.createElement('option');
+    option.value = theme;
+    option.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    setColorTheme(select.value);
   };
+
+  container.appendChild(label);
+  container.appendChild(select);
+  header.querySelector('.menu-icons').appendChild(container);
 }
 
-// Apply a color theme by adding class to body
 function setColorTheme(theme) {
   colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
   if (theme && colorThemes.includes(theme)) {
@@ -72,7 +87,16 @@ function setColorTheme(theme) {
   }
 }
 
-// Load header and footer once
+function loadColorTheme() {
+  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
+  const selector = document.getElementById('colorSelector');
+  if (selector) {
+    selector.value = savedTheme;
+  }
+  setColorTheme(savedTheme);
+}
+
+// Load header and footer
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
@@ -131,28 +155,24 @@ function renderArticlesPage(data, page) {
     `;
     container.appendChild(card);
   });
-
-  attachArticleButtons();
 }
 
-function attachArticleButtons() {
-  document.querySelectorAll('.readMore').forEach(btn => {
-    btn.onclick = () => loadMarkdown(btn.dataset.id);
-  });
-
-  document.querySelectorAll('.shareLink').forEach(btn => {
-    btn.onclick = (e) => {
+// Use event delegation to fix button issues
+document.getElementById('articles').addEventListener('click', e => {
+  if (e.target.classList.contains('readMore')) {
+    loadMarkdown(e.target.dataset.id);
+  }
+  if (e.target.classList.contains('shareLink')) {
+    const link = `${window.location.origin}${window.location.pathname}#${e.target.dataset.id}`;
+    navigator.clipboard.writeText(link).then(() => {
       const btn = e.target;
-      const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-      navigator.clipboard.writeText(link).then(() => {
-        btn.textContent = "✅ Copied!";
-        setTimeout(() => btn.textContent = "🔗 Share", 1500);
-      }).catch(() => {
-        alert('Failed to copy link. Please copy manually:\n' + link);
-      });
-    };
-  });
-}
+      btn.textContent = "✅ Copied!";
+      setTimeout(() => btn.textContent = "🔗 Share", 1500);
+    }).catch(() => {
+      alert('Failed to copy link. Please copy manually:\n' + link);
+    });
+  }
+});
 
 function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');

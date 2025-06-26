@@ -1,8 +1,13 @@
 <header>
   <img id="siteLogo" src="images/logo-dark.png" alt="The Gadget Guide Logo" class="site-logo" />
-  <div id="colorSelectorContainer">
-    Theme:
-    <select id="colorSelector" aria-label="Select theme color">
+  
+  <div class="menu-icons">
+    <button id="menuToggle" title="Menu" aria-label="Toggle menu">☰</button>
+  </div>
+
+  <div id="colorSelectorContainer" aria-label="Select theme color">
+    <label for="colorSelector">Theme:</label>
+    <select id="colorSelector" aria-live="polite" aria-haspopup="listbox">
       <option value="blue" selected>Blue</option>
       <option value="green">Green</option>
       <option value="purple">Purple</option>
@@ -20,9 +25,6 @@
       <option value="deeporange">Deep Orange</option>
     </select>
   </div>
-  <div class="menu-icons">
-    <button id="menuToggle" title="Menu">☰</button>
-  </div> 
 </header>
 
 <nav class="nav-links" id="navLinks">
