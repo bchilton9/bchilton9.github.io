@@ -8,79 +8,46 @@ const colorThemes = [
   'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
 ];
 
+// Initialize header interactions and theme selector
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
+  const colorSelector = document.getElementById('colorSelector');
 
   if (menuToggle && navLinks) {
     menuToggle.addEventListener('click', () => {
       navLinks.classList.toggle('open');
     });
-
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
       if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
         navLinks.classList.remove('open');
       }
     });
   }
 
-  // Initialize color theme selector UI
-  initColorSelector();
-  loadColorTheme();
+  // Load saved theme and apply
+  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
+  applyColorTheme(savedTheme);
+  if (colorSelector) {
+    colorSelector.value = savedTheme;
+    colorSelector.addEventListener('change', e => {
+      applyColorTheme(e.target.value);
+    });
+  }
 }
 
-function initColorSelector() {
-  const select = document.getElementById('colorSelector');
-  if (!select) return;
-
-  select.onchange = () => {
-    setColorTheme(select.value);
-  };
-}
-
-function setColorTheme(theme) {
-  colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
-  if (theme && colorThemes.includes(theme)) {
-    document.body.classList.add(`theme-${theme}`);
+function applyColorTheme(theme) {
+  const body = document.body;
+  colorThemes.forEach(t => body.classList.remove(`theme-${t}`));
+  if (colorThemes.includes(theme)) {
+    body.classList.add(`theme-${theme}`);
     localStorage.setItem('colorTheme', theme);
   }
 }
 
-function loadColorTheme() {
-  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
-  const selector = document.getElementById('colorSelector');
-  if (selector) {
-    selector.value = savedTheme;
-  }
-  setColorTheme(savedTheme);
-}
-
-fetch('header.html')
-  .then(res => {
-    if (!res.ok) throw new Error('Failed to load header.html');
-    return res.text();
-  })
-  .then(html => {
-    document.getElementById('header-placeholder').innerHTML = html;
-    initHeaderScripts();
-    loadArticles();
-  })
-  .catch(err => console.error(err));
-
-fetch('footer.html')
-  .then(res => {
-    if (!res.ok) throw new Error('Failed to load footer.html');
-    return res.text();
-  })
-  .then(html => {
-    document.getElementById('footer-placeholder').innerHTML = html;
-  })
-  .catch(err => console.error(err));
-
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
   menuList.innerHTML = '';
-
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'nav-cat-btn';
@@ -102,21 +69,27 @@ function filterArticlesByCategory(category) {
   }
   renderArticlesPage(filteredArticles, currentPage);
   renderPagination(filteredArticles.length);
+  highlightActiveCategoryButtons(category);
+}
+
+function highlightActiveCategoryButtons(category) {
+  document.querySelectorAll('#articleList button').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === category);
+  });
 }
 
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
   const start = (page - 1) * articlesPerPage;
-  const pagedArticles = data.slice(start, start + articlesPerPage);
+  const pageItems = data.slice(start, start + articlesPerPage);
 
-  pagedArticles.forEach(article => {
+  pageItems.forEach(article => {
     const card = document.createElement('article');
     card.setAttribute('data-categories', article.categories.join(','));
-
     card.innerHTML = `
       <h2>${article.title}</h2>
-      ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
+      ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ''}
       <p>${article.summary}</p>
       <div class="card-buttons">
         <button data-id="${article.id}" class="readMore">Read more →</button>
@@ -133,24 +106,21 @@ function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.onclick = () => loadMarkdown(btn.dataset.id);
   });
-
   document.querySelectorAll('.shareLink').forEach(btn => {
-    btn.onclick = (e) => {
+    btn.onclick = e => {
       const btn = e.target;
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(link).then(() => {
-          btn.textContent = "✅ Copied!";
-          setTimeout(() => btn.textContent = "🔗 Share", 1500);
-        }).catch(() => alert('Failed to copy. Please copy manually:\n' + link));
-      } else {
-        alert('Clipboard not supported. Copy manually:\n' + link);
-      }
+      navigator.clipboard.writeText(link).then(() => {
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => btn.textContent = "🔗 Share", 1500);
+      }).catch(() => {
+        alert('Copy failed. Link:\n' + link);
+      });
     };
   });
 }
 
-function renderPagination(totalArticles) {
+function renderPagination(totalItems) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
     pagination = document.createElement('div');
@@ -165,49 +135,45 @@ function renderPagination(totalArticles) {
       if (currentPage > 1) {
         currentPage--;
         renderArticlesPage(filteredArticles, currentPage);
-        updatePaginationButtons(totalArticles);
+        renderPaginationButtons(totalItems);
       }
     };
 
     document.getElementById('nextPage').onclick = () => {
-      if (currentPage * articlesPerPage < totalArticles) {
+      if (currentPage * articlesPerPage < totalItems) {
         currentPage++;
         renderArticlesPage(filteredArticles, currentPage);
-        updatePaginationButtons(totalArticles);
+        renderPaginationButtons(totalItems);
       }
     };
   }
-  updatePaginationButtons(totalArticles);
+  renderPaginationButtons(totalItems);
 }
 
-function updatePaginationButtons(totalArticles) {
+function renderPaginationButtons(totalItems) {
   document.getElementById('prevPage').disabled = currentPage === 1;
-  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
+  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalItems;
 }
 
 function loadArticles() {
   fetch('articles.json')
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to load articles.json');
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       allArticles = data;
       filteredArticles = allArticles.slice();
 
-      // Extract categories + "All"
+      // Categories + 'All'
       const allCategoriesSet = new Set();
       allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
       const categories = ['All', ...Array.from(allCategoriesSet).sort()];
-      renderCategories(categories);
 
-      renderArticlesPage(filteredArticles, currentPage);
-      renderPagination(filteredArticles.length);
+      renderCategories(categories);
+      filterArticlesByCategory('All');
 
       setupSearch();
       setupCategoryFilters(categories);
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error('Error loading articles:', err));
 }
 
 function setupSearch() {
@@ -222,6 +188,7 @@ function setupSearch() {
     currentPage = 1;
     renderArticlesPage(filteredArticles, currentPage);
     renderPagination(filteredArticles.length);
+    highlightActiveCategoryButtons('All');
   };
 }
 
@@ -247,7 +214,7 @@ function setupCategoryFilters(categories) {
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => {
-      if (!res.ok) throw new Error('Failed to load markdown article');
+      if (!res.ok) throw new Error(`Failed to load article: ${id}.md`);
       return res.text();
     })
     .then(markdown => {
@@ -255,30 +222,19 @@ function loadMarkdown(id) {
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      let viewer = document.getElementById('articleContent');
-      if (!viewer) {
-        viewer = document.createElement('div');
-        viewer.id = 'articleContent';
-        viewer.className = 'article-viewer';
-        document.querySelector('main').appendChild(viewer);
-      }
+      const viewer = document.getElementById('articleContent') || createArticleViewer();
       viewer.innerHTML = marked.parse(markdown);
 
-      // Share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
+      share.style.marginTop = '1rem';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(link).then(() => {
-            share.textContent = '✅ Copied!';
-            setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-          }).catch(() => alert('Failed to copy. Please copy manually:\n' + link));
-        } else {
-          alert('Clipboard not supported. Copy manually:\n' + link);
-        }
+        navigator.clipboard.writeText(link).then(() => {
+          share.textContent = '✅ Copied!';
+          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+        }).catch(() => alert('Copy failed. Link:\n' + link));
       };
-      share.style.marginTop = '1rem';
       viewer.appendChild(share);
 
       viewer.style.display = 'block';
@@ -286,12 +242,19 @@ function loadMarkdown(id) {
       document.getElementById('navLinks').classList.remove('open');
     })
     .catch(err => {
-      alert("Failed to load article content.");
+      alert(err.message);
       console.error(err);
     });
 }
 
-// Back button returns to main list
+function createArticleViewer() {
+  const viewer = document.createElement('div');
+  viewer.id = 'articleContent';
+  viewer.className = 'article-viewer';
+  document.querySelector('main').appendChild(viewer);
+  return viewer;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('backButton').addEventListener('click', () => {
     document.getElementById('articles').style.display = 'block';
@@ -303,9 +266,23 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.hash = '';
   });
 
-  // Load article from hash on load
+  // Load article from URL hash on page load
   const hash = window.location.hash.slice(1);
-  if (hash) {
-    setTimeout(() => loadMarkdown(hash), 300);
-  }
+  if (hash) setTimeout(() => loadMarkdown(hash), 300);
 });
+
+fetch('header.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('header-placeholder').innerHTML = html;
+    initHeaderScripts();
+    loadArticles();
+  })
+  .catch(err => console.error('Error loading header:', err));
+
+fetch('footer.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('footer-placeholder').innerHTML = html;
+  })
+  .catch(err => console.error('Error loading footer:', err));
