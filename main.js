@@ -77,7 +77,6 @@ function loadArticles() {
         `;
         container.appendChild(card);
 
-        // Menu link
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = article.title;
@@ -90,7 +89,7 @@ function loadArticles() {
         article.categories.forEach(cat => allCategories.add(cat));
       });
 
-      // Category filters
+      // Create filter buttons
       const sortedCats = Array.from(allCategories).sort();
       filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
       sortedCats.forEach(cat => {
@@ -110,12 +109,11 @@ function loadArticles() {
 
         document.querySelectorAll('#articles article').forEach(article => {
           const cats = article.dataset.categories.split(',');
-          const visible = selected === 'all' || cats.includes(selected);
-          article.style.display = visible ? 'block' : 'none';
+          article.style.display = selected === 'all' || cats.includes(selected) ? 'block' : 'none';
         });
       });
 
-      // Preselect category from URL
+      // URL category support (?cat=Steam+Deck)
       const urlParams = new URLSearchParams(window.location.search);
       const preselectCategory = urlParams.get('cat');
       if (preselectCategory) {
@@ -125,23 +123,20 @@ function loadArticles() {
         if (match) match.click();
       }
 
-      // Read more and share buttons
+      // Read more
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
 
+      // Share buttons with fallback
       document.querySelectorAll('.shareLink').forEach(btn => {
         btn.addEventListener('click', () => {
           const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-          navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = "✅ Copied!";
-            setTimeout(() => {
-              btn.textContent = "🔗 Share";
-            }, 1500);
-          });
+          copyToClipboard(link, btn);
         });
       });
 
+      // Auto-load article if hash present
       const hash = window.location.hash.slice(1);
       if (hash) {
         setTimeout(() => loadMarkdown(hash), 300);
@@ -149,7 +144,7 @@ function loadArticles() {
     });
 }
 
-// Load markdown article into page
+// Load markdown article into viewer
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => res.text())
@@ -165,43 +160,70 @@ function loadMarkdown(id) {
       share.textContent = '🔗 Share';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
-        navigator.clipboard.writeText(link).then(() => {
-          share.textContent = '✅ Copied!';
-          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-        });
+        copyToClipboard(link, share);
       };
       share.style.marginTop = '1rem';
       viewer.appendChild(share);
 
       viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
-      const nav = document.getElementById('navLinks');
-      if (nav) nav.classList.remove('open');
+      document.getElementById('navLinks').classList.remove('open');
     });
 }
 
-// Back button + search filter
-window.addEventListener('DOMContentLoaded', () => {
-  const backBtn = document.getElementById('backButton');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      document.getElementById('articles').style.display = 'block';
-      document.getElementById('searchBox').style.display = 'block';
-      document.getElementById('categoryFilters').style.display = 'flex';
-      document.getElementById('articleContent').style.display = 'none';
-      backBtn.style.display = 'none';
-      window.location.hash = '';
-    });
-  }
+// Return to main list
+document.getElementById('backButton').addEventListener('click', () => {
+  document.getElementById('articles').style.display = 'block';
+  document.getElementById('searchBox').style.display = 'block';
+  document.getElementById('categoryFilters').style.display = 'flex';
+  document.getElementById('articleContent').style.display = 'none';
+  document.getElementById('backButton').style.display = 'none';
+  window.location.hash = '';
+});
 
-  const searchBox = document.getElementById('searchBox');
-  if (searchBox) {
-    searchBox.addEventListener('input', () => {
-      const term = searchBox.value.toLowerCase();
-      document.querySelectorAll('#articles article').forEach(article => {
-        const text = article.innerText.toLowerCase();
-        article.style.display = text.includes(term) ? 'block' : 'none';
-      });
+// Live search
+document.addEventListener('input', e => {
+  if (e.target.id === 'searchBox') {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#articles article').forEach(article => {
+      const text = article.innerText.toLowerCase();
+      article.style.display = text.includes(term) ? 'block' : 'none';
     });
   }
 });
+
+// Clipboard fallback for iOS and older browsers
+function copyToClipboard(text, button) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopied(button);
+    }).catch(() => {
+      fallbackCopy(text, button);
+    });
+  } else {
+    fallbackCopy(text, button);
+  }
+}
+
+function fallbackCopy(text, button) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    const successful = document.execCommand("copy");
+    if (successful) showCopied(button);
+    else alert("Copy failed");
+  } catch (err) {
+    alert("Copy not supported on this device.");
+  }
+  document.body.removeChild(textarea);
+}
+
+function showCopied(button) {
+  const original = button.textContent;
+  button.textContent = "✅ Copied!";
+  setTimeout(() => button.textContent = original, 1500);
+}
