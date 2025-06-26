@@ -1,9 +1,9 @@
 [
   {
-    "id": "1",
-    "title": "Cool Gadget One",
-    "summary": "An amazing gadget that will change your life.",
-    "image": "images/gadget1.jpg"
+    "id": "SUDOPassword",
+    "title": "SUDO Password",
+    "summary": "The SUDO password is the super user password. Similar to the Administrator account on windows. It is needed to install anything that uses or changes the secure part of the system.",
+    "image": "images/IMG_1289.png"
   },
   {
     "id": "2",
