@@ -1,12 +1,12 @@
 [
   {
-    "id": "SUDOPassword",
+    "id": "1",
     "title": "SUDO Password",
     "summary": "The SUDO password is the super user password. Similar to the Administrator account on windows. It is needed to install anything that uses or changes the secure part of the system.",
     "image": "images/IMG_1289.png"
   },
   {
-    "id": "SDCards",
+    "id": "2",
     "title": "SD Cards",
     "summary": "Depending on the model you have the Steam Deck doesn’t have a lot of storage space. Even the 512gb version will fill up fast with AAA games. Upgrading the internal storage and adding an SD Card will increase your storage space.",
     "image": "images/IMG_1291.png"
