@@ -1,84 +1,65 @@
-function initHeaderScripts() {
-  const menuToggle = document.getElementById("menuToggle");
-  const navLinks = document.getElementById("navLinks");
+// Load shared header
+fetch("header.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("header-placeholder").innerHTML = html;
+    initHeaderScripts();
+  });
 
-  if (menuToggle && navLinks) {
-    menuToggle.addEventListener("click", () => {
-      navLinks.classList.toggle("open");
-    });
+// Tab switching
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
 
-    document.addEventListener("click", (e) => {
-      if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
-        navLinks.classList.remove("open");
-      }
-    });
-  }
-}
-
-fetch("header.html").then((res) => res.text()).then((html) => {
-  document.getElementById("header-placeholder").innerHTML = html;
-  initHeaderScripts();
-});
-
-fetch("footer.html").then((res) => res.text()).then((html) => {
-  document.getElementById("footer-placeholder").innerHTML = html;
-});
-
-const editor = new EditorJS({
-  holder: "editorArea",
-  placeholder: "Start writing your article content...",
-});
-
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
-
-    tab.classList.add("active");
-    document.getElementById(tab.dataset.tab).classList.add("active");
+    if (btn.dataset.tab === "preview") {
+      updatePreview();
+    } else if (btn.dataset.tab === "save") {
+      updateJSONPreview();
+    }
   });
 });
 
-document.getElementById("addArticle").addEventListener("click", () => {
-  document.getElementById("articleTitle").value = "";
-  document.getElementById("articleImage").value = "";
-  document.getElementById("articleCategories").value = "";
-  document.getElementById("articleSummary").value = "";
-  editor.clear();
-});
+function updatePreview() {
+  const markdown = document.getElementById("markdownInput").value;
+  document.getElementById("livePreview").innerHTML = marked.parse(markdown);
+}
 
-document.getElementById("loadArticle").addEventListener("click", () => {
-  const id = prompt("Enter article ID to load:");
-  if (!id) return;
-  fetch(`articles/${id}.md`)
-    .then((res) => res.text())
-    .then((md) => {
-      document.getElementById("markdownOutput").value = md;
-      const title = md.match(/^# (.*)/)?.[1] || "";
-      document.getElementById("articleTitle").value = title;
-    });
-});
+function updateJSONPreview() {
+  const json = buildArticleJSON();
+  document.getElementById("jsonPreview").textContent = JSON.stringify(json, null, 2);
+}
 
-document.getElementById("copyMarkdown").addEventListener("click", () => {
-  navigator.clipboard.writeText(document.getElementById("markdownOutput").value);
-});
+function buildArticleJSON() {
+  const title = document.getElementById("articleTitle").value.trim();
+  const image = document.getElementById("articleImage").value.trim();
+  const categories = document.getElementById("articleCategories").value.split(",").map(c => c.trim());
+  const summary = document.getElementById("markdownInput").value.trim().split("\n")[0];
+  const id = title.replace(/\s+/g, "").replace(/[^\w\-]/g, "");
 
-document.getElementById("copyJSON").addEventListener("click", () => {
-  navigator.clipboard.writeText(document.getElementById("jsonOutput").value);
-});
+  return { id, title, summary, image, categories };
+}
 
-document.getElementById("downloadMarkdown").addEventListener("click", () => {
-  const blob = new Blob([document.getElementById("markdownOutput").value], { type: "text/markdown" });
+// Export buttons
+document.getElementById("downloadMD").onclick = () => {
+  const blob = new Blob([document.getElementById("markdownInput").value], { type: "text/markdown" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "article.md";
+  a.download = `${document.getElementById("articleTitle").value || "untitled"}.md`;
   a.click();
-});
+};
 
-document.getElementById("downloadJSON").addEventListener("click", () => {
-  const blob = new Blob([document.getElementById("jsonOutput").value], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "articles.json";
-  a.click();
-});
+document.getElementById("copyMD").onclick = () => {
+  navigator.clipboard.writeText(document.getElementById("markdownInput").value).then(() => {
+    alert("Markdown copied!");
+  });
+};
+
+document.getElementById("copyJSON").onclick = () => {
+  const json = buildArticleJSON();
+  navigator.clipboard.writeText(JSON.stringify(json, null, 2)).then(() => {
+    alert("JSON copied!");
+  });
+};

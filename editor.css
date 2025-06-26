@@ -1,59 +1,63 @@
 .editor-container {
   padding: 1rem;
-  max-width: 900px;
+  max-width: 800px;
   margin: auto;
 }
-.editor-container input,
-.editor-container textarea {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-#editorArea {
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 1rem;
-  background: #1e1e2f;
-  margin-bottom: 1rem;
-  min-height: 300px;
-}
-.tab-bar {
+
+.tab-buttons {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
 }
-.tab {
+
+.tab-btn {
+  padding: 0.5rem 1rem;
   background: #444;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 5px;
 }
-.tab.active {
+.tab-btn.active {
   background: #0af;
 }
+
 .tab-content {
   display: none;
 }
 .tab-content.active {
   display: block;
 }
-.export-bar {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
+
+textarea#markdownInput {
+  width: 100%;
+  height: 300px;
+  background: #111;
+  color: #eee;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-family: monospace;
 }
-.export-bar button {
-  padding: 0.5rem 1rem;
-  background: #0af;
+
+#articleTitle,
+#articleImage,
+#articleCategories {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #333;
+  background: #1e1e2f;
   color: white;
-  border: none;
   border-radius: 6px;
 }
-@media (max-width: 600px) {
-  .export-bar {
-    flex-direction: column;
-  }
+
+#jsonPreview {
+  white-space: pre-wrap;
+  background: #1e1e2f;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #0f0;
+  font-size: 0.9rem;
+  overflow-x: auto;
 }

@@ -2,51 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gadget Guide Editor</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="editor.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Article Editor</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="editor.css">
 </head>
 <body>
   <div id="header-placeholder"></div>
 
   <main class="editor-container">
-    <div class="tab-bar">
-      <button class="tab active" data-tab="editor">Editor</button>
-      <button class="tab" data-tab="json">articles.json</button>
-      <button class="tab" data-tab="markdown">Markdown</button>
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="edit">✏️ Edit</button>
+      <button class="tab-btn" data-tab="preview">👁️ Preview</button>
+      <button class="tab-btn" data-tab="save">💾 Save</button>
     </div>
 
-    <div class="tab-content active" id="editor">
-      <input type="text" id="articleTitle" placeholder="Article Title" />
-      <input type="text" id="articleImage" placeholder="Image URL" />
-      <input type="text" id="articleCategories" placeholder="Categories (comma-separated)" />
-      <textarea id="articleSummary" placeholder="Short Summary"></textarea>
-      <div id="editorArea"></div>
+    <div id="edit" class="tab-content active">
+      <input id="articleTitle" type="text" placeholder="Article Title">
+      <input id="articleImage" type="text" placeholder="Image URL">
+      <input id="articleCategories" type="text" placeholder="Categories (comma-separated)">
+      <textarea id="markdownInput" placeholder="Write your Markdown here..."></textarea>
     </div>
 
-    <div class="tab-content" id="json">
-      <textarea id="jsonOutput" readonly></textarea>
-      <button id="copyJSON">Copy JSON</button>
-      <button id="downloadJSON">Download JSON</button>
+    <div id="preview" class="tab-content">
+      <h2>Live Preview</h2>
+      <div id="livePreview" class="article-viewer"></div>
     </div>
 
-    <div class="tab-content" id="markdown">
-      <textarea id="markdownOutput" readonly></textarea>
-      <button id="copyMarkdown">Copy Markdown</button>
-      <button id="downloadMarkdown">Download .md</button>
-    </div>
-
-    <div class="export-bar">
-      <button id="loadArticle">📂 Load Article</button>
-      <button id="addArticle">➕ Add New Article</button>
+    <div id="save" class="tab-content">
+      <h2>Export Options</h2>
+      <button id="downloadMD">⬇️ Download .md</button>
+      <button id="copyMD">📋 Copy Markdown</button>
+      <button id="copyJSON">📋 Copy JSON</button>
+      <pre id="jsonPreview"></pre>
     </div>
   </main>
 
-  <div id="footer-placeholder"></div>
-
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@richtr/editor@1.0.2/dist/editor.min.js"></script>
   <script src="editor.js"></script>
 </body>
 </html>
