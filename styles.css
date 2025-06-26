@@ -268,3 +268,21 @@ article button:hover {
   background: var(--accent-color);
   color: white;
 }
+
+.card-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.shareLink {
+  background: transparent;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: normal;
+}
+.shareLink:hover {
+  background: var(--accent-color);
+  color: #fff;
+}

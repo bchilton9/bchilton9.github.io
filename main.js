@@ -73,6 +73,7 @@ function loadArticles() {
           ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
           <p>${article.summary}</p>
           <button data-id="${article.id}" class="readMore">Read more →</button>
+          <button data-id="${article.id}" class="shareLink">🔗 Share</button
         `;
         container.appendChild(card);
 
@@ -119,6 +120,18 @@ function loadArticles() {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
     });
+    
+document.querySelectorAll('.shareLink').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
+    navigator.clipboard.writeText(link).then(() => {
+      btn.textContent = "✅ Copied!";
+      setTimeout(() => {
+        btn.textContent = "🔗 Share";
+      }, 1500);
+    });
+  });
+}); 
 }
 
 
@@ -133,6 +146,19 @@ function loadMarkdown(id) {
       document.getElementById('articleContent').style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
+      
+const share = document.createElement('button');
+share.textContent = '🔗 Share';
+share.style.marginTop = '1rem';
+share.onclick = () => {
+  const link = `${window.location.origin}${window.location.pathname}#${id}`;
+  navigator.clipboard.writeText(link).then(() => {
+    share.textContent = '✅ Copied!';
+    setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+  });
+};
+
+document.getElementById('articleContent').appendChild(share); 
     });
 }
 
@@ -152,5 +178,13 @@ document.addEventListener('input', e => {
       const text = article.innerText.toLowerCase();
       article.style.display = text.includes(term) ? 'block' : 'none';
     });
+  }
+});
+
+window.addEventListener('load', () => {
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    // Wait until articles are loaded
+    setTimeout(() => loadMarkdown(hash), 300);
   }
 });
