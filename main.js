@@ -73,7 +73,7 @@ function loadArticles() {
           ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
           <p>${article.summary}</p>
           <button data-id="${article.id}" class="readMore">Read more →</button>
-          <button data-id="${article.id}" class="shareLink">🔗 Share</button
+          <button data-id="${article.id}" class="shareLink">🔗 Share</button>
         `;
         container.appendChild(card);
 
@@ -147,15 +147,6 @@ function loadMarkdown(id) {
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
       
-const share = document.createElement('button');
-share.textContent = '🔗 Share';
-share.style.marginTop = '1rem';
-share.onclick = () => {
-  const link = `${window.location.origin}${window.location.pathname}#${id}`;
-  navigator.clipboard.writeText(link).then(() => {
-    share.textContent = '✅ Copied!';
-    setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-  });
 };
 
 document.getElementById('articleContent').appendChild(share); 
