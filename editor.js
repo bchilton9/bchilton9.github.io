@@ -1,153 +1,182 @@
-// Load header
-fetch("header.html").then(res => res.text()).then(html => {
-  document.getElementById("header-placeholder").innerHTML = html;
-});
+// Load shared header
+fetch("header.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("header-placeholder").innerHTML = html;
+    initHeaderScripts?.(); // Optional
+  });
 
 // Tab switching
-document.querySelectorAll(".tab-btn").forEach((btn) => {
+document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
+
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
   });
 });
 
-const wysiwyg = document.getElementById("wysiwygEditor");
-const markdown = document.getElementById("markdownEditor");
-
-// Sync both ways
-let syncing = false;
-wysiwyg.addEventListener("input", () => {
-  if (syncing) return;
-  syncing = true;
-  markdown.value = wysiwyg.value;
-  syncing = false;
-});
-
-markdown.addEventListener("input", () => {
-  if (syncing) return;
-  syncing = true;
-  wysiwyg.value = markdown.value;
-  syncing = false;
-});
-
-function buildArticleJson() {
-  return {
-    id: document.getElementById("id").value.trim(),
-    title: document.getElementById("title").value.trim(),
-    summary: document.getElementById("summary").value.trim(),
-    image: document.getElementById("image").value.trim(),
-    categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
-  };
-}
+const mdEditor = document.getElementById("markdownEditor");
+const wysiwyg = document.getElementById("wysiwygBox");
+const idField = document.getElementById("id");
+const titleField = document.getElementById("title");
+const summaryField = document.getElementById("summary");
+const imageField = document.getElementById("image");
+const categoriesField = document.getElementById("categories");
 
 let allArticles = [];
+
+// Live sync between editors
+mdEditor.addEventListener("input", () => {
+  wysiwyg.innerHTML = marked.parse(mdEditor.value);
+});
+wysiwyg.addEventListener("input", () => {
+  // Optional: update mdEditor from wysiwyg if you implement a proper rich editor
+});
+
+// Load articles.json and build dropdown
 fetch("articles.json")
-  .then((res) => res.json())
-  .then((data) => {
+  .then(res => res.json())
+  .then(data => {
     allArticles = data;
-    updateArticleListUI();
-    populateLoaderDropdown();
+    updateArticleList();
+    populateArticleDropdown();
   });
 
-function updateArticleListUI() {
-  document.getElementById("articleListDisplay").textContent = JSON.stringify(allArticles, null, 2);
-}
-
-function populateLoaderDropdown() {
-  const loader = document.getElementById("articleLoader");
-  allArticles.forEach((article) => {
-    const option = document.createElement("option");
-    option.value = article.id;
-    option.textContent = article.title;
-    loader.appendChild(option);
+function populateArticleDropdown() {
+  const select = document.getElementById("articleLoader");
+  allArticles.forEach(article => {
+    const opt = document.createElement("option");
+    opt.value = article.id;
+    opt.textContent = article.title;
+    select.appendChild(opt);
   });
 }
 
-document.getElementById("articleLoader").addEventListener("change", (e) => {
+document.getElementById("articleLoader").addEventListener("change", e => {
   const id = e.target.value;
   if (!id) return clearForm();
+
   const article = allArticles.find(a => a.id === id);
-  if (article) {
-    document.getElementById("id").value = article.id;
-    document.getElementById("title").value = article.title;
-    document.getElementById("summary").value = article.summary;
-    document.getElementById("image").value = article.image;
-    document.getElementById("categories").value = article.categories.join(", ");
-    fetch(`articles/${article.id}.md`).then(res => res.text()).then((md) => {
-      wysiwyg.value = md;
-      markdown.value = md;
+  if (!article) return;
+
+  idField.value = article.id;
+  titleField.value = article.title;
+  summaryField.value = article.summary;
+  imageField.value = article.image;
+  categoriesField.value = article.categories.join(", ");
+
+  fetch(`articles/${article.id}.md`)
+    .then(res => res.text())
+    .then(md => {
+      mdEditor.value = md;
+      wysiwyg.innerHTML = marked.parse(md);
     });
-  }
 });
 
 function clearForm() {
-  ["id", "title", "summary", "image", "categories"].forEach(id => document.getElementById(id).value = "");
-  wysiwyg.value = "";
-  markdown.value = "";
+  [idField, titleField, summaryField, imageField, categoriesField].forEach(el => el.value = "");
+  mdEditor.value = "";
+  wysiwyg.innerHTML = "";
 }
 
 // Export buttons
-document.getElementById("downloadMd").onclick = () => {
-  const blob = new Blob([markdown.value], { type: "text/markdown" });
-  const link = Object.assign(document.createElement("a"), {
-    href: URL.createObjectURL(blob),
-    download: document.getElementById("id").value.trim() + ".md"
-  });
-  link.click();
-};
-
-document.getElementById("copyMd").onclick = () => {
-  navigator.clipboard.writeText(markdown.value).then(() => alert("Markdown copied!"));
-};
-
-document.getElementById("copyJson").onclick = () => {
-  const updated = [...allArticles.filter(a => a.id !== buildArticleJson().id), buildArticleJson()];
-  navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => alert("JSON copied!"));
-};
-
-document.getElementById("downloadJson").onclick = () => {
-  const updated = [...allArticles.filter(a => a.id !== buildArticleJson().id), buildArticleJson()];
-  const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
-  const link = Object.assign(document.createElement("a"), {
-    href: URL.createObjectURL(blob),
-    download: "articles.json"
-  });
-  link.click();
-};
-
-// Load images from /images/
-fetch("images/").then(res => res.text()).then((html) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const links = Array.from(doc.querySelectorAll("a"));
-  const imageGrid = document.getElementById("imageGrid");
-
-  links.forEach((link) => {
-    const href = link.getAttribute("href");
-    if (/\.(png|jpe?g|gif|webp)$/i.test(href)) {
-      const fullPath = `images/${href}`;
-      const figure = document.createElement("figure");
-      figure.innerHTML = `
-        <img src="${fullPath}" alt="${href}" />
-        <figcaption>${fullPath}</figcaption>
-        <button onclick="copyImage('${fullPath}')">📋 Copy Path</button>
-        <button onclick="insertImage('${fullPath}')">⬇️ Insert into Markdown</button>
-        <button onclick="setImage('${fullPath}')">🎯 Set as Main</button>
-      `;
-      imageGrid.appendChild(figure);
-    }
-  });
+document.getElementById("downloadMd").addEventListener("click", () => {
+  const id = idField.value.trim();
+  const blob = new Blob([mdEditor.value], { type: "text/markdown" });
+  triggerDownload(blob, `${id || "article"}.md`);
 });
 
-window.copyImage = (path) => {
-  navigator.clipboard.writeText(path).then(() => alert("Copied to clipboard!"));
-};
-window.insertImage = (path) => {
-  markdown.value += `\n\n![alt text](${path})\n`;
-  wysiwyg.value = markdown.value;
-};
-window.setImage = (path) => {
-  document.getElementById("image").value = path;
-};
+document.getElementById("copyMd").addEventListener("click", () => {
+  copyText(mdEditor.value);
+});
+
+document.getElementById("copyJson").addEventListener("click", () => {
+  const updated = buildUpdatedJson();
+  copyText(JSON.stringify(updated, null, 2));
+});
+
+document.getElementById("downloadJson").addEventListener("click", () => {
+  const updated = buildUpdatedJson();
+  const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+  triggerDownload(blob, "articles.json");
+});
+
+function triggerDownload(blob, filename) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+function copyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = 0;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+  alert("Copied!");
+}
+
+function buildUpdatedJson() {
+  const newArticle = {
+    id: idField.value.trim(),
+    title: titleField.value.trim(),
+    summary: summaryField.value.trim(),
+    image: imageField.value.trim(),
+    categories: categoriesField.value.split(",").map(c => c.trim()).filter(Boolean)
+  };
+  const filtered = allArticles.filter(a => a.id !== newArticle.id);
+  return [...filtered, newArticle].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function updateArticleList() {
+  const display = document.getElementById("articleListDisplay");
+  display.textContent = JSON.stringify(allArticles, null, 2);
+}
+
+// Load image list from images/ directory
+fetch("images/")
+  .then(res => res.text())
+  .then(html => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const links = Array.from(doc.querySelectorAll("a"))
+      .map(link => link.getAttribute("href"))
+      .filter(name => /\.(png|jpe?g|gif)$/i.test(name));
+
+    const container = document.getElementById("imageList");
+    container.innerHTML = "";
+
+    links.forEach(filename => {
+      const fullPath = "images/" + filename;
+      const entry = document.createElement("div");
+      entry.className = "image-entry";
+      entry.innerHTML = `
+        <img src="${fullPath}" alt="" />
+        <span class="path">${fullPath}</span>
+        <button class="copyBtn">📋 Copy Path</button>
+        <button class="insertMdBtn">🖼️ → Markdown</button>
+        <button class="setImgBtn">🏞️ → Main Image</button>
+      `;
+      container.appendChild(entry);
+
+      entry.querySelector(".copyBtn").onclick = () => copyText(fullPath);
+      entry.querySelector(".insertMdBtn").onclick = () => {
+        mdEditor.value += `\n![Image](${fullPath})\n`;
+        wysiwyg.innerHTML = marked.parse(mdEditor.value);
+      };
+      entry.querySelector(".setImgBtn").onclick = () => {
+        imageField.value = fullPath;
+      };
+    });
+  })
+  .catch(err => {
+    console.error("Failed to load image list:", err);
+    const container = document.getElementById("imageList");
+    container.innerHTML = "<p style='color: red;'>Error loading images directory. Hosting must allow directory listing.</p>";
+  });

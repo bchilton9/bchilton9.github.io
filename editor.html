@@ -6,7 +6,6 @@
   <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="editor.css" />
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -26,26 +25,31 @@
       <button class="tab-btn" data-tab="export">Export</button>
     </div>
 
+    <!-- Details Tab -->
     <div class="tab-content active" id="tab-details">
+      <input type="text" id="id" placeholder="Article ID" />
       <input type="text" id="title" placeholder="Title" />
       <input type="text" id="summary" placeholder="Summary" />
-      <input type="text" id="image" placeholder="Image URL" />
+      <input type="text" id="image" placeholder="Image Path" />
       <input type="text" id="categories" placeholder="Categories (comma separated)" />
-      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
     </div>
 
+    <!-- WYSIWYG Tab -->
     <div class="tab-content" id="tab-wysiwyg">
-      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
+      <div id="wysiwygEditor" contenteditable="true" class="wysiwyg-box"></div>
     </div>
 
+    <!-- Markdown Tab -->
     <div class="tab-content" id="tab-markdown">
       <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
     </div>
 
+    <!-- Images Tab -->
     <div class="tab-content" id="tab-images">
-      <div id="imageGrid" class="image-grid"></div>
+      <div id="imageList" class="image-list"></div>
     </div>
 
+    <!-- Export Tab -->
     <div class="tab-content" id="tab-export">
       <div class="export-buttons">
         <button id="downloadMd">Download .md</button>
