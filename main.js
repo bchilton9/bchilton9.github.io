@@ -8,6 +8,7 @@ const colorThemes = [
   'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
 ];
 
+// Initialize header scripts and color selector
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
@@ -24,7 +25,7 @@ function initHeaderScripts() {
     });
   }
 
-  // Color theme selector
+  // Color selector
   const colorSelector = document.getElementById('colorSelector');
   if (colorSelector) {
     colorSelector.onchange = () => {
@@ -35,7 +36,7 @@ function initHeaderScripts() {
   loadColorTheme();
 }
 
-// Set the color theme by adding body class
+// Apply a color theme class to body
 function setColorTheme(theme) {
   colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
   if (theme && colorThemes.includes(theme)) {
@@ -44,26 +45,47 @@ function setColorTheme(theme) {
   }
 }
 
-// Load saved theme from localStorage
+// Load saved color theme from localStorage
 function loadColorTheme() {
   const savedTheme = localStorage.getItem('colorTheme') || 'blue';
   const selector = document.getElementById('colorSelector');
-  if (selector) selector.value = savedTheme;
+  if (selector) {
+    selector.value = savedTheme;
+  }
   setColorTheme(savedTheme);
 }
 
-fetch('header.html').then(res => res.text()).then(html => {
-  document.getElementById('header-placeholder').innerHTML = html;
-  initHeaderScripts();
-  loadArticles();
-});
+// Load header and footer HTML then initialize
+fetch('header.html')
+  .then(res => {
+    if (!res.ok) throw new Error(`Failed to load header.html: ${res.status}`);
+    return res.text();
+  })
+  .then(html => {
+    document.getElementById('header-placeholder').innerHTML = html;
+    initHeaderScripts();
+    loadArticles();
+  })
+  .catch(err => {
+    console.error(err);
+  });
 
-fetch('footer.html').then(res => res.text()).then(html => {
-  document.getElementById('footer-placeholder').innerHTML = html;
-});
+fetch('footer.html')
+  .then(res => {
+    if (!res.ok) throw new Error(`Failed to load footer.html: ${res.status}`);
+    return res.text();
+  })
+  .then(html => {
+    document.getElementById('footer-placeholder').innerHTML = html;
+  })
+  .catch(err => {
+    console.error(err);
+  });
 
+// Render categories as buttons in hamburger menu
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
+  if (!menuList) return;
   menuList.innerHTML = '';
 
   categories.forEach(cat => {
@@ -79,6 +101,7 @@ function renderCategories(categories) {
   });
 }
 
+// Filter articles by category and render page + pagination
 function filterArticlesByCategory(category) {
   if (category === 'All') {
     filteredArticles = allArticles.slice();
@@ -89,8 +112,10 @@ function filterArticlesByCategory(category) {
   renderPagination(filteredArticles.length);
 }
 
+// Render articles for current page
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
+  if (!container) return;
   container.innerHTML = '';
   const start = (page - 1) * articlesPerPage;
   const pagedArticles = data.slice(start, start + articlesPerPage);
@@ -112,12 +137,9 @@ function renderArticlesPage(data, page) {
   });
 
   attachArticleButtons();
-
-  // Show pagination when article list is visible
-  const pagination = document.querySelector('.pagination');
-  if (pagination) pagination.style.display = 'flex';
 }
 
+// Attach event handlers for read more and share buttons
 function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.onclick = () => loadMarkdown(btn.dataset.id);
@@ -137,6 +159,7 @@ function attachArticleButtons() {
   });
 }
 
+// Render pagination buttons and attach events
 function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
@@ -172,14 +195,19 @@ function updatePaginationButtons(totalArticles) {
   document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
+// Load articles.json, initialize categories, filters, pagination, search
 function loadArticles() {
   fetch('articles.json')
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to load articles.json: ${res.status}`);
+      return res.json();
+    })
     .then(data => {
+      console.log('Articles loaded:', data.length);
       allArticles = data;
       filteredArticles = allArticles.slice();
 
-      // Extract categories + "All"
+      // Extract categories, add "All"
       const allCategoriesSet = new Set();
       allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
       const categories = ['All', ...Array.from(allCategoriesSet).sort()];
@@ -190,11 +218,19 @@ function loadArticles() {
 
       setupSearch();
       setupCategoryFilters(categories);
+    })
+    .catch(err => {
+      console.error('Error loading articles:', err);
+      const container = document.getElementById('articles');
+      if(container) container.innerHTML = '<p style="color:red;">Failed to load articles. Please try again later.</p>';
     });
 }
 
+// Search box event filtering articles
 function setupSearch() {
   const searchBox = document.getElementById('searchBox');
+  if (!searchBox) return;
+
   searchBox.oninput = () => {
     const term = searchBox.value.toLowerCase();
     filteredArticles = allArticles.filter(article => {
@@ -208,9 +244,12 @@ function setupSearch() {
   };
 }
 
+// Category filter buttons below search box
 function setupCategoryFilters(categories) {
   const filterContainer = document.getElementById('categoryFilters');
+  if (!filterContainer) return;
   filterContainer.innerHTML = '';
+
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.textContent = cat;
@@ -227,22 +266,24 @@ function setupCategoryFilters(categories) {
   });
 }
 
+// Load and render markdown article by id
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to load article ${id}.md: ${res.status}`);
+      return res.text();
+    })
     .then(markdown => {
-      // Hide article list UI and pagination
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      const pagination = document.querySelector('.pagination');
-      if (pagination) pagination.style.display = 'none';
-
       const viewer = document.getElementById('articleContent');
+      if (!viewer) return;
+
       viewer.innerHTML = marked.parse(markdown);
 
-      // Make images clickable to open full size in new tab
+      // Make images clickable to open larger in new tab
       viewer.querySelectorAll('img').forEach(img => {
         img.style.cursor = 'pointer';
         img.onclick = () => {
@@ -266,27 +307,31 @@ function loadMarkdown(id) {
       viewer.appendChild(share);
 
       viewer.style.display = 'block';
-      document.getElementById('backButton').style.display = 'inline-block';
+      const backBtn = document.getElementById('backButton');
+      if(backBtn) backBtn.style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to load article content.');
     });
 }
 
-// Back button returns to main list
+// Back button returns to article list view
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('backButton').addEventListener('click', () => {
-    document.getElementById('articles').style.display = 'block';
-    document.getElementById('searchBox').style.display = 'block';
-    document.getElementById('categoryFilters').style.display = 'flex';
-    document.getElementById('articleContent').style.display = 'none';
-    document.getElementById('backButton').style.display = 'none';
+  const backBtn = document.getElementById('backButton');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      document.getElementById('articles').style.display = 'block';
+      document.getElementById('searchBox').style.display = 'block';
+      document.getElementById('categoryFilters').style.display = 'flex';
+      document.getElementById('articleContent').style.display = 'none';
+      backBtn.style.display = 'none';
+      window.location.hash = '';
+    });
+  }
 
-    const pagination = document.querySelector('.pagination');
-    if (pagination) pagination.style.display = 'flex';
-
-    window.location.hash = '';
-  });
-
-  // Load article from hash on load
+  // Load article from URL hash if present
   const hash = window.location.hash.slice(1);
   if (hash) {
     setTimeout(() => loadMarkdown(hash), 300);
