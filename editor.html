@@ -1,12 +1,10 @@
-<!-- Save this as editor.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -14,14 +12,13 @@
       color: #fff;
       margin: 0;
     }
-
+    #header-placeholder { margin-bottom: 1rem; }
     .editor-tabs {
       display: flex;
       flex-wrap: wrap;
       border-bottom: 1px solid #333;
       background: #222;
     }
-
     .editor-tabs button {
       flex: 1;
       padding: 0.75rem;
@@ -32,34 +29,22 @@
       font-weight: bold;
       border-right: 1px solid #333;
     }
-
     .editor-tabs button.active {
       background: #333;
       color: #fff;
     }
-
     .tab-content {
       display: none;
       padding: 1rem;
     }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    #title, #summary, #image, #categories, #id {
+    .tab-content.active { display: block; }
+    input, textarea {
       width: 100%;
       padding: 0.5rem;
       margin-bottom: 1rem;
       font-size: 1rem;
     }
-
-    textarea, input, select {
-      font-size: 1rem;
-    }
-
     #markdownEditor {
-      width: 100%;
       height: 300px;
       background: #1e1e2f;
       color: #fff;
@@ -67,14 +52,17 @@
       padding: 1rem;
       border-radius: 6px;
     }
-
+    #editorContainer {
+      height: 300px;
+      background: #fff;
+      color: #000;
+    }
     .export-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 1rem;
     }
-
     .export-buttons button {
       background: #0af;
       border: none;
@@ -83,101 +71,30 @@
       color: white;
       cursor: pointer;
     }
-
-    select#articleLoader {
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      width: 100%;
-    }
-
     #articleListDisplay {
       margin-top: 1rem;
       font-size: 0.9rem;
       color: #aaa;
       white-space: pre-wrap;
     }
-
+    select#articleLoader {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+    }
     @media (max-width: 600px) {
       .editor-tabs button {
         font-size: 0.9rem;
         padding: 0.5rem;
       }
-
-      #markdownEditor {
+      #markdownEditor, #editorContainer {
         height: 200px;
       }
-    }
-
-    /* Minimal header and menu for embedded use */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #1e1e2f;
-      color: white;
-      padding: 0.75rem 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .site-logo {
-      height: 40px;
-      border-radius: 6px;
-    }
-
-    .menu-icons button {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: white;
-    }
-
-    .nav-links {
-      position: fixed;
-      top: 60px;
-      left: 0;
-      width: 260px;
-      height: 100vh;
-      background: #222;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      overflow-y: auto;
-      padding: 1rem;
-      z-index: 999;
-    }
-
-    .nav-links.open {
-      transform: translateX(0);
-    }
-
-    .nav-links a {
-      display: block;
-      padding: 0.5rem;
-      color: #ddd;
-      text-decoration: none;
-      border-bottom: 1px solid #444;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      background: #333;
-      color: #fff;
-      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <a href="index.html"><img id="siteLogo" src="images/logo-dark.png" alt="Logo" class="site-logo" /></a>
-    <div class="menu-icons">
-      <button id="menuToggle" title="Menu">☰</button>
-    </div>
-  </header>
-
-  <nav class="nav-links" id="navLinks">
-    <a href="index.html">Home</a>
-  </nav>
+  <div id="header-placeholder"></div>
 
   <main>
     <h2>🛠️ Article Editor</h2>
@@ -202,7 +119,7 @@
     </div>
 
     <div class="tab-content" id="tab-wysiwyg">
-      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
+      <div id="editorContainer"></div>
     </div>
 
     <div class="tab-content" id="tab-markdown">
@@ -220,21 +137,15 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script>
-    // Hamburger menu
-    function initHeaderScripts() {
-      const menuToggle = document.getElementById("menuToggle");
-      const navLinks = document.getElementById("navLinks");
-      if (menuToggle && navLinks) {
-        menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
-        document.addEventListener("click", (e) => {
-          if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
-            navLinks.classList.remove("open");
-          }
-        });
-      }
-    }
-    initHeaderScripts();
+    // Header
+    fetch("header.html")
+      .then((res) => res.text())
+      .then((html) => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
 
     // Tabs
     document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -243,14 +154,87 @@
         btn.classList.add("active");
 
         const tabId = "tab-" + btn.dataset.tab;
-        document.querySelectorAll(".tab-content").forEach((tab) => {
-          tab.classList.remove("active");
-        });
+        document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.remove("active"));
         document.getElementById(tabId).classList.add("active");
       });
     });
 
-    const wysiwyg = document.getElementById("wysiwygEditor");
+    const quill = new Quill('#editorContainer', {
+      theme: 'snow'
+    });
+
+    // Sync markdown textarea ↔ WYSIWYG
+    quill.on('text-change', () => {
+      const html = quill.root.innerHTML;
+      const md = htmlToMarkdown(html);
+      document.getElementById("markdownEditor").value = md;
+    });
+
+    document.getElementById("markdownEditor").addEventListener("input", () => {
+      const html = marked.parse(document.getElementById("markdownEditor").value);
+      quill.root.innerHTML = html;
+    });
+
+    function htmlToMarkdown(html) {
+      // Simple converter for basic tags
+      return html
+        .replace(/<h1>(.*?)<\/h1>/g, '# $1\n\n')
+        .replace(/<h2>(.*?)<\/h2>/g, '## $1\n\n')
+        .replace(/<h3>(.*?)<\/h3>/g, '### $1\n\n')
+        .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+        .replace(/<em>(.*?)<\/em>/g, '*$1*')
+        .replace(/<p>(.*?)<\/p>/g, '$1\n\n')
+        .replace(/<br\s*\/?>/g, '\n')
+        .replace(/<\/?[^>]+(>|$)/g, ""); // remove other tags
+    }
+
+    let allArticles = [];
+    fetch("articles.json")
+      .then(res => res.json())
+      .then(data => {
+        allArticles = data;
+        updateArticleListUI();
+        populateLoaderDropdown();
+      });
+
+    function populateLoaderDropdown() {
+      const loader = document.getElementById("articleLoader");
+      allArticles.forEach(article => {
+        const opt = document.createElement("option");
+        opt.value = article.id;
+        opt.textContent = article.title;
+        loader.appendChild(opt);
+      });
+    }
+
+    document.getElementById("articleLoader").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (!id) return clearForm();
+
+      const article = allArticles.find(a => a.id === id);
+      if (!article) return;
+
+      document.getElementById("id").value = article.id;
+      document.getElementById("title").value = article.title;
+      document.getElementById("summary").value = article.summary;
+      document.getElementById("image").value = article.image;
+      document.getElementById("categories").value = article.categories.join(", ");
+
+      fetch(`articles/${article.id}.md`)
+        .then(res => res.text())
+        .then(md => {
+          document.getElementById("markdownEditor").value = md;
+          quill.root.innerHTML = marked.parse(md);
+        });
+    });
+
+    function clearForm() {
+      ["id", "title", "summary", "image", "categories"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("markdownEditor").value = "";
+      quill.setText("");
+    }
 
     function buildArticleJson() {
       return {
@@ -262,65 +246,13 @@
       };
     }
 
-    // Load articles.json
-    let allArticles = [];
-    fetch("articles.json")
-      .then((res) => res.json())
-      .then((data) => {
-        allArticles = data;
-        updateArticleListUI();
-        populateLoaderDropdown();
-      });
-
-    function populateLoaderDropdown() {
-      const loader = document.getElementById("articleLoader");
-      allArticles.forEach(article => {
-        const option = document.createElement("option");
-        option.value = article.id;
-        option.textContent = article.title;
-        loader.appendChild(option);
-      });
-    }
-
-    document.getElementById("articleLoader").addEventListener("change", (e) => {
-      const id = e.target.value;
-      if (!id) {
-        clearForm();
-        return;
-      }
-
-      const article = allArticles.find((a) => a.id === id);
-      if (article) {
-        document.getElementById("id").value = article.id;
-        document.getElementById("title").value = article.title;
-        document.getElementById("summary").value = article.summary;
-        document.getElementById("image").value = article.image;
-        document.getElementById("categories").value = article.categories.join(", ");
-        fetch(`articles/${article.id}.md`)
-          .then((res) => res.text())
-          .then((md) => {
-            document.getElementById("markdownEditor").value = md;
-            wysiwyg.value = md;
-          });
-      }
-    });
-
-    function clearForm() {
-      ["id", "title", "summary", "image", "categories"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      document.getElementById("markdownEditor").value = "";
-      wysiwyg.value = "";
-    }
-
     function updateArticleListUI() {
-      const json = JSON.stringify(allArticles, null, 2);
-      document.getElementById("articleListDisplay").textContent = json;
+      document.getElementById("articleListDisplay").textContent = JSON.stringify(allArticles, null, 2);
     }
 
     document.getElementById("downloadMd").addEventListener("click", () => {
       const id = document.getElementById("id").value.trim();
-      const md = wysiwyg.value;
+      const md = document.getElementById("markdownEditor").value;
       const blob = new Blob([md], { type: "text/markdown" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -329,18 +261,14 @@
     });
 
     document.getElementById("copyMd").addEventListener("click", () => {
-      const md = wysiwyg.value;
-      navigator.clipboard.writeText(md).then(() => {
-        alert("Markdown copied!");
-      });
+      const md = document.getElementById("markdownEditor").value;
+      navigator.clipboard.writeText(md).then(() => alert("Markdown copied!"));
     });
 
     document.getElementById("copyJson").addEventListener("click", () => {
       const newArticle = buildArticleJson();
       const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
-        alert("JSON copied!");
-      });
+      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => alert("JSON copied!"));
     });
 
     document.getElementById("downloadJson").addEventListener("click", () => {
