@@ -1,4 +1,4 @@
-/* --- General dark theme variables --- */
+/* --- Root Colors for Themes --- */
 :root {
   --background: #121212;
   --foreground: #e0e0e0;
@@ -9,16 +9,17 @@
   --link-hover: #a0c8ff;
 }
 
-/* Body dark theme base */
+/* --- Body and Basic Styling --- */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Header and nav */
+/* --- Header Styling --- */
 header {
   display: flex;
   align-items: center;
@@ -28,6 +29,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
+  user-select: none;
 }
 
 .site-logo {
@@ -35,7 +37,7 @@ header {
   user-select: none;
 }
 
-/* Menu icon */
+/* --- Menu Icon --- */
 .menu-icons button {
   font-size: 1.8rem;
   background: none;
@@ -43,9 +45,16 @@ header {
   color: var(--foreground);
   cursor: pointer;
   user-select: none;
+  transition: color 0.3s ease;
 }
 
-/* Nav links container */
+.menu-icons button:hover,
+.menu-icons button:focus {
+  color: var(--link-hover);
+  outline: none;
+}
+
+/* --- Nav Links Container (Hamburger Menu) --- */
 .nav-links {
   background-color: #1f1f1f;
   position: fixed;
@@ -56,17 +65,18 @@ header {
   transform: translateX(100%);
   transition: transform 0.3s ease;
   overflow-y: auto;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.7);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.7);
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   padding: 1rem;
+  z-index: 1100;
 }
 
 .nav-links.open {
   transform: translateX(0);
 }
 
-/* Article scroll container inside nav */
+/* --- Scrollable list inside nav --- */
 .article-scroll {
   display: flex;
   flex-direction: column;
@@ -76,17 +86,18 @@ header {
   padding-right: 0.5rem;
 }
 
-/* Category buttons in menu */
+/* --- Category Buttons in Hamburger --- */
 .nav-cat-btn {
   background-color: var(--button-bg);
   color: var(--foreground);
   border: none;
   border-radius: 8px;
-  padding: 0.4rem 0.7rem;
+  padding: 0.5rem 0.8rem;
   cursor: pointer;
   text-align: left;
   font-weight: 600;
   transition: background-color 0.3s ease;
+  user-select: none;
 }
 
 .nav-cat-btn:hover,
@@ -95,7 +106,7 @@ header {
   outline: none;
 }
 
-/* Color selector container */
+/* --- Color Selector Container --- */
 #colorSelectorContainer {
   display: flex;
   align-items: center;
@@ -103,24 +114,26 @@ header {
   color: var(--foreground);
   font-weight: 600;
   font-size: 0.9rem;
-  user-select: none;
   margin-left: auto;
+  user-select: none;
 }
 
 #colorSelectorContainer label {
   user-select: none;
 }
 
+/* --- Theme Color Selector Dropdown --- */
 #colorSelector {
   background-color: var(--select-bg);
   color: var(--foreground);
   border: none;
   padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 12px; /* More rounded */
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s ease, color 0.3s ease;
-  min-width: 120px;
+  min-width: 140px;
+  user-select: none;
 }
 
 #colorSelector:hover,
@@ -129,23 +142,91 @@ header {
   outline: none;
 }
 
-/* Article cards */
+/* --- Main content styling --- */
+main {
+  max-width: 900px;
+  margin: 1rem auto;
+  padding: 0 1rem;
+}
+
+/* --- Search Box --- */
+#searchBox {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: none;
+  background-color: var(--select-bg);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#searchBox::placeholder {
+  color: var(--foreground);
+  opacity: 0.6;
+}
+
+/* --- Category Filters Buttons --- */
+.category-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.category-filters button {
+  background-color: var(--button-bg);
+  color: var(--foreground);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+.category-filters button.active,
+.category-filters button:hover,
+.category-filters button:focus {
+  background-color: var(--button-hover-bg);
+  outline: none;
+}
+
+/* --- Articles container --- */
+#articles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* --- Article Card --- */
 article {
   background-color: #222;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+article:hover {
+  background-color: #2a2a2a;
+}
+
+article h2 {
+  margin-top: 0;
 }
 
 article img {
   max-width: 100%;
-  border-radius: 6px;
+  border-radius: 8px;
+  margin: 0.5rem 0;
   display: block;
-  margin: 0.5rem auto;
 }
 
-/* Card buttons */
+/* --- Buttons inside cards --- */
 .card-buttons {
   margin-top: 0.7rem;
   display: flex;
@@ -153,20 +234,24 @@ article img {
 }
 
 .card-buttons button {
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  border: none;
   background-color: var(--button-bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
   color: var(--foreground);
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  user-select: none;
 }
 
-.card-buttons button:hover {
+.card-buttons button:hover,
+.card-buttons button:focus {
   background-color: var(--button-hover-bg);
+  outline: none;
 }
 
-/* Pagination */
+/* --- Pagination --- */
 .pagination {
   display: flex;
   justify-content: center;
@@ -177,12 +262,13 @@ article img {
 .pagination button {
   background-color: var(--button-bg);
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 12px;
   color: var(--foreground);
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  user-select: none;
 }
 
 .pagination button:disabled {
@@ -190,6 +276,91 @@ article img {
   cursor: default;
 }
 
-.pagination button:hover:not(:disabled) {
+.pagination button:hover:not(:disabled),
+.pagination button:focus:not(:disabled) {
   background-color: var(--button-hover-bg);
+  outline: none;
+}
+
+/* --- Article Viewer for loaded markdown --- */
+.article-viewer {
+  background-color: #222;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  color: var(--foreground);
+  line-height: 1.6;
+  user-select: text;
+}
+
+/* Style markdown inside article viewer */
+.article-viewer h1,
+.article-viewer h2,
+.article-viewer h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.article-viewer p {
+  margin-bottom: 1rem;
+}
+
+.article-viewer a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.article-viewer a:hover,
+.article-viewer a:focus {
+  text-decoration: underline;
+  color: var(--link-hover);
+}
+
+/* --- Back button --- */
+#backButton {
+  background-color: var(--button-bg);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  color: var(--foreground);
+  font-weight: 600;
+  cursor: pointer;
+  margin: 1rem auto;
+  display: block;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+#backButton:hover,
+#backButton:focus {
+  background-color: var(--button-hover-bg);
+  outline: none;
+}
+
+/* --- Scrollbars (optional, for modern browsers) --- */
+.article-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.article-scroll::-webkit-scrollbar-track {
+  background: #1f1f1f;
+  border-radius: 8px;
+}
+
+.article-scroll::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 8px;
+}
+
+.article-scroll::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 700px) {
+  .nav-links {
+    width: 220px;
+  }
 }
