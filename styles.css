@@ -47,32 +47,39 @@ header h1 {
 }
 
 /* Nav bar */
+/* Force hamburger menu on all screen sizes */
 .nav-links {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.nav-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: background 0.3s;
-}
-
-.nav-links a:hover {
-  background: var(--accent-color);
-  color: #fff;
-}
-
-.menu-icons {
+  position: absolute;
+  top: 70px;
+  right: 1.5rem;
+  flex-direction: column;
+  background: var(--header-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #000;
   display: none;
-  gap: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 999;
+  gap: 0.5rem;
+  width: 260px;
 }
 
-#menuToggle {
+.nav-links.open {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Always show menu icons */
+.menu-icons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Smooth hamburger and theme buttons */
+#menuToggle, #modeToggle {
   font-size: 1.5rem;
   background: none;
   border: none;
@@ -80,13 +87,6 @@ header h1 {
   cursor: pointer;
 }
 
-#modeToggle {
-  font-size: 1.3rem;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  cursor: pointer;
-}
 
 /* Mobile menu */
 @media (max-width: 768px) {
