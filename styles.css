@@ -66,14 +66,19 @@ header {
   display: none;
   flex-direction: column;
   gap: 0.75rem;
-  overflow-y: auto;
-  max-height: 60vh;
-  border-bottom: 2px solid var(--accent);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  min-width: 240px;
+  z-index: 999;
   transition: all 0.3s ease;
 }
 
 body.light-mode .nav-links {
   background: var(--bg-light);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .nav-links.open {
@@ -81,13 +86,16 @@ body.light-mode .nav-links {
 }
 
 .nav-links a {
+  padding: 0.5rem;
+  background: transparent;
   color: var(--accent);
-  text-decoration: none;
   font-weight: bold;
+  border-radius: 6px;
+  transition: background 0.2s;
 }
 
 .nav-links a:hover {
-  text-decoration: underline;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .article-scroll {

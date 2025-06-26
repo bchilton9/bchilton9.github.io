@@ -77,7 +77,7 @@ function loadArticles() {
         `;
         container.appendChild(card);
 
-        // Add link to hamburger menu
+        // Menu link
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = article.title;
@@ -115,12 +115,21 @@ function loadArticles() {
         });
       });
 
-      // Read more buttons
+      // Preselect category from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const preselectCategory = urlParams.get('cat');
+      if (preselectCategory) {
+        const match = Array.from(filterContainer.querySelectorAll('button')).find(
+          btn => btn.dataset.cat.toLowerCase() === preselectCategory.toLowerCase()
+        );
+        if (match) match.click();
+      }
+
+      // Read more and share buttons
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
 
-      // Share buttons
       document.querySelectorAll('.shareLink').forEach(btn => {
         btn.addEventListener('click', () => {
           const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
@@ -133,7 +142,6 @@ function loadArticles() {
         });
       });
 
-      // Load article from hash if present
       const hash = window.location.hash.slice(1);
       if (hash) {
         setTimeout(() => loadMarkdown(hash), 300);
@@ -172,7 +180,7 @@ function loadMarkdown(id) {
     });
 }
 
-// Safe back button hookup
+// Back button + search filter
 window.addEventListener('DOMContentLoaded', () => {
   const backBtn = document.getElementById('backButton');
   if (backBtn) {
@@ -186,7 +194,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Search
   const searchBox = document.getElementById('searchBox');
   if (searchBox) {
     searchBox.addEventListener('input', () => {
