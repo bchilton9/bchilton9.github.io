@@ -19,37 +19,32 @@
 
     <div class="editor-tabs">
       <button class="tab-btn active" data-tab="details">Details</button>
-      <button class="tab-btn" data-tab="wysiwyg">WYSIWYG</button>
+      <button class="tab-btn" data-tab="wysiwyg">Editor</button>
       <button class="tab-btn" data-tab="markdown">Markdown</button>
       <button class="tab-btn" data-tab="images">Images</button>
       <button class="tab-btn" data-tab="export">Export</button>
     </div>
 
-    <!-- Details Tab -->
     <div class="tab-content active" id="tab-details">
-      <input type="text" id="id" placeholder="Article ID" />
       <input type="text" id="title" placeholder="Title" />
       <input type="text" id="summary" placeholder="Summary" />
-      <input type="text" id="image" placeholder="Image Path" />
+      <input type="text" id="image" placeholder="Image URL" />
       <input type="text" id="categories" placeholder="Categories (comma separated)" />
+      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
     </div>
 
-    <!-- WYSIWYG Tab -->
     <div class="tab-content" id="tab-wysiwyg">
-      <div id="wysiwygEditor" contenteditable="true" class="wysiwyg-box"></div>
+      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
     </div>
 
-    <!-- Markdown Tab -->
     <div class="tab-content" id="tab-markdown">
       <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
     </div>
 
-    <!-- Images Tab -->
     <div class="tab-content" id="tab-images">
-      <div id="imageList" class="image-list"></div>
+      <div id="imagePicker" class="image-picker"></div>
     </div>
 
-    <!-- Export Tab -->
     <div class="tab-content" id="tab-export">
       <div class="export-buttons">
         <button id="downloadMd">Download .md</button>
@@ -61,6 +56,7 @@
     </div>
   </main>
 
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
   <script src="editor.js"></script>
 </body>
 </html>
