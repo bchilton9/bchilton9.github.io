@@ -77,7 +77,7 @@ function loadArticles() {
         `;
         container.appendChild(card);
 
-        // Side/hamburger menu list
+        // Add link to hamburger menu
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = article.title;
@@ -90,7 +90,7 @@ function loadArticles() {
         article.categories.forEach(cat => allCategories.add(cat));
       });
 
-      // Filter buttons
+      // Category filters
       const sortedCats = Array.from(allCategories).sort();
       filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
       sortedCats.forEach(cat => {
@@ -115,7 +115,7 @@ function loadArticles() {
         });
       });
 
-      // Read more
+      // Read more buttons
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
@@ -132,6 +132,12 @@ function loadArticles() {
           });
         });
       });
+
+      // Load article from hash if present
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        setTimeout(() => loadMarkdown(hash), 300);
+      }
     });
 }
 
@@ -147,7 +153,6 @@ function loadMarkdown(id) {
       const viewer = document.getElementById('articleContent');
       viewer.innerHTML = marked.parse(markdown);
 
-      // Add share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
       share.onclick = () => {
@@ -162,35 +167,34 @@ function loadMarkdown(id) {
 
       viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
-      document.getElementById('navLinks').classList.remove('open');
+      const nav = document.getElementById('navLinks');
+      if (nav) nav.classList.remove('open');
     });
 }
 
-// Back button returns to main article list
-document.getElementById('backButton').addEventListener('click', () => {
-  document.getElementById('articles').style.display = 'block';
-  document.getElementById('searchBox').style.display = 'block';
-  document.getElementById('categoryFilters').style.display = 'flex';
-  document.getElementById('articleContent').style.display = 'none';
-  document.getElementById('backButton').style.display = 'none';
-  window.location.hash = '';
-});
-
-// Search filter
-document.addEventListener('input', e => {
-  if (e.target.id === 'searchBox') {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll('#articles article').forEach(article => {
-      const text = article.innerText.toLowerCase();
-      article.style.display = text.includes(term) ? 'block' : 'none';
+// Safe back button hookup
+window.addEventListener('DOMContentLoaded', () => {
+  const backBtn = document.getElementById('backButton');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      document.getElementById('articles').style.display = 'block';
+      document.getElementById('searchBox').style.display = 'block';
+      document.getElementById('categoryFilters').style.display = 'flex';
+      document.getElementById('articleContent').style.display = 'none';
+      backBtn.style.display = 'none';
+      window.location.hash = '';
     });
   }
-});
 
-// Load article by URL hash (if present)
-window.addEventListener('load', () => {
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    setTimeout(() => loadMarkdown(hash), 300);
+  // Search
+  const searchBox = document.getElementById('searchBox');
+  if (searchBox) {
+    searchBox.addEventListener('input', () => {
+      const term = searchBox.value.toLowerCase();
+      document.querySelectorAll('#articles article').forEach(article => {
+        const text = article.innerText.toLowerCase();
+        article.style.display = text.includes(term) ? 'block' : 'none';
+      });
+    });
   }
 });
