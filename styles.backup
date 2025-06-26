@@ -1,4 +1,4 @@
-/* Base Reset */
+/* Reset & Base */
 * {
   box-sizing: border-box;
 }
@@ -16,39 +16,23 @@ img {
 button {
   cursor: pointer;
 }
-a {
-  color: inherit;
-  text-decoration: none;
-}
 
-/* Accent Theme Variables */
-:root {
-  --accent: #0af;
-  --accent-hover: #09d;
+/* Light Mode */
+body.light-mode {
+  background: #f7f7f7;
+  color: #222;
 }
-.theme-green {
-  --accent: #2ecc71;
-  --accent-hover: #27ae60;
+body.light-mode header {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
 }
-.theme-purple {
-  --accent: #9b59b6;
-  --accent-hover: #8e44ad;
+body.light-mode nav {
+  background: #fff;
+  border-right: 1px solid #ccc;
 }
-.theme-red {
-  --accent: #e74c3c;
-  --accent-hover: #c0392b;
-}
-.theme-orange {
-  --accent: #f39c12;
-  --accent-hover: #e67e22;
-}
-.theme-gray {
-  --accent: #95a5a6;
-  --accent-hover: #7f8c8d;
-}
-.theme-yellow {
-  --accent: #f1c40f;
-  --accent-hover: #f39c12;
+body.light-mode .category-filters button.active {
+  background: #222;
+  color: #fff;
 }
 
 /* Header */
@@ -69,19 +53,11 @@ header {
   height: 40px;
   border-radius: 6px;
 }
-.menu-icons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.menu-icons select,
 .menu-icons button {
-  background: #333;
-  color: white;
+  background: none;
   border: none;
-  padding: 0.4rem 0.5rem;
-  border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.5rem;
+  color: white;
 }
 
 /* Nav (Hamburger Menu) */
@@ -105,13 +81,14 @@ header {
   display: block;
   padding: 0.5rem;
   color: #ddd;
+  text-decoration: none;
   border-bottom: 1px solid #444;
-  border-radius: 4px;
 }
 .nav-links a:hover,
 .nav-links a.active {
-  background: var(--accent);
+  background: #333;
   color: #fff;
+  border-radius: 4px;
 }
 
 /* Main Content */
@@ -125,8 +102,6 @@ main {
   padding: 0.5rem;
   margin-bottom: 1rem;
   font-size: 1rem;
-  border-radius: 5px;
-  border: none;
 }
 .category-filters {
   display: flex;
@@ -142,7 +117,7 @@ main {
   border-radius: 20px;
 }
 .category-filters button.active {
-  background: var(--accent);
+  background: #0af;
   color: #fff;
 }
 
@@ -152,6 +127,7 @@ article {
   padding: 1rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;
+  transition: background 0.3s;
 }
 article img {
   height: 180px;
@@ -175,7 +151,7 @@ article h2 {
   border-radius: 5px;
 }
 .card-buttons button:hover {
-  background: var(--accent-hover);
+  background: #0af;
   color: #fff;
 }
 
@@ -196,7 +172,7 @@ article h2 {
   margin: 1rem 0 2rem;
 }
 .pagination button {
-  background: var(--accent);
+  background: #0af;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
