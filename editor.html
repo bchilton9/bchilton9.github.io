@@ -20,33 +20,33 @@
 
     <div class="editor-tabs">
       <button class="tab-btn active" data-tab="details">Details</button>
-      <button class="tab-btn" data-tab="wysiwyg">Editor</button>
+      <button class="tab-btn" data-tab="wysiwyg">WYSIWYG</button>
       <button class="tab-btn" data-tab="markdown">Markdown</button>
       <button class="tab-btn" data-tab="images">Images</button>
       <button class="tab-btn" data-tab="export">Export</button>
     </div>
 
-    <section class="tab-content active" id="tab-details">
+    <div class="tab-content active" id="tab-details">
       <input type="text" id="title" placeholder="Title" />
       <input type="text" id="summary" placeholder="Summary" />
       <input type="text" id="image" placeholder="Image URL" />
       <input type="text" id="categories" placeholder="Categories (comma separated)" />
       <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
-    </section>
+    </div>
 
-    <section class="tab-content" id="tab-wysiwyg">
+    <div class="tab-content" id="tab-wysiwyg">
       <rich-text-editor id="wysiwygEditor"></rich-text-editor>
-    </section>
+    </div>
 
-    <section class="tab-content" id="tab-markdown">
+    <div class="tab-content" id="tab-markdown">
       <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
-    </section>
+    </div>
 
-    <section class="tab-content" id="tab-images">
-      <div id="imageList" class="image-grid">Loading images...</div>
-    </section>
+    <div class="tab-content" id="tab-images">
+      <div id="imageGrid" class="image-grid"></div>
+    </div>
 
-    <section class="tab-content" id="tab-export">
+    <div class="tab-content" id="tab-export">
       <div class="export-buttons">
         <button id="downloadMd">Download .md</button>
         <button id="copyMd">Copy Markdown</button>
@@ -54,7 +54,7 @@
         <button id="downloadJson">Download JSON</button>
       </div>
       <pre id="articleListDisplay"></pre>
-    </section>
+    </div>
   </main>
 
   <script src="editor.js"></script>
