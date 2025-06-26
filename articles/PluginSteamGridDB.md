@@ -1,4 +1,4 @@
-Plugin: SteamGridDB
+# Plugin: SteamGridDB
 
 SteamGridDB is a Decky Loader plugin to add custom artwork to your games.
 

@@ -1,5 +1,4 @@
-<HTML><HEAD></HEAD><BODY>
-<H2>SD Cards</H2>
+# SD Cards
 
 Depending on the model you have the Steam Deck doesn’t have a lot of storage space. Even the 512gb version will fill up fast with AAA games. Upgrading the internal storage and adding an SD Card will increase your storage space.
 <P>
@@ -51,15 +50,14 @@ Now that you have your SD Card it’s as easy as popping it into the slot on the
 <P>
 You should get a pop up from steam to format the card. If you don’t go into Settings > General and click on the format button.
 <P>
-<IMG SRC="https://bchilton9.github.io/TheGadgetGuide/images/IMG_1291.png">
+<IMG SRC="images/IMG_1291.png">
 <P>
 Now when you install a game it will ask you where to install the game to.
 <P>
-<IMG SRC="https://bchilton9.github.io/TheGadgetGuide/images/IMG_1292.png">
+<IMG SRC="images/IMG_1292.png">
 <P>
 Mine says not enough space because Ark is a big game and my Steam Deck is really full. yours will let you select it if there is room.
 <P>
-<IMG SRC="https://bchilton9.github.io/TheGadgetGuide/images/IMG_1293.png">
+<IMG SRC="images/IMG_1293.png">
 <P>
 In your settings under storage it will now have the SD card storage next to the internal storage. You can move games to and from each drive by pressing Y.
-</BODY></HTML>

@@ -1,4 +1,4 @@
-Decky Loader
+# Decky Loader
 
 Decky Loader is a program for installing 3rd party plugins into Game Mode. There is a lot of QOL and customization plugins available.
 
