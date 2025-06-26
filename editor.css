@@ -1,12 +1,10 @@
-/* Editor-specific styles */
-
 .editor-tabs {
   display: flex;
   flex-wrap: wrap;
   border-bottom: 1px solid #333;
   background: #222;
+  margin-bottom: 1rem;
 }
-
 .editor-tabs button {
   flex: 1;
   padding: 0.75rem;
@@ -16,101 +14,41 @@
   cursor: pointer;
   font-weight: bold;
   border-right: 1px solid #333;
-  transition: background 0.2s, color 0.2s;
 }
-
-.editor-tabs button:hover {
-  background: #0af;
-  color: #fff;
-}
-
 .editor-tabs button.active {
   background: #333;
   color: #fff;
 }
-
 .tab-content {
   display: none;
-  padding: 1rem;
-  outline: none;
+  padding: 1rem 0;
 }
-
 .tab-content.active {
   display: block;
 }
-
-#title,
-#summary,
-#image,
-#categories,
-#id {
+#title, #summary, #image, #categories, #id {
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: none;
-  background: #1e1e2f;
-  color: white;
 }
-
-textarea#markdownEditor {
+textarea, input, select {
+  font-size: 1rem;
+}
+#markdownEditor {
   width: 100%;
   height: 300px;
   background: #1e1e2f;
   color: #fff;
-  border-radius: 6px;
   border: none;
   padding: 1rem;
-  font-family: monospace, monospace;
-  font-size: 1rem;
-  resize: vertical;
-}
-
-.wysiwyg-toolbar {
-  background: #222;
-  padding: 0.5rem;
-  margin-bottom: 0.25rem;
   border-radius: 6px;
-  display: flex;
-  gap: 0.5rem;
 }
-
-.wysiwyg-toolbar button {
-  background: #0af;
-  border: none;
-  color: white;
-  padding: 0.3rem 0.6rem;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.wysiwyg-toolbar button:hover {
-  background: #08c;
-}
-
-.wysiwyg-editor {
-  min-height: 200px;
-  background: #1e1e2f;
-  color: white;
-  border-radius: 6px;
-  padding: 1rem;
-  outline: none;
-  overflow-y: auto;
-  font-family: system-ui, sans-serif;
-  font-size: 1rem;
-  white-space: pre-wrap;
-}
-
 .export-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
 }
-
 .export-buttons button {
   background: #0af;
   border: none;
@@ -118,50 +56,59 @@ textarea#markdownEditor {
   border-radius: 6px;
   color: white;
   cursor: pointer;
-  font-weight: bold;
 }
-
-.export-buttons button:hover {
-  background: #08c;
+#articleLoader {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  width: 100%;
 }
-
 #articleListDisplay {
   margin-top: 1rem;
   font-size: 0.9rem;
   color: #aaa;
   white-space: pre-wrap;
-  background: #111;
-  padding: 1rem;
+}
+
+/* Image Tab */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.image-item {
+  background: #1e1e2f;
   border-radius: 6px;
-  max-height: 300px;
-  overflow-y: auto;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  word-break: break-word;
 }
-
-.image-path {
-  padding: 0.3rem 0.5rem;
+.image-item img {
+  max-width: 100%;
+  height: auto;
   border-radius: 4px;
-  background: #222;
-  margin-bottom: 0.3rem;
-  font-family: monospace;
-  color: #0af;
-  user-select: all;
-  transition: background 0.2s;
+  margin-bottom: 0.25rem;
 }
-
-.image-path:hover {
+.image-item button {
   background: #0af;
-  color: #111;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+.image-item button:active {
+  background: #08c;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .editor-tabs button {
     font-size: 0.9rem;
     padding: 0.5rem;
   }
-
-  textarea#markdownEditor {
+  #markdownEditor {
     height: 200px;
   }
 }

@@ -6,6 +6,7 @@
   <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="editor.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -13,54 +14,49 @@
   <main>
     <h2>🛠️ Article Editor</h2>
 
-    <select id="articleLoader" aria-label="Load existing article">
+    <select id="articleLoader">
       <option value="">➕ New Article</option>
     </select>
 
-    <div class="editor-tabs" role="tablist">
-      <button class="tab-btn active" data-tab="details" role="tab" aria-selected="true" aria-controls="tab-details" id="tab-details-btn">Details</button>
-      <button class="tab-btn" data-tab="wysiwyg" role="tab" aria-selected="false" aria-controls="tab-wysiwyg" id="tab-wysiwyg-btn">Editor</button>
-      <button class="tab-btn" data-tab="markdown" role="tab" aria-selected="false" aria-controls="tab-markdown" id="tab-markdown-btn">Markdown</button>
-      <button class="tab-btn" data-tab="images" role="tab" aria-selected="false" aria-controls="tab-images" id="tab-images-btn">Images</button>
-      <button class="tab-btn" data-tab="export" role="tab" aria-selected="false" aria-controls="tab-export" id="tab-export-btn">Export</button>
+    <div class="editor-tabs">
+      <button class="tab-btn active" data-tab="details">Details</button>
+      <button class="tab-btn" data-tab="wysiwyg">Editor</button>
+      <button class="tab-btn" data-tab="markdown">Markdown</button>
+      <button class="tab-btn" data-tab="images">Images</button>
+      <button class="tab-btn" data-tab="export">Export</button>
     </div>
 
-    <section class="tab-content active" id="tab-details" role="tabpanel" aria-labelledby="tab-details-btn">
-      <input type="text" id="title" placeholder="Title" aria-label="Article Title" />
-      <input type="text" id="summary" placeholder="Summary" aria-label="Article Summary" />
-      <input type="text" id="image" placeholder="Image URL" aria-label="Image URL" />
-      <input type="text" id="categories" placeholder="Categories (comma separated)" aria-label="Categories" />
-      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" aria-label="Article ID" />
+    <section class="tab-content active" id="tab-details">
+      <input type="text" id="title" placeholder="Title" />
+      <input type="text" id="summary" placeholder="Summary" />
+      <input type="text" id="image" placeholder="Image URL" />
+      <input type="text" id="categories" placeholder="Categories (comma separated)" />
+      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
     </section>
 
-    <section class="tab-content" id="tab-wysiwyg" role="tabpanel" aria-labelledby="tab-wysiwyg-btn" tabindex="0">
-      <div id="wysiwygToolbar" class="wysiwyg-toolbar" aria-label="Text formatting toolbar">
-        <button type="button" data-cmd="bold" aria-label="Bold"><b>B</b></button>
-        <button type="button" data-cmd="italic" aria-label="Italic"><i>I</i></button>
-      </div>
-      <div id="wysiwygEditor" contenteditable="true" spellcheck="true" aria-label="Rich text editor" class="wysiwyg-editor"></div>
+    <section class="tab-content" id="tab-wysiwyg">
+      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
     </section>
 
-    <section class="tab-content" id="tab-markdown" role="tabpanel" aria-labelledby="tab-markdown-btn">
-      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..." aria-label="Markdown editor"></textarea>
+    <section class="tab-content" id="tab-markdown">
+      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
     </section>
 
-    <section class="tab-content" id="tab-images" role="tabpanel" aria-labelledby="tab-images-btn">
-      <div id="imageList" aria-live="polite">Loading images...</div>
-      <p>Click an image path to copy it to clipboard.</p>
+    <section class="tab-content" id="tab-images">
+      <div id="imageList" class="image-grid">Loading images...</div>
     </section>
 
-    <section class="tab-content" id="tab-export" role="tabpanel" aria-labelledby="tab-export-btn">
+    <section class="tab-content" id="tab-export">
       <div class="export-buttons">
         <button id="downloadMd">Download .md</button>
         <button id="copyMd">Copy Markdown</button>
         <button id="copyJson">Copy JSON</button>
         <button id="downloadJson">Download JSON</button>
       </div>
-      <pre id="articleListDisplay" aria-label="JSON representation of all articles"></pre>
+      <pre id="articleListDisplay"></pre>
     </section>
   </main>
 
-  <script src="editor.js" type="module"></script>
+  <script src="editor.js"></script>
 </body>
 </html>
