@@ -26,24 +26,33 @@
     </div>
 
     <div class="tab-content active" id="tab-details">
-      <label for="id">Article ID</label>
-      <input type="text" id="id" placeholder="e.g. MyArticle123" />
-      <label for="title">Title</label>
+      <label for="id">Article ID (e.g. MyArticle123):</label>
+      <input type="text" id="id" placeholder="Article ID" />
+
+      <label for="title">Title:</label>
       <input type="text" id="title" placeholder="Title" />
-      <label for="summary">Summary</label>
+
+      <label for="summary">Summary:</label>
       <input type="text" id="summary" placeholder="Summary" />
-      <label for="image">Image URL</label>
+
+      <label for="image">Image URL:</label>
       <input type="text" id="image" placeholder="Image URL" />
-      <label for="categories">Categories (comma separated)</label>
-      <input type="text" id="categories" placeholder="Categories" />
+
+      <label for="categories">Categories:</label>
+      <select id="categories" multiple size="5" style="width: 100%;"></select>
+
+      <div style="margin-top: 0.5rem;">
+        <input id="newCategoryInput" type="text" placeholder="Add new category" style="width: 70%;" />
+        <button id="addCategoryBtn">Add Category</button>
+      </div>
     </div>
 
     <div class="tab-content" id="tab-wysiwyg">
-      <div id="quillEditor" style="height: 300px;"></div>
+      <div id="quillEditor" style="height: 300px; background: white; color: black;"></div>
     </div>
 
     <div class="tab-content" id="tab-markdown">
-      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
+      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..." style="width: 100%; height: 300px; font-family: monospace;"></textarea>
     </div>
 
     <div class="tab-content" id="tab-export">
@@ -53,7 +62,7 @@
         <button id="copyJson">Copy JSON</button>
         <button id="downloadJson">Download JSON</button>
       </div>
-      <pre id="articleListDisplay"></pre>
+      <pre id="articleListDisplay" style="white-space: pre-wrap; margin-top: 1rem;"></pre>
     </div>
   </main>
 

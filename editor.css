@@ -1,43 +1,29 @@
-/* editor.css */
-
 body {
-  margin: 0;
+  font-family: system-ui, sans-serif;
   background: #111;
   color: #fff;
-  font-family: system-ui, sans-serif;
-}
-
-main {
-  max-width: 900px;
-  margin: 1rem auto 3rem;
-  padding: 0 1rem;
-}
-
-h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-weight: 700;
+  margin: 0;
+  padding: 1rem;
 }
 
 .editor-tabs {
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid #333;
   background: #222;
-  border-radius: 6px 6px 0 0;
-  overflow-x: auto;
+  margin-bottom: 1rem;
 }
 
 .editor-tabs button {
-  flex: 1 0 auto;
-  padding: 0.75rem 1rem;
+  flex: 1;
+  padding: 0.75rem;
   background: #222;
   border: none;
-  border-right: 1px solid #333;
   color: #ccc;
-  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease;
-  white-space: nowrap;
+  font-weight: bold;
+  border-right: 1px solid #333;
+  transition: background 0.3s;
 }
 
 .editor-tabs button:last-child {
@@ -45,167 +31,75 @@ h2 {
 }
 
 .editor-tabs button.active {
-  background: #0af;
+  background: #333;
   color: #fff;
 }
 
 .tab-content {
-  background: #1e1e2f;
-  padding: 1rem;
-  border-radius: 0 0 6px 6px;
-  margin-bottom: 2rem;
+  display: none;
 }
 
-.tab-content label {
+.tab-content.active {
+  display: block;
+}
+
+label {
   display: block;
   margin-top: 1rem;
-  margin-bottom: 0.3rem;
-  font-weight: 600;
-  color: #ccc;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
 }
 
-input[type="text"],
-select,
-textarea {
+input[type="text"], textarea {
   width: 100%;
   padding: 0.5rem;
   border-radius: 6px;
   border: none;
-  background: #333;
-  color: #eee;
+  background: #1e1e2f;
+  color: white;
   font-size: 1rem;
-  box-sizing: border-box;
-  transition: background 0.3s ease;
+  resize: vertical;
 }
 
-input[type="text"]:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  background: #444;
-}
-
-select[multiple] {
-  height: auto;
-  min-height: 120px;
+textarea {
+  height: 300px;
+  font-family: monospace;
 }
 
 .export-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem;
+  gap: 0.5rem;
   margin-top: 1rem;
 }
 
 .export-buttons button {
   background: #0af;
   border: none;
-  padding: 0.6rem 1.3rem;
-  border-radius: 6px;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  flex: 1 0 150px;
-}
-
-.export-buttons button:hover {
-  background: #08c;
-}
-
-#articleListDisplay {
-  background: #222;
-  padding: 1rem;
-  border-radius: 6px;
-  max-height: 280px;
-  overflow-y: auto;
-  color: #ccc;
-  font-family: monospace;
-  font-size: 0.9rem;
-  white-space: pre-wrap;
-}
-
-#newCategoryInput {
-  display: inline-block;
-  box-sizing: border-box;
-  margin-right: 0.5rem;
-}
-
-#addCategoryBtn {
-  background: #0af;
-  border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   color: white;
   cursor: pointer;
-  font-weight: 700;
-  transition: background 0.3s ease;
 }
 
-#addCategoryBtn:hover {
-  background: #08c;
-}
-
-/* Quill editor overrides */
-.ql-container {
-  border-radius: 6px;
-  border: none;
-  font-size: 1rem;
-  height: 300px;
-}
-
-.ql-toolbar {
-  border-radius: 6px 6px 0 0;
-  border: none;
+#articleListDisplay {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  white-space: pre-wrap;
   background: #222;
-  color: #ccc;
+  padding: 1rem;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.ql-toolbar .ql-picker-label,
-.ql-toolbar .ql-picker-item {
-  color: #ccc;
-}
-
-.ql-toolbar .ql-picker-item:hover,
-.ql-toolbar .ql-picker-label:hover,
-.ql-toolbar button:hover {
-  color: #0af;
-}
-
-/* Scrollbars */
-.tab-content::-webkit-scrollbar,
-#articleListDisplay::-webkit-scrollbar {
-  width: 8px;
-}
-
-.tab-content::-webkit-scrollbar-thumb,
-#articleListDisplay::-webkit-scrollbar-thumb {
-  background-color: #444;
-  border-radius: 10px;
-}
-
-.tab-content::-webkit-scrollbar-track,
-#articleListDisplay::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Responsive */
 @media (max-width: 600px) {
   .editor-tabs button {
-    font-size: 0.85rem;
-    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    padding: 0.5rem;
   }
-
-  .export-buttons button {
-    flex: 1 0 100%;
-  }
-
-  #newCategoryInput {
-    width: 65%;
-    margin-bottom: 0.5rem;
-  }
-
-  #addCategoryBtn {
-    width: 30%;
+  textarea {
+    height: 200px;
   }
 }
