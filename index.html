@@ -10,21 +10,65 @@
   <div id="header-placeholder"></div>
 
   <main>
-    <input type="text" id="searchInput" placeholder="Search articles..." />
-    <div id="articles" class="articles-list"></div>
-    <div id="pagination"></div>
-
-    <section id="articleView" style="display:none;">
-      <button id="backToList">← Back to list</button>
-      <h2 id="articleTitle"></h2>
-      <img id="articleImage" alt="" />
-      <div id="articleBody"></div>
-    </section>
+    <input type="text" id="searchBox" placeholder="Search articles..." />
+    <div id="articles"></div>
   </main>
 
   <div id="footer-placeholder"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="main.js"></script>
+  <script>
+    // Load header/footer
+    fetch('header.html').then(res => res.text()).then(html => {
+      document.getElementById('header-placeholder').innerHTML = html;
+      initHeaderScripts();
+      loadArticles(); // Wait for DOM
+    });
+
+    fetch('footer.html').then(res => res.text()).then(html => {
+      document.getElementById('footer-placeholder').innerHTML = html;
+    });
+
+    // Load articles from JSON
+    function loadArticles() {
+      fetch('articles.json')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('articles');
+          const list = document.getElementById('articleList');
+          container.innerHTML = "";
+          list.innerHTML = "";
+
+          data.forEach(article => {
+            // Article card
+            const card = document.createElement('article');
+            card.innerHTML = `
+              <h2>${article.title}</h2>
+              ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
+              <p>${article.summary}</p>
+              <a href="articles/${article.id}.html">Read more →</a>
+            `;
+            container.appendChild(card);
+
+            // Menu link
+            const link = document.createElement('a');
+            link.href = `articles/${article.id}.html`;
+            link.textContent = article.title;
+            list.appendChild(link);
+          });
+        });
+    }
+
+    // Search filter
+    document.addEventListener('input', e => {
+      if (e.target.id === 'searchBox') {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#articles article').forEach(article => {
+          const text = article.innerText.toLowerCase();
+          article.style.display = text.includes(term) ? 'block' : 'none';
+        });
+      }
+    });
+  </script>
 </body>
 </html>
