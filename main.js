@@ -8,46 +8,64 @@ const colorThemes = [
   'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
 ];
 
-// Initialize header interactions and theme selector
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
-  const colorSelector = document.getElementById('colorSelector');
 
   if (menuToggle && navLinks) {
     menuToggle.addEventListener('click', () => {
       navLinks.classList.toggle('open');
     });
-    document.addEventListener('click', e => {
+
+    document.addEventListener('click', (e) => {
       if (!menuToggle.contains(e.target) && !navLinks.contains(e.target)) {
         navLinks.classList.remove('open');
       }
     });
   }
 
-  // Load saved theme and apply
-  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
-  applyColorTheme(savedTheme);
+  // Color theme selector
+  const colorSelector = document.getElementById('colorSelector');
   if (colorSelector) {
-    colorSelector.value = savedTheme;
-    colorSelector.addEventListener('change', e => {
-      applyColorTheme(e.target.value);
-    });
+    colorSelector.onchange = () => {
+      setColorTheme(colorSelector.value);
+    };
   }
+
+  loadColorTheme();
 }
 
-function applyColorTheme(theme) {
-  const body = document.body;
-  colorThemes.forEach(t => body.classList.remove(`theme-${t}`));
-  if (colorThemes.includes(theme)) {
-    body.classList.add(`theme-${theme}`);
+// Set the color theme by adding body class
+function setColorTheme(theme) {
+  colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
+  if (theme && colorThemes.includes(theme)) {
+    document.body.classList.add(`theme-${theme}`);
     localStorage.setItem('colorTheme', theme);
   }
 }
 
+// Load saved theme from localStorage
+function loadColorTheme() {
+  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
+  const selector = document.getElementById('colorSelector');
+  if (selector) selector.value = savedTheme;
+  setColorTheme(savedTheme);
+}
+
+fetch('header.html').then(res => res.text()).then(html => {
+  document.getElementById('header-placeholder').innerHTML = html;
+  initHeaderScripts();
+  loadArticles();
+});
+
+fetch('footer.html').then(res => res.text()).then(html => {
+  document.getElementById('footer-placeholder').innerHTML = html;
+});
+
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
   menuList.innerHTML = '';
+
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'nav-cat-btn';
@@ -69,27 +87,21 @@ function filterArticlesByCategory(category) {
   }
   renderArticlesPage(filteredArticles, currentPage);
   renderPagination(filteredArticles.length);
-  highlightActiveCategoryButtons(category);
-}
-
-function highlightActiveCategoryButtons(category) {
-  document.querySelectorAll('#articleList button').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent === category);
-  });
 }
 
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
   const start = (page - 1) * articlesPerPage;
-  const pageItems = data.slice(start, start + articlesPerPage);
+  const pagedArticles = data.slice(start, start + articlesPerPage);
 
-  pageItems.forEach(article => {
+  pagedArticles.forEach(article => {
     const card = document.createElement('article');
     card.setAttribute('data-categories', article.categories.join(','));
+
     card.innerHTML = `
       <h2>${article.title}</h2>
-      ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ''}
+      ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
       <p>${article.summary}</p>
       <div class="card-buttons">
         <button data-id="${article.id}" class="readMore">Read more →</button>
@@ -100,27 +112,32 @@ function renderArticlesPage(data, page) {
   });
 
   attachArticleButtons();
+
+  // Show pagination when article list is visible
+  const pagination = document.querySelector('.pagination');
+  if (pagination) pagination.style.display = 'flex';
 }
 
 function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.onclick = () => loadMarkdown(btn.dataset.id);
   });
+
   document.querySelectorAll('.shareLink').forEach(btn => {
-    btn.onclick = e => {
+    btn.onclick = (e) => {
       const btn = e.target;
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
       navigator.clipboard.writeText(link).then(() => {
         btn.textContent = "✅ Copied!";
         setTimeout(() => btn.textContent = "🔗 Share", 1500);
       }).catch(() => {
-        alert('Copy failed. Link:\n' + link);
+        alert('Failed to copy link. Please copy manually:\n' + link);
       });
     };
   });
 }
 
-function renderPagination(totalItems) {
+function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
     pagination = document.createElement('div');
@@ -135,24 +152,24 @@ function renderPagination(totalItems) {
       if (currentPage > 1) {
         currentPage--;
         renderArticlesPage(filteredArticles, currentPage);
-        renderPaginationButtons(totalItems);
+        updatePaginationButtons(totalArticles);
       }
     };
 
     document.getElementById('nextPage').onclick = () => {
-      if (currentPage * articlesPerPage < totalItems) {
+      if (currentPage * articlesPerPage < totalArticles) {
         currentPage++;
         renderArticlesPage(filteredArticles, currentPage);
-        renderPaginationButtons(totalItems);
+        updatePaginationButtons(totalArticles);
       }
     };
   }
-  renderPaginationButtons(totalItems);
+  updatePaginationButtons(totalArticles);
 }
 
-function renderPaginationButtons(totalItems) {
+function updatePaginationButtons(totalArticles) {
   document.getElementById('prevPage').disabled = currentPage === 1;
-  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalItems;
+  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
 function loadArticles() {
@@ -162,18 +179,18 @@ function loadArticles() {
       allArticles = data;
       filteredArticles = allArticles.slice();
 
-      // Categories + 'All'
+      // Extract categories + "All"
       const allCategoriesSet = new Set();
       allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
       const categories = ['All', ...Array.from(allCategoriesSet).sort()];
-
       renderCategories(categories);
-      filterArticlesByCategory('All');
+
+      renderArticlesPage(filteredArticles, currentPage);
+      renderPagination(filteredArticles.length);
 
       setupSearch();
       setupCategoryFilters(categories);
-    })
-    .catch(err => console.error('Error loading articles:', err));
+    });
 }
 
 function setupSearch() {
@@ -188,7 +205,6 @@ function setupSearch() {
     currentPage = 1;
     renderArticlesPage(filteredArticles, currentPage);
     renderPagination(filteredArticles.length);
-    highlightActiveCategoryButtons('All');
   };
 }
 
@@ -213,76 +229,66 @@ function setupCategoryFilters(categories) {
 
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
-    .then(res => {
-      if (!res.ok) throw new Error(`Failed to load article: ${id}.md`);
-      return res.text();
-    })
+    .then(res => res.text())
     .then(markdown => {
+      // Hide article list UI and pagination
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      const viewer = document.getElementById('articleContent') || createArticleViewer();
+      const pagination = document.querySelector('.pagination');
+      if (pagination) pagination.style.display = 'none';
+
+      const viewer = document.getElementById('articleContent');
       viewer.innerHTML = marked.parse(markdown);
 
+      // Make images clickable to open full size in new tab
+      viewer.querySelectorAll('img').forEach(img => {
+        img.style.cursor = 'pointer';
+        img.onclick = () => {
+          window.open(img.src, '_blank');
+        };
+      });
+
+      // Share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
-      share.style.marginTop = '1rem';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
         navigator.clipboard.writeText(link).then(() => {
           share.textContent = '✅ Copied!';
           setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-        }).catch(() => alert('Copy failed. Link:\n' + link));
+        }).catch(() => {
+          alert('Failed to copy link. Please copy manually:\n' + link);
+        });
       };
+      share.style.marginTop = '1rem';
       viewer.appendChild(share);
 
       viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
-    })
-    .catch(err => {
-      alert(err.message);
-      console.error(err);
     });
 }
 
-function createArticleViewer() {
-  const viewer = document.createElement('div');
-  viewer.id = 'articleContent';
-  viewer.className = 'article-viewer';
-  document.querySelector('main').appendChild(viewer);
-  return viewer;
-}
-
+// Back button returns to main list
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('backButton').addEventListener('click', () => {
     document.getElementById('articles').style.display = 'block';
     document.getElementById('searchBox').style.display = 'block';
     document.getElementById('categoryFilters').style.display = 'flex';
-    const viewer = document.getElementById('articleContent');
-    if (viewer) viewer.style.display = 'none';
+    document.getElementById('articleContent').style.display = 'none';
     document.getElementById('backButton').style.display = 'none';
+
+    const pagination = document.querySelector('.pagination');
+    if (pagination) pagination.style.display = 'flex';
+
     window.location.hash = '';
   });
 
-  // Load article from URL hash on page load
+  // Load article from hash on load
   const hash = window.location.hash.slice(1);
-  if (hash) setTimeout(() => loadMarkdown(hash), 300);
+  if (hash) {
+    setTimeout(() => loadMarkdown(hash), 300);
+  }
 });
-
-fetch('header.html')
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById('header-placeholder').innerHTML = html;
-    initHeaderScripts();
-    loadArticles();
-  })
-  .catch(err => console.error('Error loading header:', err));
-
-fetch('footer.html')
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById('footer-placeholder').innerHTML = html;
-  })
-  .catch(err => console.error('Error loading footer:', err));
