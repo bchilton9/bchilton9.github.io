@@ -3,198 +3,278 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Editor – The Gadget Guide</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <title>Gadget Guide Editor</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
-      margin: 0;
-      padding: 1rem;
       font-family: system-ui, sans-serif;
       background: #111;
-      color: #eee;
-    }
-    h1, h2 {
-      margin-top: 1rem;
-    }
-    input, button, textarea {
-      font-size: 1rem;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin: 0.3rem 0;
-      border-radius: 6px;
-      border: none;
-      background: #222;
-      color: #eee;
-    }
-    #editor {
-      height: 300px;
-      background: #fff;
-      margin-bottom: 1rem;
-    }
-    #preview, #jsonPreview {
-      background: #222;
-      border-radius: 6px;
-      padding: 1rem;
-      white-space: pre-wrap;
-      overflow-wrap: break-word;
-    }
-    button {
-      background: #0af;
       color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      margin: 0.3rem;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #08c;
+      margin: 0;
     }
 
-    .btn-row {
+    .editor-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #333;
+      background: #222;
+    }
+
+    .editor-tabs button {
+      flex: 1;
+      padding: 0.75rem;
+      background: #222;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      font-weight: bold;
+      border-right: 1px solid #333;
+    }
+
+    .editor-tabs button.active {
+      background: #333;
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 1rem;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #title, #summary, #image, #categories {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    textarea, input, select {
+      font-size: 1rem;
+    }
+
+    #markdownEditor {
+      width: 100%;
+      height: 300px;
+      background: #1e1e2f;
+      color: #fff;
+      border: none;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+
+    .export-buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-top: 1rem;
     }
 
-    #articleBtns {
+    .export-buttons button {
+      background: #0af;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+
+    select#articleLoader {
       margin-bottom: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    #articleListDisplay {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #aaa;
+      white-space: pre-wrap;
     }
 
     @media (max-width: 600px) {
-      #editor, #preview, #jsonPreview {
-        font-size: 0.95rem;
+      .editor-tabs button {
+        font-size: 0.9rem;
+        padding: 0.5rem;
       }
-      .btn-row {
-        flex-direction: column;
+
+      #markdownEditor {
+        height: 200px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>📝 Gadget Guide Editor</h1>
+  <div id="header-placeholder"></div>
 
-  <div id="articleBtns">
-    <button id="newArticleBtn">➕ New Article</button>
-    <div class="btn-row" id="loadBtns">Loading articles...</div>
-  </div>
+  <main>
+    <h2>🛠️ Article Editor</h2>
 
-  <input type="text" id="mdTitle" placeholder="Title">
-  <input type="text" id="mdImage" placeholder="Image URL">
-  <input type="text" id="mdCategories" placeholder="Categories (comma-separated)">
+    <select id="articleLoader">
+      <option value="">➕ New Article</option>
+    </select>
 
-  <h2>Summary Editor</h2>
-  <div id="editor"></div>
+    <div class="editor-tabs">
+      <button class="tab-btn active" data-tab="details">Details</button>
+      <button class="tab-btn" data-tab="wysiwyg">Editor</button>
+      <button class="tab-btn" data-tab="markdown">Markdown</button>
+      <button class="tab-btn" data-tab="export">Export</button>
+    </div>
 
-  <div class="btn-row">
-    <button id="exportMdBtn">📋 Copy Markdown</button>
-    <button id="exportJsonBtn">💾 Update JSON</button>
-  </div>
+    <div class="tab-content active" id="tab-details">
+      <input type="text" id="title" placeholder="Title" />
+      <input type="text" id="summary" placeholder="Summary" />
+      <input type="text" id="image" placeholder="Image URL" />
+      <input type="text" id="categories" placeholder="Categories (comma separated)" />
+      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
+    </div>
 
-  <h2>Live Markdown Preview</h2>
-  <div id="preview">Start typing to see preview...</div>
+    <div class="tab-content" id="tab-wysiwyg">
+      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
+    </div>
 
-  <h2>articles.json Preview</h2>
-  <div id="jsonPreview">Waiting for content...</div>
+    <div class="tab-content" id="tab-markdown">
+      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <div class="tab-content" id="tab-export">
+      <div class="export-buttons">
+        <button id="downloadMd">Download .md</button>
+        <button id="copyMd">Copy Markdown</button>
+        <button id="copyJson">Copy JSON</button>
+        <button id="downloadJson">Download JSON</button>
+      </div>
+      <pre id="articleListDisplay"></pre>
+    </div>
+  </main>
+
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
   <script>
-    const quill = new Quill('#editor', {
-      theme: 'snow',
-      modules: { toolbar: true }
+    // Load header
+    fetch("header.html")
+      .then((res) => res.text())
+      .then((html) => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const tabId = "tab-" + btn.dataset.tab;
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.getElementById(tabId).classList.add("active");
+      });
     });
 
-    let articles = [], currentId = null;
+    const wysiwyg = document.getElementById("wysiwygEditor");
 
-    function updatePreview() {
-      const text = quill.getText();
-      document.getElementById('preview').innerHTML = marked.parse(text);
+    function buildArticleJson() {
+      return {
+        id: document.getElementById("id").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        summary: document.getElementById("summary").value.trim(),
+        image: document.getElementById("image").value.trim(),
+        categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
+      };
     }
 
-    function updateJsonPreview() {
-      document.getElementById('jsonPreview').textContent = JSON.stringify(articles, null, 2);
-    }
+    // Load articles.json
+    let allArticles = [];
+    fetch("articles.json")
+      .then((res) => res.json())
+      .then((data) => {
+        allArticles = data;
+        updateArticleListUI();
+        populateLoaderDropdown();
+      });
 
-    function loadArticle(a) {
-      currentId = a.id;
-      document.getElementById('mdTitle').value = a.title;
-      document.getElementById('mdImage').value = a.image;
-      document.getElementById('mdCategories').value = a.categories.join(', ');
-      quill.setText(a.summary ?? '');
-      updatePreview();
-    }
-
-    function buildLoadButtons() {
-      const container = document.getElementById('loadBtns');
-      container.innerHTML = '';
-      articles.forEach(article => {
-        const btn = document.createElement('button');
-        btn.textContent = article.title;
-        btn.onclick = () => loadArticle(article);
-        container.appendChild(btn);
+    function populateLoaderDropdown() {
+      const loader = document.getElementById("articleLoader");
+      allArticles.forEach(article => {
+        const option = document.createElement("option");
+        option.value = article.id;
+        option.textContent = article.title;
+        loader.appendChild(option);
       });
     }
 
-    function getArticleFromForm() {
-      const title = document.getElementById('mdTitle').value.trim();
-      const image = document.getElementById('mdImage').value.trim();
-      const cats = document.getElementById('mdCategories').value.split(',').map(s => s.trim()).filter(Boolean);
-      const summary = quill.getText().trim().split('\n').slice(0, 2).join(' ');
-
-      if (!title || !cats.length) {
-        alert('Please enter a title and at least one category.');
-        return null;
+    document.getElementById("articleLoader").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (!id) {
+        clearForm();
+        return;
       }
 
-      const id = currentId || title.replace(/\s+/g, '');
-      return { id, title, image, categories: cats, summary };
+      const article = allArticles.find((a) => a.id === id);
+      if (article) {
+        document.getElementById("id").value = article.id;
+        document.getElementById("title").value = article.title;
+        document.getElementById("summary").value = article.summary;
+        document.getElementById("image").value = article.image;
+        document.getElementById("categories").value = article.categories.join(", ");
+        fetch(`articles/${article.id}.md`)
+          .then((res) => res.text())
+          .then((md) => {
+            document.getElementById("markdownEditor").value = md;
+            wysiwyg.value = md;
+          });
+      }
+    });
+
+    function clearForm() {
+      ["id", "title", "summary", "image", "categories"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("markdownEditor").value = "";
+      wysiwyg.value = "";
     }
 
-    document.getElementById('newArticleBtn').onclick = () => {
-      currentId = null;
-      document.getElementById('mdTitle').value = '';
-      document.getElementById('mdImage').value = '';
-      document.getElementById('mdCategories').value = '';
-      quill.setText('');
-      updatePreview();
-    };
+    function updateArticleListUI() {
+      const json = JSON.stringify(allArticles, null, 2);
+      document.getElementById("articleListDisplay").textContent = json;
+    }
 
-    document.getElementById('exportMdBtn').onclick = () => {
-      const text = quill.getText();
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Markdown copied to clipboard!');
+    document.getElementById("downloadMd").addEventListener("click", () => {
+      const id = document.getElementById("id").value.trim();
+      const md = document.getElementById("markdownEditor").value;
+      const blob = new Blob([md], { type: "text/markdown" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = id + ".md";
+      link.click();
+    });
+
+    document.getElementById("copyMd").addEventListener("click", () => {
+      const md = document.getElementById("markdownEditor").value;
+      navigator.clipboard.writeText(md).then(() => {
+        alert("Markdown copied!");
       });
-    };
+    });
 
-    document.getElementById('exportJsonBtn').onclick = () => {
-      const article = getArticleFromForm();
-      if (!article) return;
-
-      const index = articles.findIndex(a => a.id === article.id);
-      if (index !== -1) {
-        articles[index] = article;
-      } else {
-        articles.push(article);
-      }
-
-      updateJsonPreview();
-      buildLoadButtons();
-      alert('Article saved. Copy JSON preview below into articles.json.');
-    };
-
-    quill.on('text-change', updatePreview);
-
-    fetch('articles.json')
-      .then(res => res.json())
-      .then(data => {
-        articles = data;
-        updateJsonPreview();
-        buildLoadButtons();
+    document.getElementById("copyJson").addEventListener("click", () => {
+      const newArticle = buildArticleJson();
+      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
+        alert("JSON copied!");
       });
+    });
+
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      const newArticle = buildArticleJson();
+      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "articles.json";
+      link.click();
+    });
   </script>
 </body>
 </html>
