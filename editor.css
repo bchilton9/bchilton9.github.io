@@ -1,17 +1,4 @@
-/* Editor specific styles */
-
-body {
-  background: #111;
-  color: #fff;
-  font-family: system-ui, sans-serif;
-  margin: 0;
-}
-
-main {
-  max-width: 900px;
-  margin: auto;
-  padding: 1rem;
-}
+/* Editor-specific styles */
 
 .editor-tabs {
   display: flex;
@@ -29,6 +16,12 @@ main {
   cursor: pointer;
   font-weight: bold;
   border-right: 1px solid #333;
+  transition: background 0.2s, color 0.2s;
+}
+
+.editor-tabs button:hover {
+  background: #0af;
+  color: #fff;
 }
 
 .editor-tabs button.active {
@@ -38,14 +31,19 @@ main {
 
 .tab-content {
   display: none;
-  padding: 1rem 0;
+  padding: 1rem;
+  outline: none;
 }
 
 .tab-content.active {
   display: block;
 }
 
-input, textarea, select {
+#title,
+#summary,
+#image,
+#categories,
+#id {
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 1rem;
@@ -53,13 +51,57 @@ input, textarea, select {
   border-radius: 6px;
   border: none;
   background: #1e1e2f;
+  color: white;
+}
+
+textarea#markdownEditor {
+  width: 100%;
+  height: 300px;
+  background: #1e1e2f;
   color: #fff;
+  border-radius: 6px;
+  border: none;
+  padding: 1rem;
+  font-family: monospace, monospace;
+  font-size: 1rem;
   resize: vertical;
 }
 
-textarea#wysiwygEditor, textarea#markdownEditor {
-  height: 250px;
-  font-family: monospace, monospace;
+.wysiwyg-toolbar {
+  background: #222;
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 6px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.wysiwyg-toolbar button {
+  background: #0af;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wysiwyg-toolbar button:hover {
+  background: #08c;
+}
+
+.wysiwyg-editor {
+  min-height: 200px;
+  background: #1e1e2f;
+  color: white;
+  border-radius: 6px;
+  padding: 1rem;
+  outline: none;
+  overflow-y: auto;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  white-space: pre-wrap;
 }
 
 .export-buttons {
@@ -76,6 +118,11 @@ textarea#wysiwygEditor, textarea#markdownEditor {
   border-radius: 6px;
   color: white;
   cursor: pointer;
+  font-weight: bold;
+}
+
+.export-buttons button:hover {
+  background: #08c;
 }
 
 #articleListDisplay {
@@ -83,47 +130,38 @@ textarea#wysiwygEditor, textarea#markdownEditor {
   font-size: 0.9rem;
   color: #aaa;
   white-space: pre-wrap;
-  background: #222;
+  background: #111;
   padding: 1rem;
   border-radius: 6px;
   max-height: 300px;
   overflow-y: auto;
 }
 
-/* Images tab */
-#imageList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.image-path {
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  background: #222;
+  margin-bottom: 0.3rem;
+  font-family: monospace;
+  color: #0af;
+  user-select: all;
+  transition: background 0.2s;
 }
 
-#imageList img.thumb {
-  width: 100px;
-  height: 80px;
-  object-fit: contain;
+.image-path:hover {
+  background: #0af;
+  color: #111;
   cursor: pointer;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  transition: border-color 0.3s;
 }
 
-#imageList img.thumb:hover {
-  border-color: #0af;
-}
-
-/* Responsive tweaks */
+/* Responsive */
 @media (max-width: 600px) {
   .editor-tabs button {
     font-size: 0.9rem;
     padding: 0.5rem;
   }
 
-  textarea#wysiwygEditor, textarea#markdownEditor {
-    height: 150px;
-  }
-
-  #imageList img.thumb {
-    width: 80px;
-    height: 60px;
+  textarea#markdownEditor {
+    height: 200px;
   }
 }
