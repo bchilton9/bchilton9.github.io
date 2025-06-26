@@ -6,7 +6,6 @@
   <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="editor.css" />
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -35,7 +34,7 @@
     </div>
 
     <div class="tab-content" id="tab-wysiwyg">
-      <rich-text-editor id="wysiwygEditor" style="min-height: 300px;"></rich-text-editor>
+      <textarea id="wysiwygEditor" placeholder="Write here..."></textarea>
     </div>
 
     <div class="tab-content" id="tab-markdown">
@@ -43,7 +42,7 @@
     </div>
 
     <div class="tab-content" id="tab-images">
-      <div id="imageGallery">Loading images...</div>
+      <div id="imageList" class="image-grid"></div>
     </div>
 
     <div class="tab-content" id="tab-export">
@@ -57,152 +56,6 @@
     </div>
   </main>
 
-  <script>
-    // Load shared header
-    fetch("header.html").then(res => res.text()).then(html => {
-      document.getElementById("header-placeholder").innerHTML = html;
-    });
-
-    // Tabs
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        const tabId = "tab-" + btn.dataset.tab;
-        document.querySelectorAll(".tab-content").forEach((tab) => {
-          tab.classList.remove("active");
-        });
-        document.getElementById(tabId).classList.add("active");
-      });
-    });
-
-    const wysiwyg = document.getElementById("wysiwygEditor");
-
-    function buildArticleJson() {
-      return {
-        id: document.getElementById("id").value.trim(),
-        title: document.getElementById("title").value.trim(),
-        summary: document.getElementById("summary").value.trim(),
-        image: document.getElementById("image").value.trim(),
-        categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
-      };
-    }
-
-    // Load articles.json
-    let allArticles = [];
-    fetch("articles.json")
-      .then((res) => res.json())
-      .then((data) => {
-        allArticles = data;
-        updateArticleListUI();
-        populateLoaderDropdown();
-      });
-
-    function populateLoaderDropdown() {
-      const loader = document.getElementById("articleLoader");
-      allArticles.forEach(article => {
-        const option = document.createElement("option");
-        option.value = article.id;
-        option.textContent = article.title;
-        loader.appendChild(option);
-      });
-    }
-
-    document.getElementById("articleLoader").addEventListener("change", (e) => {
-      const id = e.target.value;
-      if (!id) return clearForm();
-
-      const article = allArticles.find((a) => a.id === id);
-      if (article) {
-        document.getElementById("id").value = article.id;
-        document.getElementById("title").value = article.title;
-        document.getElementById("summary").value = article.summary;
-        document.getElementById("image").value = article.image;
-        document.getElementById("categories").value = article.categories.join(", ");
-        fetch(`articles/${article.id}.md`)
-          .then((res) => res.text())
-          .then((md) => {
-            document.getElementById("markdownEditor").value = md;
-            wysiwyg.value = md;
-          });
-      }
-    });
-
-    function clearForm() {
-      ["id", "title", "summary", "image", "categories"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      document.getElementById("markdownEditor").value = "";
-      wysiwyg.value = "";
-    }
-
-    function updateArticleListUI() {
-      const json = JSON.stringify(allArticles, null, 2);
-      document.getElementById("articleListDisplay").textContent = json;
-    }
-
-    document.getElementById("downloadMd").addEventListener("click", () => {
-      const id = document.getElementById("id").value.trim();
-      const md = document.getElementById("markdownEditor").value;
-      const blob = new Blob([md], { type: "text/markdown" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = id + ".md";
-      link.click();
-    });
-
-    document.getElementById("copyMd").addEventListener("click", () => {
-      const md = document.getElementById("markdownEditor").value;
-      navigator.clipboard.writeText(md).then(() => {
-        alert("Markdown copied!");
-      });
-    });
-
-    document.getElementById("copyJson").addEventListener("click", () => {
-      const newArticle = buildArticleJson();
-      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
-        alert("JSON copied!");
-      });
-    });
-
-    document.getElementById("downloadJson").addEventListener("click", () => {
-      const newArticle = buildArticleJson();
-      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "articles.json";
-      link.click();
-    });
-
-    // Load images from images folder
-    fetch("images/")
-      .then(res => res.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const files = Array.from(doc.links)
-          .map(link => link.getAttribute("href"))
-          .filter(href => href && href.match(/\.(jpg|jpeg|png|gif)$/i));
-
-        const gallery = document.getElementById("imageGallery");
-        gallery.innerHTML = "";
-        files.forEach(filename => {
-          const img = document.createElement("img");
-          img.src = "images/" + filename;
-          img.alt = filename;
-          img.style.maxWidth = "100px";
-          img.style.margin = "0.5rem";
-          img.style.cursor = "pointer";
-          img.onclick = () => {
-            document.getElementById("image").value = "images/" + filename;
-            alert("Image selected!");
-          };
-          gallery.appendChild(img);
-        });
-      });
-  </script>
+  <script src="editor.js" type="module"></script>
 </body>
 </html>
