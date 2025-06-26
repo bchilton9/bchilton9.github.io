@@ -3,36 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Editor – The Gadget Guide</title>
+  <title>Article Editor - The Gadget Guide</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 1rem;
+      background: #111;
+      color: #eee;
+    }
+    #editorContainer {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    textarea {
+      width: 48%;
+      height: 500px;
+      background: #222;
+      color: #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 1rem;
+      resize: vertical;
+      border: none;
+    }
+    #preview {
+      width: 48%;
+      height: 500px;
+      background: #222;
+      color: #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-y: auto;
+      border: 1px solid #0af;
+    }
+    #articleList {
+      margin-bottom: 1rem;
+    }
+    #articleList button {
+      background: #0af;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin-right: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: background 0.3s;
+    }
+    #articleList button:hover {
+      background: #08c;
+    }
+    #toggleCodeBtn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background: #0af;
+      border: none;
+      border-radius: 5px;
+      color: white;
+    }
+    #saveBtn {
+      margin-left: 1rem;
+      background: #0a0;
+    }
+    /* Scrollbars for preview */
+    #preview::-webkit-scrollbar {
+      width: 10px;
+    }
+    #preview::-webkit-scrollbar-thumb {
+      background: #0af;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div id="header-placeholder"></div>
+  <h1>Article Editor</h1>
 
-  <main>
-    <h2>Markdown Article Editor</h2>
-    <input type="text" id="editorTitle" placeholder="Article Title" />
-    <input type="text" id="editorImage" placeholder="Image URL (for preview)" />
-    <textarea id="editorBody" placeholder="Write your article in markdown..."></textarea>
+  <div id="articleList" aria-label="Load existing article">
+    Loading articles...
+  </div>
 
-    <div class="editor-buttons">
-      <button id="insertImage">🖼️ Insert Image</button>
-      <button id="saveArticle">💾 Save Markdown</button>
-    </div>
+  <div id="editorContainer">
+    <textarea id="markdownInput" aria-label="Markdown editor"></textarea>
+    <div id="preview" aria-live="polite" aria-atomic="true"></div>
+  </div>
 
-    <h3>Live Preview</h3>
-    <div id="preview" class="article-preview"></div>
+  <button id="toggleCodeBtn">Hide Markdown Source</button>
+  <button id="saveBtn">Save Markdown</button>
 
-    <h3>Markdown Source</h3>
-    <pre><code id="rawMd"></code></pre>
+  <script>
+    let showingCode = true;
 
-    <h3>JSON for <code>articles.json</code></h3>
-    <pre><code id="jsonSnippet"></code></pre>
-  </main>
+    const markdownInput = document.getElementById('markdownInput');
+    const preview = document.getElementById('preview');
+    const toggleCodeBtn = document.getElementById('toggleCodeBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const articleListDiv = document.getElementById('articleList');
 
-  <div id="footer-placeholder"></div>
+    // Load articles.json to show buttons to load existing articles
+    let allArticles = [];
+    fetch('articles.json')
+      .then(res => res.json())
+      .then(data => {
+        allArticles = data;
+        articleListDiv.innerHTML = '';
+        data.forEach(article => {
+          const btn = document.createElement('button');
+          btn.textContent = article.title;
+          btn.title = `Edit: ${article.title}`;
+          btn.addEventListener('click', () => loadArticleMarkdown(article.id));
+          articleListDiv.appendChild(btn);
+        });
+      })
+      .catch(() => {
+        articleListDiv.textContent = 'Failed to load articles.json';
+      });
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="editor.js"></script>
+    // Load Markdown for an article
+    function loadArticleMarkdown(id) {
+      fetch(`articles/${id}.md`)
+        .then(res => {
+          if (!res.ok) throw new Error('Article not found');
+          return res.text();
+        })
+        .then(md => {
+          markdownInput.value = md;
+          updatePreview();
+          if (!showingCode) toggleSourceVisibility();
+        })
+        .catch(err => {
+          alert(err.message);
+        });
+    }
+
+    // Update preview live
+    function updatePreview() {
+      preview.innerHTML = marked.parse(markdownInput.value);
+    }
+
+    markdownInput.addEventListener('input', updatePreview);
+
+    // Toggle Markdown source visibility
+    function toggleSourceVisibility() {
+      showingCode = !showingCode;
+      if (showingCode) {
+        markdownInput.style.display = 'block';
+        preview.style.width = '48%';
+        markdownInput.style.width = '48%';
+        toggleCodeBtn.textContent = 'Hide Markdown Source';
+      } else {
+        markdownInput.style.display = 'none';
+        preview.style.width = '100%';
+        toggleCodeBtn.textContent = 'Show Markdown Source';
+      }
+    }
+
+    toggleCodeBtn.addEventListener('click', toggleSourceVisibility);
+
+    // Save markdown to clipboard (or you can extend to save to server)
+    saveBtn.addEventListener('click', () => {
+      const text = markdownInput.value;
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Markdown copied to clipboard!'))
+        .catch(() => alert('Failed to copy. You can manually copy the text.'));
+    });
+
+    // Initialize preview empty
+    updatePreview();
+  </script>
 </body>
 </html>
