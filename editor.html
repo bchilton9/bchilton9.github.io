@@ -5,276 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #111;
-      color: #fff;
-      margin: 0;
-    }
-
-    .editor-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      border-bottom: 1px solid #333;
-      background: #222;
-    }
-
-    .editor-tabs button {
-      flex: 1;
-      padding: 0.75rem;
-      background: #222;
-      border: none;
-      color: #ccc;
-      cursor: pointer;
-      font-weight: bold;
-      border-right: 1px solid #333;
-    }
-
-    .editor-tabs button.active {
-      background: #333;
-      color: #fff;
-    }
-
-    .tab-content {
-      display: none;
-      padding: 1rem;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    #title, #summary, #image, #categories {
-      width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    textarea, input, select {
-      font-size: 1rem;
-    }
-
-    #markdownEditor {
-      width: 100%;
-      height: 300px;
-      background: #1e1e2f;
-      color: #fff;
-      border: none;
-      padding: 1rem;
-      border-radius: 6px;
-    }
-
-    .export-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .export-buttons button {
-      background: #0af;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-    }
-
-    select#articleLoader {
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      width: 100%;
-    }
-
-    #articleListDisplay {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #aaa;
-      white-space: pre-wrap;
-    }
-
-    @media (max-width: 600px) {
-      .editor-tabs button {
-        font-size: 0.9rem;
-        padding: 0.5rem;
-      }
-
-      #markdownEditor {
-        height: 200px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="editor.css" />
 </head>
 <body>
   <div id="header-placeholder"></div>
 
-  <main>
-    <h2>🛠️ Article Editor</h2>
-
-    <select id="articleLoader">
-      <option value="">➕ New Article</option>
-    </select>
-
-    <div class="editor-tabs">
-      <button class="tab-btn active" data-tab="details">Details</button>
-      <button class="tab-btn" data-tab="wysiwyg">Editor</button>
-      <button class="tab-btn" data-tab="markdown">Markdown</button>
-      <button class="tab-btn" data-tab="export">Export</button>
+  <main class="editor-container">
+    <div class="tab-bar">
+      <button class="tab active" data-tab="editor">Editor</button>
+      <button class="tab" data-tab="json">articles.json</button>
+      <button class="tab" data-tab="markdown">Markdown</button>
     </div>
 
-    <div class="tab-content active" id="tab-details">
-      <input type="text" id="title" placeholder="Title" />
-      <input type="text" id="summary" placeholder="Summary" />
-      <input type="text" id="image" placeholder="Image URL" />
-      <input type="text" id="categories" placeholder="Categories (comma separated)" />
-      <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" />
+    <div class="tab-content active" id="editor">
+      <input type="text" id="articleTitle" placeholder="Article Title" />
+      <input type="text" id="articleImage" placeholder="Image URL" />
+      <input type="text" id="articleCategories" placeholder="Categories (comma-separated)" />
+      <textarea id="articleSummary" placeholder="Short Summary"></textarea>
+      <div id="editorArea"></div>
     </div>
 
-    <div class="tab-content" id="tab-wysiwyg">
-      <rich-text-editor id="wysiwygEditor"></rich-text-editor>
+    <div class="tab-content" id="json">
+      <textarea id="jsonOutput" readonly></textarea>
+      <button id="copyJSON">Copy JSON</button>
+      <button id="downloadJSON">Download JSON</button>
     </div>
 
-    <div class="tab-content" id="tab-markdown">
-      <textarea id="markdownEditor" placeholder="Paste or edit markdown here..."></textarea>
+    <div class="tab-content" id="markdown">
+      <textarea id="markdownOutput" readonly></textarea>
+      <button id="copyMarkdown">Copy Markdown</button>
+      <button id="downloadMarkdown">Download .md</button>
     </div>
 
-    <div class="tab-content" id="tab-export">
-      <div class="export-buttons">
-        <button id="downloadMd">Download .md</button>
-        <button id="copyMd">Copy Markdown</button>
-        <button id="copyJson">Copy JSON</button>
-        <button id="downloadJson">Download JSON</button>
-      </div>
-      <pre id="articleListDisplay"></pre>
+    <div class="export-bar">
+      <button id="loadArticle">📂 Load Article</button>
+      <button id="addArticle">➕ Add New Article</button>
     </div>
   </main>
 
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@richtr/rich-text-editor"></script>
-  <script>
-    // Load header
-    fetch("header.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("header-placeholder").innerHTML = html;
-      });
+  <div id="footer-placeholder"></div>
 
-    // Tabs
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        const tabId = "tab-" + btn.dataset.tab;
-        document.querySelectorAll(".tab-content").forEach((tab) => {
-          tab.classList.remove("active");
-        });
-        document.getElementById(tabId).classList.add("active");
-      });
-    });
-
-    const wysiwyg = document.getElementById("wysiwygEditor");
-
-    function buildArticleJson() {
-      return {
-        id: document.getElementById("id").value.trim(),
-        title: document.getElementById("title").value.trim(),
-        summary: document.getElementById("summary").value.trim(),
-        image: document.getElementById("image").value.trim(),
-        categories: document.getElementById("categories").value.split(",").map(c => c.trim()).filter(Boolean)
-      };
-    }
-
-    // Load articles.json
-    let allArticles = [];
-    fetch("articles.json")
-      .then((res) => res.json())
-      .then((data) => {
-        allArticles = data;
-        updateArticleListUI();
-        populateLoaderDropdown();
-      });
-
-    function populateLoaderDropdown() {
-      const loader = document.getElementById("articleLoader");
-      allArticles.forEach(article => {
-        const option = document.createElement("option");
-        option.value = article.id;
-        option.textContent = article.title;
-        loader.appendChild(option);
-      });
-    }
-
-    document.getElementById("articleLoader").addEventListener("change", (e) => {
-      const id = e.target.value;
-      if (!id) {
-        clearForm();
-        return;
-      }
-
-      const article = allArticles.find((a) => a.id === id);
-      if (article) {
-        document.getElementById("id").value = article.id;
-        document.getElementById("title").value = article.title;
-        document.getElementById("summary").value = article.summary;
-        document.getElementById("image").value = article.image;
-        document.getElementById("categories").value = article.categories.join(", ");
-        fetch(`articles/${article.id}.md`)
-          .then((res) => res.text())
-          .then((md) => {
-            document.getElementById("markdownEditor").value = md;
-            wysiwyg.value = md;
-          });
-      }
-    });
-
-    function clearForm() {
-      ["id", "title", "summary", "image", "categories"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      document.getElementById("markdownEditor").value = "";
-      wysiwyg.value = "";
-    }
-
-    function updateArticleListUI() {
-      const json = JSON.stringify(allArticles, null, 2);
-      document.getElementById("articleListDisplay").textContent = json;
-    }
-
-    document.getElementById("downloadMd").addEventListener("click", () => {
-      const id = document.getElementById("id").value.trim();
-      const md = document.getElementById("markdownEditor").value;
-      const blob = new Blob([md], { type: "text/markdown" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = id + ".md";
-      link.click();
-    });
-
-    document.getElementById("copyMd").addEventListener("click", () => {
-      const md = document.getElementById("markdownEditor").value;
-      navigator.clipboard.writeText(md).then(() => {
-        alert("Markdown copied!");
-      });
-    });
-
-    document.getElementById("copyJson").addEventListener("click", () => {
-      const newArticle = buildArticleJson();
-      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-      navigator.clipboard.writeText(JSON.stringify(updated, null, 2)).then(() => {
-        alert("JSON copied!");
-      });
-    });
-
-    document.getElementById("downloadJson").addEventListener("click", () => {
-      const newArticle = buildArticleJson();
-      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
-      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "articles.json";
-      link.click();
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@richtr/editor@1.0.2/dist/editor.min.js"></script>
+  <script src="editor.js"></script>
 </body>
 </html>

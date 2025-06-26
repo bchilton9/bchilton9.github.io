@@ -1,0 +1,59 @@
+.editor-container {
+  padding: 1rem;
+  max-width: 900px;
+  margin: auto;
+}
+.editor-container input,
+.editor-container textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+#editorArea {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #1e1e2f;
+  margin-bottom: 1rem;
+  min-height: 300px;
+}
+.tab-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.tab {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+.tab.active {
+  background: #0af;
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+.export-bar {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.export-bar button {
+  padding: 0.5rem 1rem;
+  background: #0af;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+@media (max-width: 600px) {
+  .export-bar {
+    flex-direction: column;
+  }
+}
