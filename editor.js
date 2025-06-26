@@ -1,120 +1,144 @@
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-
+let quill;
 let allArticles = [];
-const articleSelect = document.getElementById("articleSelect");
-const markdownEditor = document.getElementById("markdownEditor");
-const jsonOutput = document.getElementById("jsonOutput");
-const markdownOutput = document.getElementById("markdownOutput");
 
-const quill = new Quill("#quillEditor", { theme: "snow" });
+document.addEventListener("DOMContentLoaded", () => {
+  // Load header
+  fetch("header.html")
+    .then((res) => res.text())
+    .then((html) => {
+      document.getElementById("header-placeholder").innerHTML = html;
+    });
 
-fetch("header.html").then((res) => res.text()).then((html) => {
-  document.getElementById("header-placeholder").innerHTML = html;
+  quill = new Quill("#quillEditor", { theme: "snow" });
+
+  fetch("articles.json")
+    .then(res => res.json())
+    .then(data => {
+      allArticles = data;
+      populateArticleDropdown();
+      populateCategories(data);
+      updateOutput();
+    });
+
+  document.getElementById("articleSelect").addEventListener("change", loadArticle);
+  document.getElementById("newCategoryInput").addEventListener("keydown", addNewCategory);
+  document.getElementById("toggleCategoryDropdown").addEventListener("click", () => {
+    document.getElementById("categoryOptions").classList.toggle("show");
+  });
+
+  document.querySelectorAll(".copy-button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      const text = document.getElementById(targetId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "✅";
+        setTimeout(() => (btn.textContent = "📋"), 1200);
+      });
+    });
+  });
+
+  quill.on("text-change", updateOutput);
+  document.querySelectorAll("input").forEach(i => i.addEventListener("input", updateOutput));
+
+  document.getElementById("downloadMd").addEventListener("click", () => {
+    const id = document.getElementById("idInput").value.trim();
+    const md = quill.getText();
+    const blob = new Blob([md], { type: "text/markdown" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${id || "article"}.md`;
+    link.click();
+  });
+
+  document.getElementById("downloadJson").addEventListener("click", () => {
+    const article = buildArticleJson();
+    const updated = [...allArticles.filter(a => a.id !== article.id), article];
+    const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "articles.json";
+    link.click();
+  });
 });
 
-fetch("articles.json").then((res) => res.json()).then((data) => {
-  allArticles = data;
-  data.forEach(article => {
+function populateArticleDropdown() {
+  const select = document.getElementById("articleSelect");
+  allArticles.forEach(article => {
     const opt = document.createElement("option");
     opt.value = article.id;
     opt.textContent = article.title;
-    articleSelect.appendChild(opt);
+    select.appendChild(opt);
   });
+}
 
-  loadCategoryCheckboxes(data);
-});
+function loadArticle() {
+  const id = this.value;
+  if (!id) return clearFields();
 
-function loadCategoryCheckboxes(data) {
-  const set = new Set();
-  data.forEach(a => a.categories.forEach(c => set.add(c)));
+  const article = allArticles.find(a => a.id === id);
+  if (article) {
+    document.getElementById("idInput").value = article.id;
+    document.getElementById("titleInput").value = article.title;
+    document.getElementById("summaryInput").value = article.summary;
+    document.getElementById("imageInput").value = article.image;
+    setCategoryChecks(article.categories);
 
-  const container = document.getElementById("categoryList");
+    fetch(`articles/${id}.md`)
+      .then(res => res.text())
+      .then(md => quill.setText(md));
+  }
+}
+
+function populateCategories(data) {
+  const allCats = new Set();
+  data.forEach(a => a.categories.forEach(c => allCats.add(c)));
+  const container = document.getElementById("categoryOptions");
   container.innerHTML = "";
-  [...set].sort().forEach(cat => {
+  Array.from(allCats).sort().forEach(cat => {
     const label = document.createElement("label");
     label.innerHTML = `<input type="checkbox" value="${cat}"> ${cat}`;
     container.appendChild(label);
   });
 }
 
-articleSelect.addEventListener("change", () => {
-  const id = articleSelect.value;
-  if (!id) return clearForm();
-
-  const a = allArticles.find(a => a.id === id);
-  document.getElementById("id").value = a.id;
-  document.getElementById("title").value = a.title;
-  document.getElementById("summary").value = a.summary;
-  document.getElementById("image").value = a.image;
-
-  document.querySelectorAll("#categoryList input").forEach(cb => {
-    cb.checked = a.categories.includes(cb.value);
+function setCategoryChecks(categories = []) {
+  const checkboxes = document.querySelectorAll("#categoryOptions input[type='checkbox']");
+  checkboxes.forEach(cb => {
+    cb.checked = categories.includes(cb.value);
   });
-
-  fetch(`articles/${id}.md`).then(res => res.text()).then(md => {
-    markdownEditor.value = md;
-    quill.setText(md);
-    updateOutputs();
-  });
-});
-
-function clearForm() {
-  ["id", "title", "summary", "image"].forEach(id => document.getElementById(id).value = "");
-  markdownEditor.value = "";
-  quill.setText("");
-  document.querySelectorAll("#categoryList input").forEach(cb => cb.checked = false);
-  updateOutputs();
 }
 
-markdownEditor.addEventListener("input", () => {
-  quill.setText(markdownEditor.value);
-  updateOutputs();
-});
-
-quill.on("text-change", () => {
-  markdownEditor.value = quill.getText();
-  updateOutputs();
-});
-
-function buildJson() {
-  return {
-    id: document.getElementById("id").value.trim(),
-    title: document.getElementById("title").value.trim(),
-    summary: document.getElementById("summary").value.trim(),
-    image: document.getElementById("image").value.trim(),
-    categories: [...document.querySelectorAll("#categoryList input:checked")].map(c => c.value)
-  };
-}
-
-function updateOutputs() {
-  jsonOutput.textContent = JSON.stringify(buildJson(), null, 2);
-  markdownOutput.textContent = markdownEditor.value;
-}
-
-window.toggleCategoryDropdown = function () {
-  const list = document.getElementById("categoryList");
-  list.style.display = list.style.display === "block" ? "none" : "block";
-};
-
-window.handleNewCategory = function (e) {
-  if (e.key === "Enter") {
+function addNewCategory(e) {
+  if (e.key === "Enter" && e.target.value.trim()) {
     const val = e.target.value.trim();
-    if (val) {
-      const label = document.createElement("label");
-      label.innerHTML = `<input type="checkbox" value="${val}" checked> ${val}`;
-      document.getElementById("categoryList").appendChild(label);
-      e.target.value = "";
-    }
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="checkbox" value="${val}" checked> ${val}`;
+    document.getElementById("categoryOptions").appendChild(label);
+    e.target.value = "";
+    updateOutput();
   }
-};
+}
 
-document.querySelectorAll(".copy-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const id = btn.dataset.copyTarget;
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = "✅";
-      setTimeout(() => (btn.textContent = "📋"), 1500);
-    });
+function buildArticleJson() {
+  const id = document.getElementById("idInput").value.trim();
+  const title = document.getElementById("titleInput").value.trim();
+  const summary = document.getElementById("summaryInput").value.trim();
+  const image = document.getElementById("imageInput").value.trim();
+  const categories = Array.from(document.querySelectorAll("#categoryOptions input:checked")).map(cb => cb.value);
+  return { id, title, summary, image, categories };
+}
+
+function updateOutput() {
+  const markdown = quill.getText().trim();
+  const json = JSON.stringify(buildArticleJson(), null, 2);
+  document.getElementById("markdownPreview").textContent = markdown;
+  document.getElementById("jsonPreview").textContent = json;
+}
+
+function clearFields() {
+  ["idInput", "titleInput", "summaryInput", "imageInput"].forEach(id => {
+    document.getElementById(id).value = "";
   });
-});
+  quill.setText("");
+  document.querySelectorAll("#categoryOptions input[type='checkbox']").forEach(cb => cb.checked = false);
+}
