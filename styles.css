@@ -225,3 +225,26 @@ article h2 {
     width: 240px;
   }
 }
+
+#themeSelector {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;       /* More rounded corners */
+  font-size: 1rem;
+  appearance: none;          /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 16px 16px;
+  padding-right: 2.5rem;     /* Space for the arrow */
+  transition: background-color 0.3s ease;
+}
+
+#themeSelector:hover {
+  background-color: var(--accent-hover);
+}
