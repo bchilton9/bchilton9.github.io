@@ -1,13 +1,14 @@
-let currentPage = 1;
-const articlesPerPage = 4;
-let allArticles = [];
-let filteredArticles = [];
-
 const colorThemes = [
   'blue', 'green', 'purple', 'red', 'orange', 'gray', 'yellow', 'pink',
   'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
 ];
 
+let currentPage = 1;
+const articlesPerPage = 4;
+let allArticles = [];
+let filteredArticles = [];
+
+// Initialize header scripts & theme selector
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
@@ -24,22 +25,24 @@ function initHeaderScripts() {
     });
   }
 
-  // Initialize color theme selector UI
   createColorSelector();
   loadColorTheme();
 }
 
-// Create the color theme selector dropdown and add it to header
+// Dynamically create the color selector dropdown inside the header
 function createColorSelector() {
-  const header = document.querySelector('header');
-  if (!header) return;
+  const containerExists = document.getElementById('colorSelectorContainer');
+  if (containerExists) return; // Prevent duplicates
+
+  const menuIcons = document.querySelector('.menu-icons');
+  if (!menuIcons) return;
 
   const container = document.createElement('div');
   container.id = 'colorSelectorContainer';
   container.style.marginLeft = '1rem';
 
   const label = document.createElement('label');
-  label.setAttribute('for', 'colorSelector');
+  label.htmlFor = 'colorSelector';
   label.textContent = 'Theme: ';
   label.style.color = 'var(--foreground)';
   label.style.fontSize = '0.9rem';
@@ -60,16 +63,16 @@ function createColorSelector() {
     select.appendChild(option);
   });
 
-  select.onchange = () => {
+  select.addEventListener('change', () => {
     setColorTheme(select.value);
-  };
+  });
 
   container.appendChild(label);
   container.appendChild(select);
-  header.querySelector('.menu-icons').appendChild(container);
+  menuIcons.appendChild(container);
 }
 
-// Apply a color theme by adding class to body
+// Apply color theme class to body and save to localStorage
 function setColorTheme(theme) {
   colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
   if (theme && colorThemes.includes(theme)) {
@@ -78,7 +81,7 @@ function setColorTheme(theme) {
   }
 }
 
-// Load saved color theme from localStorage
+// Load color theme from localStorage or default to blue
 function loadColorTheme() {
   const savedTheme = localStorage.getItem('colorTheme') || 'blue';
   const selector = document.getElementById('colorSelector');
@@ -88,7 +91,7 @@ function loadColorTheme() {
   setColorTheme(savedTheme);
 }
 
-// Load header and footer and initialize everything
+// Load header and footer, then initialize
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
@@ -99,7 +102,7 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Render category buttons in the menu
+// Render category buttons in the hamburger menu
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
   menuList.innerHTML = '';
@@ -108,6 +111,7 @@ function renderCategories(categories) {
     const btn = document.createElement('button');
     btn.className = 'nav-cat-btn';
     btn.textContent = cat;
+    btn.type = 'button';
     btn.onclick = () => {
       currentPage = 1;
       filterArticlesByCategory(cat);
@@ -117,7 +121,7 @@ function renderCategories(categories) {
   });
 }
 
-// Filter articles by category and display first page
+// Filter articles by category and update view
 function filterArticlesByCategory(category) {
   if (category === 'All') {
     filteredArticles = allArticles.slice();
@@ -128,7 +132,7 @@ function filterArticlesByCategory(category) {
   renderPagination(filteredArticles.length);
 }
 
-// Render a page of articles
+// Render a page of articles with pagination
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
@@ -154,7 +158,7 @@ function renderArticlesPage(data, page) {
   attachArticleButtons();
 }
 
-// Attach event handlers to Read More and Share buttons
+// Add event listeners to Read More and Share buttons
 function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
     btn.onclick = () => loadMarkdown(btn.dataset.id);
@@ -164,22 +168,17 @@ function attachArticleButtons() {
     btn.onclick = (e) => {
       const btn = e.target;
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(link).then(() => {
-          btn.textContent = "✅ Copied!";
-          setTimeout(() => btn.textContent = "🔗 Share", 1500);
-        }).catch(() => {
-          alert('Failed to copy link. Please copy manually:\n' + link);
-        });
-      } else {
-        // Fallback for older browsers
-        alert('Copy to clipboard not supported. Link:\n' + link);
-      }
+      navigator.clipboard.writeText(link).then(() => {
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => btn.textContent = "🔗 Share", 1500);
+      }).catch(() => {
+        alert('Failed to copy link. Please copy manually:\n' + link);
+      });
     };
   });
 }
 
-// Pagination buttons and logic
+// Render pagination buttons and attach their handlers
 function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
@@ -210,12 +209,13 @@ function renderPagination(totalArticles) {
   updatePaginationButtons(totalArticles);
 }
 
+// Enable or disable pagination buttons based on page
 function updatePaginationButtons(totalArticles) {
   document.getElementById('prevPage').disabled = currentPage === 1;
   document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
-// Load all articles and setup UI
+// Load articles.json and initialize the interface
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
@@ -223,7 +223,6 @@ function loadArticles() {
       allArticles = data;
       filteredArticles = allArticles.slice();
 
-      // Extract categories + "All"
       const allCategoriesSet = new Set();
       allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
       const categories = ['All', ...Array.from(allCategoriesSet).sort()];
@@ -234,13 +233,10 @@ function loadArticles() {
 
       setupSearch();
       setupCategoryFilters(categories);
-    })
-    .catch(err => {
-      alert('Failed to load articles.json: ' + err.message);
     });
 }
 
-// Setup search box event
+// Setup search box filtering
 function setupSearch() {
   const searchBox = document.getElementById('searchBox');
   searchBox.oninput = () => {
@@ -276,71 +272,58 @@ function setupCategoryFilters(categories) {
   });
 }
 
-// Load and display a markdown article by id
+// Load markdown content for an article by id
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
-    .then(res => {
-      if (!res.ok) throw new Error('Article not found');
-      return res.text();
-    })
+    .then(res => res.text())
     .then(markdown => {
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      let viewer = document.getElementById('articleContent');
+      const viewer = document.getElementById('articleContent');
       if (!viewer) {
-        viewer = document.createElement('div');
-        viewer.id = 'articleContent';
-        viewer.className = 'article-viewer';
-        document.querySelector('main').appendChild(viewer);
+        const newViewer = document.createElement('div');
+        newViewer.id = 'articleContent';
+        newViewer.className = 'article-viewer';
+        document.querySelector('main').appendChild(newViewer);
       }
-      viewer.innerHTML = marked.parse(markdown);
+      document.getElementById('articleContent').innerHTML = marked.parse(markdown);
 
-      // Add share button below article
+      // Add share button below article content
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(link).then(() => {
-            share.textContent = '✅ Copied!';
-            setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-          }).catch(() => {
-            alert('Failed to copy link. Please copy manually:\n' + link);
-          });
-        } else {
-          alert('Copy to clipboard not supported. Link:\n' + link);
-        }
+        navigator.clipboard.writeText(link).then(() => {
+          share.textContent = '✅ Copied!';
+          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+        }).catch(() => {
+          alert('Failed to copy link. Please copy manually:\n' + link);
+        });
       };
       share.style.marginTop = '1rem';
-      viewer.appendChild(share);
+      document.getElementById('articleContent').appendChild(share);
 
-      viewer.style.display = 'block';
+      document.getElementById('articleContent').style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
-    })
-    .catch(err => {
-      alert('Failed to load article: ' + err.message);
     });
 }
 
-// Setup back button to return to list
+// Back button: return to article list
 document.addEventListener('DOMContentLoaded', () => {
-  const backBtn = document.getElementById('backButton');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      document.getElementById('articles').style.display = 'block';
-      document.getElementById('searchBox').style.display = 'block';
-      document.getElementById('categoryFilters').style.display = 'flex';
-      const viewer = document.getElementById('articleContent');
-      if (viewer) viewer.style.display = 'none';
-      backBtn.style.display = 'none';
-      window.location.hash = '';
-    });
-  }
+  document.getElementById('backButton').addEventListener('click', () => {
+    document.getElementById('articles').style.display = 'block';
+    document.getElementById('searchBox').style.display = 'block';
+    document.getElementById('categoryFilters').style.display = 'flex';
+    const articleContent = document.getElementById('articleContent');
+    if(articleContent) articleContent.style.display = 'none';
+    document.getElementById('backButton').style.display = 'none';
+    window.location.hash = '';
+  });
 
-  // Load article from URL hash if present
+  // On page load, if URL has hash, load article
   const hash = window.location.hash.slice(1);
   if (hash) {
     setTimeout(() => loadMarkdown(hash), 300);
