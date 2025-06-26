@@ -1,10 +1,38 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #eee;
+  margin: 0;
+  padding: 0 1rem 3rem;
+}
+#header-placeholder {
+  margin-bottom: 1rem;
+}
+h2 {
+  margin-top: 0;
+}
+select, input[type=text], textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background: #222;
+  color: #eee;
+}
+textarea {
+  height: 200px;
+  font-family: monospace;
+  resize: vertical;
+}
 .editor-tabs {
   display: flex;
   flex-wrap: wrap;
   border-bottom: 1px solid #333;
   background: #222;
+  margin-bottom: 1rem;
 }
-
 .editor-tabs button {
   flex: 1;
   padding: 0.75rem;
@@ -14,44 +42,60 @@
   cursor: pointer;
   font-weight: bold;
   border-right: 1px solid #333;
+  transition: background-color 0.3s;
 }
 .editor-tabs button.active {
-  background: #333;
+  background: #0af;
   color: #fff;
 }
-
 .tab-content {
-  visibility: hidden;
-  height: 0;
-  overflow: hidden;
+  display: none;
+  padding-bottom: 1rem;
 }
 .tab-content.active {
-  visibility: visible;
-  height: auto;
-  padding: 1rem 0;
+  display: block;
 }
-
-#title, #summary, #image, #categories, #id {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-#markdownEditor {
-  width: 100%;
+#quillEditor {
   height: 300px;
   background: #1e1e2f;
-  color: #fff;
-  border: none;
-  padding: 1rem;
   border-radius: 6px;
+  color: #fff;
 }
-
+#imagesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.image-item {
+  background: #222;
+  border-radius: 6px;
+  padding: 0.5rem;
+  width: 120px;
+  text-align: center;
+  color: #ccc;
+  font-size: 0.85rem;
+  user-select: none;
+}
+.image-item img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-bottom: 0.3rem;
+  cursor: pointer;
+}
+.image-item button {
+  background: #0af;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  margin: 0.1rem 0.1rem 0 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
 .export-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1rem;
 }
 .export-buttons button {
   background: #0af;
@@ -61,30 +105,15 @@
   color: white;
   cursor: pointer;
 }
-
-.image-picker {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-}
-.image-picker div {
-  background: #1e1e2f;
-  padding: 0.5rem;
-  border-radius: 8px;
-  text-align: center;
-}
-.image-picker img {
-  max-width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-.image-picker p {
-  font-size: 0.8rem;
-  word-break: break-all;
-}
-.image-picker button {
-  margin-top: 0.3rem;
-  padding: 0.3rem 0.5rem;
-  font-size: 0.8rem;
+@media (max-width: 600px) {
+  .editor-tabs button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+  #quillEditor {
+    height: 200px;
+  }
+  .image-item {
+    width: 45%;
+  }
 }
