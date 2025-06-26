@@ -244,3 +244,27 @@ article button {
 article button:hover {
   background: #0066ff;
 }
+
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.category-filters button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 999px;
+  background: #444;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s;
+}
+
+.category-filters button.active,
+.category-filters button:hover {
+  background: var(--accent-color);
+  color: white;
+}
