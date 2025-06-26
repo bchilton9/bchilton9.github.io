@@ -24,6 +24,7 @@
 
     #header-placeholder {
       margin-bottom: 1rem;
+      padding: 0; /* Removed extra padding */
     }
 
     h1 {
@@ -109,7 +110,7 @@
     pre#jsonOutput {
       background: #222;
       color: #eee;
-      padding: 1rem 1.5rem 1.5rem 1rem;
+      padding: 1rem 1rem 1.5rem 1rem;
       border-radius: 8px;
       white-space: pre-wrap;
       max-height: 320px;
@@ -122,7 +123,9 @@
       box-shadow: 0 0 6px rgba(0,0,0,0.5);
     }
 
-    .copy-corner-btn {
+    /* Copy buttons positioned inside pre tags top-right corner */
+    pre#markdownContent > button.copy-corner-btn,
+    pre#jsonOutput > button.copy-corner-btn {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -139,7 +142,8 @@
       transition: background-color 0.2s ease;
       z-index: 20;
     }
-    .copy-corner-btn:hover {
+    pre#markdownContent > button.copy-corner-btn:hover,
+    pre#jsonOutput > button.copy-corner-btn:hover {
       background: #09e;
     }
 
