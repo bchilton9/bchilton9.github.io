@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editor – The Gadget Guide</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <h2>Markdown Article Editor</h2>
+    <input type="text" id="editorTitle" placeholder="Article Title" />
+    <input type="text" id="editorImage" placeholder="Image URL (for preview)" />
+    <textarea id="editorBody" placeholder="Write your article in markdown..."></textarea>
+
+    <div class="editor-buttons">
+      <button id="insertImage">🖼️ Insert Image</button>
+      <button id="saveArticle">💾 Save Markdown</button>
+    </div>
+
+    <h3>Live Preview</h3>
+    <div id="preview" class="article-preview"></div>
+
+    <h3>Markdown Source</h3>
+    <pre><code id="rawMd"></code></pre>
+
+    <h3>JSON for <code>articles.json</code></h3>
+    <pre><code id="jsonSnippet"></code></pre>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

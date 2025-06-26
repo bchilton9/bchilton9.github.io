@@ -1,0 +1,219 @@
+:root {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --accent-color: #0a84ff;
+  --header-bg: #1a1a1a;
+  --card-bg: #1f1f1f;
+  --light-bg: #ffffff;
+  --light-text: #111;
+  --light-header: #f0f0f0;
+}
+
+/* Light mode overrides */
+body.light-mode {
+  --bg-color: var(--light-bg);
+  --text-color: var(--light-text);
+  --header-bg: var(--light-header);
+  --card-bg: #ffffff;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Header */
+header {
+  background: var(--header-bg);
+  color: var(--text-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #333;
+  border-radius: 0 0 12px 12px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Nav bar */
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.nav-links a:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.menu-icons {
+  display: none;
+  gap: 1rem;
+}
+
+#menuToggle {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+#modeToggle {
+  font-size: 1.3rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* Mobile menu */
+@media (max-width: 768px) {
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    right: 1.5rem;
+    flex-direction: column;
+    background: var(--header-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #000;
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  .nav-links.open {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-icons {
+    display: flex;
+  }
+}
+
+/* Main content */
+main {
+  max-width: 960px;
+  margin: auto;
+  padding: 1rem;
+}
+
+article {
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+article h2 {
+  margin-top: 0;
+}
+
+article img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Buttons */
+button {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #0066ff;
+}
+
+/* Inputs */
+input, textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: #1c1c1c;
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+body.light-mode input,
+body.light-mode textarea {
+  background: #f9f9f9;
+  color: #000;
+}
+
+/* Preview / Code blocks */
+pre {
+  background: #222;
+  color: #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.light-mode pre {
+  background: #f0f0f0;
+  color: #222;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Scrollable article list in menu */
+.article-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.article-scroll a {
+  color: var(--text-color);
+  background: transparent;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.article-scroll a:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
