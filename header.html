@@ -1,17 +1,33 @@
 <header>
-<a href="index.html">
-<img id="siteLogo" src="images/logo-dark.png" alt="The Gadget Guide Logo" class="site-logo" />
-</a>
-    <!-- span class="site-title">The Gadget Guide</span -->
+  <a href="index.html">
+    <img id="siteLogo" src="images/logo-dark.png" alt="The Gadget Guide Logo" class="site-logo" />
+  </a>
+
   <div class="menu-icons">
-    <button id="modeToggle" title="Toggle Light/Dark">🌙</button>
-    <button id="menuToggle" title="Menu">☰</button>
+    <select id="themeSelector" title="Theme">
+      <option value="blue" selected>Blue</option>
+      <option value="red">Red</option>
+      <option value="green">Green</option>
+      <option value="orange">Orange</option>
+      <option value="purple">Purple</option>
+      <option value="yellow">Yellow</option>
+      <option value="cyan">Cyan</option>
+      <option value="pink">Pink</option>
+      <option value="lime">Lime</option>
+      <option value="teal">Teal</option>
+      <option value="indigo">Indigo</option>
+      <option value="brown">Brown</option>
+      <option value="amber">Amber</option>
+      <option value="deeporange">Deep Orange</option>
+      <option value="gray">Gray</option>
+    </select>
+    <button id="menuToggle" title="Menu" aria-label="Toggle menu">☰</button>
   </div>
 </header>
 
 <nav class="nav-links" id="navLinks">
-  <a href="index.html">Home</a>
+  <a href="index.html" class="active">Home</a>
   <div class="article-scroll" id="articleList">
-    <!-- JS will load article links -->
+    <!-- JS will load categories here -->
   </div>
 </nav>
