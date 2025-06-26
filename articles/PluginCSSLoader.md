@@ -1,4 +1,4 @@
-Plugin: CSS Loader
+# Plugin: CSS Loader
 
 CSS Loader is a Decky Loader plugin to customize the theme and layout of your Game Mode Library. 
 

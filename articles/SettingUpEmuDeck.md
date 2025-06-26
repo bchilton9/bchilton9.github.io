@@ -1,4 +1,4 @@
-Setting up EmuDeck
+# Setting up EmuDeck
 
 Don’t have EmuDeck installed? Head over to Installing EmuDeck.
 

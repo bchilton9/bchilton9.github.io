@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": "SUDOPassword",
     "title": "SUDO Password",
     "summary": "The SUDO password is the super user password. Similar to the Administrator account on windows. It is needed to install anything that uses or changes the secure part of the system.",
     "image": "images/IMG_1289.png"
@@ -12,9 +12,27 @@
     "image": "images/IMG_1291.png"
   },
   {
-    "id": "3",
-    "title": "Ultimate Device Three",
-    "summary": "Ultimate device with cutting-edge features.",
+    "id": "SettingUpEmuDeck",
+    "title": "Setting Up EmuDeck",
+    "summary": "Setup and configure EmuDeck.",
+    "image": "images/gadget3.jpg"
+  },
+  {
+    "id": "DeckyLoader",
+    "title": "Decky Loader",
+    "summary": "Decky Loader is a program for installing 3rd party plugins into Game Mode. There is a lot of QOL and customization plugins available.",
+    "image": "images/gadget3.jpg"
+  },
+  {
+    "id": "PluginCSSLoader",
+    "title": "Plugin: CSS Loader",
+    "summary": "CSS Loader is a Decky Loader plugin to customize the theme and layout of your Game Mode Library.",
+    "image": "images/gadget3.jpg"
+  },
+  {
+    "id": "PluginSteamGridDB",
+    "title": "Plugin: SteamGridDB",
+    "summary": "SteamGridDB is a Decky Loader plugin to add custom artwork to your games.",
     "image": "images/gadget3.jpg"
   }
 ]
