@@ -55,11 +55,19 @@ function loadArticles() {
     .then(data => {
       const container = document.getElementById('articles');
       const menuList = document.getElementById('articleList');
+      const filterContainer = document.getElementById('categoryFilters');
+
       container.innerHTML = '';
       menuList.innerHTML = '';
+      filterContainer.innerHTML = '';
 
+      const allCategories = new Set();
+
+      // Create cards and collect categories
       data.forEach(article => {
         const card = document.createElement('article');
+        card.setAttribute('data-categories', article.categories.join(','));
+
         card.innerHTML = `
           <h2>${article.title}</h2>
           ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
@@ -67,6 +75,8 @@ function loadArticles() {
           <button data-id="${article.id}" class="readMore">Read more →</button>
         `;
         container.appendChild(card);
+
+        article.categories.forEach(cat => allCategories.add(cat));
 
         const link = document.createElement('a');
         link.href = '#';
@@ -78,6 +88,33 @@ function loadArticles() {
         menuList.appendChild(link);
       });
 
+      // Create filter buttons
+      const sortedCats = Array.from(allCategories).sort();
+      filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
+      sortedCats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.dataset.cat = cat;
+        filterContainer.appendChild(btn);
+      });
+
+      // Add filtering logic
+      filterContainer.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON') return;
+        const selected = e.target.dataset.cat;
+        document.querySelectorAll('.category-filters button').forEach(btn =>
+          btn.classList.remove('active')
+        );
+        e.target.classList.add('active');
+
+        document.querySelectorAll('#articles article').forEach(article => {
+          const cats = article.dataset.categories.split(',');
+          const visible = selected === 'all' || cats.includes(selected);
+          article.style.display = visible ? 'block' : 'none';
+        });
+      });
+
+      // Add read more button listeners
       document.querySelectorAll('.readMore').forEach(btn => {
         btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
       });
