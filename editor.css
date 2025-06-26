@@ -1,76 +1,44 @@
-body {
-  font-family: system-ui, sans-serif;
-  background: #111;
-  color: #fff;
-  margin: 0;
+main {
+  max-width: 900px;
+  margin: auto;
   padding: 1rem;
-}
-
-.editor-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  border-bottom: 1px solid #333;
-  background: #222;
-  margin-bottom: 1rem;
-}
-
-.editor-tabs button {
-  flex: 1;
-  padding: 0.75rem;
-  background: #222;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  font-weight: bold;
-  border-right: 1px solid #333;
-  transition: background 0.3s;
-}
-
-.editor-tabs button:last-child {
-  border-right: none;
-}
-
-.editor-tabs button.active {
-  background: #333;
-  color: #fff;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
+  color: #eee;
 }
 
 label {
   display: block;
-  margin-top: 1rem;
-  margin-bottom: 0.25rem;
+  margin: 1rem 0 0.25rem;
   font-weight: bold;
+  color: #ccc;
 }
 
-input[type="text"], textarea {
+input[type="text"], select, textarea {
   width: 100%;
   padding: 0.5rem;
   border-radius: 6px;
-  border: none;
-  background: #1e1e2f;
-  color: white;
+  border: 1px solid #444;
+  background: #222;
+  color: #eee;
   font-size: 1rem;
-  resize: vertical;
+  box-sizing: border-box;
 }
 
-textarea {
+#categoriesSelect {
+  height: 100px;
+}
+
+#quillEditor {
   height: 300px;
-  font-family: monospace;
+  background: #1e1e2f;
+  border-radius: 6px;
+  margin-top: 0.25rem;
 }
 
 .export-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
   margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .export-buttons button {
@@ -80,11 +48,12 @@ textarea {
   border-radius: 6px;
   color: white;
   cursor: pointer;
+  flex-grow: 1;
+  min-width: 140px;
 }
 
 #articleListDisplay {
   margin-top: 1rem;
-  font-size: 0.9rem;
   color: #aaa;
   white-space: pre-wrap;
   background: #222;
@@ -92,14 +61,6 @@ textarea {
   border-radius: 6px;
   max-height: 300px;
   overflow-y: auto;
-}
-
-@media (max-width: 600px) {
-  .editor-tabs button {
-    font-size: 0.9rem;
-    padding: 0.5rem;
-  }
-  textarea {
-    height: 200px;
-  }
+  font-family: monospace;
+  font-size: 0.9rem;
 }
