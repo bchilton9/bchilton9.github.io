@@ -147,6 +147,17 @@ function loadMarkdown(id) {
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
       
+      
+const share = document.createElement('button');
+share.textContent = '🔗 Share';
+share.style.marginTop = '1rem';
+share.onclick = () => {
+  const link = `${window.location.origin}${window.location.pathname}#${id}`;
+  navigator.clipboard.writeText(link).then(() => {
+    share.textContent = '✅ Copied!';
+    setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+  }); 
+      
 };
 
 document.getElementById('articleContent').appendChild(share); 
