@@ -45,49 +45,22 @@ function initHeaderScripts() {
     };
   }
 
-  // Initialize color theme selector UI
-  createColorSelector();
-  loadColorTheme();
+  // Initialize existing color selector in header.html
+  initColorSelector();
 }
 
-// Create the color theme selector dropdown and add it to header
-function createColorSelector() {
-  const header = document.querySelector('header');
-  if (!header) return;
+// Initialize the static color selector dropdown from header.html
+function initColorSelector() {
+  const selector = document.getElementById('colorSelector');
+  if (!selector) return;
 
-  const container = document.createElement('div');
-  container.id = 'colorSelectorContainer';
-  container.style.marginLeft = '1rem';
+  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
+  selector.value = savedTheme;
+  setColorTheme(savedTheme);
 
-  const label = document.createElement('label');
-  label.for = 'colorSelector';
-  label.textContent = 'Theme: ';
-  label.style.color = 'var(--foreground)';
-  label.style.fontSize = '0.9rem';
-  label.style.userSelect = 'none';
-
-  const select = document.createElement('select');
-  select.id = 'colorSelector';
-  select.style.padding = '0.2rem 0.5rem';
-  select.style.borderRadius = '6px';
-  select.style.border = 'none';
-  select.style.cursor = 'pointer';
-  select.style.fontSize = '1rem';
-
-  colorThemes.forEach(theme => {
-    const option = document.createElement('option');
-    option.value = theme;
-    option.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
-    select.appendChild(option);
-  });
-
-  select.onchange = () => {
-    setColorTheme(select.value);
+  selector.onchange = () => {
+    setColorTheme(selector.value);
   };
-
-  container.appendChild(label);
-  container.appendChild(select);
-  header.querySelector('.menu-icons').appendChild(container);
 }
 
 // Apply a color theme by adding class to body
@@ -99,17 +72,7 @@ function setColorTheme(theme) {
   }
 }
 
-// Load saved color theme from localStorage
-function loadColorTheme() {
-  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
-  const selector = document.getElementById('colorSelector');
-  if (selector) {
-    selector.value = savedTheme;
-  }
-  setColorTheme(savedTheme);
-}
-
-// Load header and footer
+// Load header and footer once
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
