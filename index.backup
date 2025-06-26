@@ -6,13 +6,14 @@
   <title>The Gadget Guide</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="theme-blue">
+<body>
   <div id="header-placeholder"></div>
 
   <main>
     <input type="text" id="searchBox" placeholder="Search articles..." />
     <div id="categoryFilters" class="category-filters"></div> 
     <div id="articles"></div>
+    <div id="pagination" class="pagination"></div>
     <div id="articleContent" class="article-viewer" style="display: none;"></div>
     <button id="backButton" style="display: none;">← Back to list</button>
   </main>
@@ -23,3 +24,4 @@
   <script src="main.js"></script>
 </body>
 </html>
+

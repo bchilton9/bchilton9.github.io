@@ -1,3 +1,8 @@
-<footer style="text-align:center; padding:1rem 0; color:#888;">
-  &copy; 2025 The Gadget Guide
+<footer style="text-align: center; padding: 1rem; background: #1e1e2f; color: #ccc; border-top: 1px solid #333;">
+  <p>&copy; <span id="year"></span> The Gadget Guide. All rights reserved.</p>
 </footer>
+
+<script>
+  // Set current year automatically
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>

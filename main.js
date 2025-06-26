@@ -1,4 +1,7 @@
-// Initialize header behavior
+let allArticles = [];
+let currentPage = 1;
+const articlesPerPage = 5;
+
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
@@ -16,7 +19,6 @@ function initHeaderScripts() {
   }
 }
 
-// Theme selector
 function initThemeSelector() {
   const saved = localStorage.getItem('themeColor') || 'blue';
   document.body.classList.add(`theme-${saved}`);
@@ -45,42 +47,25 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Load and display articles
+// Load all articles and categories
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
     .then(data => {
-      const container = document.getElementById('articles');
+      allArticles = data;
       const menuList = document.getElementById('articleList');
       const filterContainer = document.getElementById('categoryFilters');
-
-      container.innerHTML = '';
-      menuList.innerHTML = '';
-      filterContainer.innerHTML = '';
 
       const allCategories = new Set();
 
       data.forEach(article => {
-        const card = document.createElement('article');
-        card.setAttribute('data-categories', article.categories.join(','));
-
-        card.innerHTML = `
-          <h2>${article.title}</h2>
-          ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
-          <p>${article.summary}</p>
-          <div class="card-buttons">
-            <button data-id="${article.id}" class="readMore">Read more →</button>
-            <button data-id="${article.id}" class="shareLink">🔗 Share</button>
-          </div>
-        `;
-        container.appendChild(card);
-
-        // Collect categories for filtering and menu
         article.categories.forEach(cat => allCategories.add(cat));
       });
 
-      // Populate menu with categories
       const sortedCats = Array.from(allCategories).sort();
+
+      // Build nav menu
+      menuList.innerHTML = '';
       sortedCats.forEach(cat => {
         const link = document.createElement('a');
         link.href = `?cat=${encodeURIComponent(cat)}`;
@@ -93,7 +78,7 @@ function loadArticles() {
         menuList.appendChild(link);
       });
 
-      // Filter buttons
+      // Build filter buttons
       filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
       sortedCats.forEach(cat => {
         const btn = document.createElement('button');
@@ -112,50 +97,113 @@ function loadArticles() {
         filterByCategory(selected);
       });
 
-      // Read more
-      document.querySelectorAll('.readMore').forEach(btn => {
-        btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
-      });
-
-      // Share buttons
-      document.querySelectorAll('.shareLink').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
-          navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = "✅ Copied!";
-            setTimeout(() => {
-              btn.textContent = "🔗 Share";
-            }, 1500);
-          });
-        });
-      });
-
-      // Check URL for category
+      // Load category from URL
       const urlParams = new URLSearchParams(window.location.search);
-      const initialCat = urlParams.get('cat');
-      if (initialCat) {
-        filterByCategory(initialCat);
-        const activeBtn = [...document.querySelectorAll('.category-filters button')].find(btn =>
-          btn.dataset.cat === initialCat
-        );
-        if (activeBtn) {
-          document.querySelectorAll('.category-filters button').forEach(btn => btn.classList.remove('active'));
-          activeBtn.classList.add('active');
-        }
+      const initialCat = urlParams.get('cat') || 'all';
+      filterByCategory(initialCat);
+
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        setTimeout(() => loadMarkdown(hash), 300);
       }
     });
 }
 
-// Filter articles by category
-function filterByCategory(selected) {
-  document.querySelectorAll('#articles article').forEach(article => {
-    const cats = article.dataset.categories.split(',');
-    const visible = selected === 'all' || cats.includes(selected);
-    article.style.display = visible ? 'block' : 'none';
+// Render a page of articles
+function renderArticles(articles) {
+  const container = document.getElementById('articles');
+  container.innerHTML = '';
+
+  const start = (currentPage - 1) * articlesPerPage;
+  const end = start + articlesPerPage;
+  const pageArticles = articles.slice(start, end);
+
+  pageArticles.forEach(article => {
+    const card = document.createElement('article');
+    card.setAttribute('data-categories', article.categories.join(','));
+
+    card.innerHTML = `
+      <h2>${article.title}</h2>
+      ${article.image ? `<img src="${article.image}" alt="${article.title}" />` : ""}
+      <p>${article.summary}</p>
+      <div class="card-buttons">
+        <button data-id="${article.id}" class="readMore">Read more →</button>
+        <button data-id="${article.id}" class="shareLink">🔗 Share</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Pagination controls
+  renderPagination(articles.length);
+
+  // Read more buttons
+  document.querySelectorAll('.readMore').forEach(btn => {
+    btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
+  });
+
+  // Share buttons
+  document.querySelectorAll('.shareLink').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
+      navigator.clipboard.writeText(link).then(() => {
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => {
+          btn.textContent = "🔗 Share";
+        }, 1500);
+      });
+    });
   });
 }
 
-// Load markdown article into page
+// Pagination UI
+function renderPagination(totalCount) {
+  const container = document.getElementById('articles');
+  const totalPages = Math.ceil(totalCount / articlesPerPage);
+
+  const nav = document.createElement('div');
+  nav.className = 'pagination';
+
+  const prev = document.createElement('button');
+  prev.textContent = '← Previous';
+  prev.disabled = currentPage === 1;
+  prev.onclick = () => {
+    currentPage--;
+    updateView();
+  };
+
+  const next = document.createElement('button');
+  next.textContent = 'Next →';
+  next.disabled = currentPage === totalPages;
+  next.onclick = () => {
+    currentPage++;
+    updateView();
+  };
+
+  nav.appendChild(prev);
+  nav.appendChild(next);
+  container.appendChild(nav);
+}
+
+// Update article view
+function updateView() {
+  const selected = document.querySelector('.category-filters button.active')?.dataset.cat || 'all';
+  filterByCategory(selected);
+}
+
+// Filter by category
+function filterByCategory(cat) {
+  currentPage = 1;
+  let filtered = allArticles;
+
+  if (cat !== 'all') {
+    filtered = allArticles.filter(article => article.categories.includes(cat));
+  }
+
+  renderArticles(filtered);
+}
+
+// Load markdown article
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
     .then(res => res.text())
@@ -167,7 +215,6 @@ function loadMarkdown(id) {
       const viewer = document.getElementById('articleContent');
       viewer.innerHTML = marked.parse(markdown);
 
-      // Add share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
       share.onclick = () => {
@@ -186,7 +233,7 @@ function loadMarkdown(id) {
     });
 }
 
-// Back button returns to main article list
+// Back to list
 document.getElementById('backButton').addEventListener('click', () => {
   document.getElementById('articles').style.display = 'block';
   document.getElementById('searchBox').style.display = 'block';
@@ -194,9 +241,10 @@ document.getElementById('backButton').addEventListener('click', () => {
   document.getElementById('articleContent').style.display = 'none';
   document.getElementById('backButton').style.display = 'none';
   window.location.hash = '';
+  updateView();
 });
 
-// Search filter
+// Search box
 document.addEventListener('input', e => {
   if (e.target.id === 'searchBox') {
     const term = e.target.value.toLowerCase();
@@ -204,13 +252,5 @@ document.addEventListener('input', e => {
       const text = article.innerText.toLowerCase();
       article.style.display = text.includes(term) ? 'block' : 'none';
     });
-  }
-});
-
-// Load article by URL hash (if present)
-window.addEventListener('load', () => {
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    setTimeout(() => loadMarkdown(hash), 300);
   }
 });
