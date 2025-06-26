@@ -1,6 +1,12 @@
-let allArticles = [];
 let currentPage = 1;
-const articlesPerPage = 5;
+const articlesPerPage = 4;
+let allArticles = [];
+let filteredArticles = [];
+
+const colorThemes = [
+  'blue', 'green', 'purple', 'red', 'orange', 'gray', 'yellow', 'pink',
+  'cyan', 'lime', 'teal', 'indigo', 'brown', 'amber', 'deeporange'
+];
 
 function initHeaderScripts() {
   const menuToggle = document.getElementById('menuToggle');
@@ -17,29 +23,96 @@ function initHeaderScripts() {
       }
     });
   }
+
+  const modeToggle = document.getElementById('modeToggle');
+  const siteLogo = document.getElementById('siteLogo');
+
+  // Load dark/light mode from localStorage
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-mode');
+    if (modeToggle) modeToggle.textContent = '🌞';
+    if (siteLogo) siteLogo.src = 'images/logo-light.png';
+  }
+
+  if (modeToggle) {
+    modeToggle.onclick = () => {
+      const isLight = document.body.classList.toggle('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      modeToggle.textContent = isLight ? '🌞' : '🌙';
+      if (siteLogo) {
+        siteLogo.src = isLight ? 'images/logo-light.png' : 'images/logo-dark.png';
+      }
+    };
+  }
+
+  // Initialize color theme selector UI
+  createColorSelector();
+  loadColorTheme();
 }
 
-function initThemeSelector() {
-  const saved = localStorage.getItem('themeColor') || 'blue';
-  document.body.classList.add(`theme-${saved}`);
-  const selector = document.getElementById('themeSelector');
-  if (selector) selector.value = saved;
+// Create the color theme selector dropdown and add it to header
+function createColorSelector() {
+  const header = document.querySelector('header');
+  if (!header) return;
 
-  if (selector) {
-    selector.addEventListener('change', () => {
-      document.body.className = document.body.className.replace(/theme-\w+/g, '').trim();
-      const theme = selector.value;
-      document.body.classList.add(`theme-${theme}`);
-      localStorage.setItem('themeColor', theme);
-    });
+  const container = document.createElement('div');
+  container.id = 'colorSelectorContainer';
+  container.style.marginLeft = '1rem';
+
+  const label = document.createElement('label');
+  label.for = 'colorSelector';
+  label.textContent = 'Theme: ';
+  label.style.color = 'var(--foreground)';
+  label.style.fontSize = '0.9rem';
+  label.style.userSelect = 'none';
+
+  const select = document.createElement('select');
+  select.id = 'colorSelector';
+  select.style.padding = '0.2rem 0.5rem';
+  select.style.borderRadius = '6px';
+  select.style.border = 'none';
+  select.style.cursor = 'pointer';
+  select.style.fontSize = '1rem';
+
+  colorThemes.forEach(theme => {
+    const option = document.createElement('option');
+    option.value = theme;
+    option.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    setColorTheme(select.value);
+  };
+
+  container.appendChild(label);
+  container.appendChild(select);
+  header.querySelector('.menu-icons').appendChild(container);
+}
+
+// Apply a color theme by adding class to body
+function setColorTheme(theme) {
+  colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
+  if (theme && colorThemes.includes(theme)) {
+    document.body.classList.add(`theme-${theme}`);
+    localStorage.setItem('colorTheme', theme);
   }
+}
+
+// Load saved color theme from localStorage
+function loadColorTheme() {
+  const savedTheme = localStorage.getItem('colorTheme') || 'blue';
+  const selector = document.getElementById('colorSelector');
+  if (selector) {
+    selector.value = savedTheme;
+  }
+  setColorTheme(savedTheme);
 }
 
 // Load header and footer
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
-  initThemeSelector();
   loadArticles();
 });
 
@@ -47,78 +120,40 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
-// Load and display articles
-function loadArticles() {
-  fetch('articles.json')
-    .then(res => res.json())
-    .then(data => {
-      allArticles = data;
-      const menuList = document.getElementById('articleList');
-      const filterContainer = document.getElementById('categoryFilters');
+function renderCategories(categories) {
+  const menuList = document.getElementById('articleList');
+  menuList.innerHTML = '';
 
-      const allCategories = new Set();
-      data.forEach(article => article.categories.forEach(cat => allCategories.add(cat)));
-      const sortedCats = Array.from(allCategories).sort();
-
-      // Render side menu as buttons for iOS compatibility
-      menuList.innerHTML = '';
-      sortedCats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-cat-btn';
-        btn.textContent = cat;
-        btn.addEventListener('click', () => {
-          filterByCategory(cat);
-          history.replaceState(null, '', `?cat=${encodeURIComponent(cat)}`);
-          document.getElementById('navLinks').classList.remove('open');
-        });
-        btn.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          filterByCategory(cat);
-        });
-        menuList.appendChild(btn);
-      });
-
-      // Filter buttons
-      filterContainer.innerHTML = `<button class="active" data-cat="all">All</button>`;
-      sortedCats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.textContent = cat;
-        btn.dataset.cat = cat;
-        filterContainer.appendChild(btn);
-      });
-
-      filterContainer.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'BUTTON') return;
-        const selected = e.target.dataset.cat;
-        document.querySelectorAll('.category-filters button').forEach(btn =>
-          btn.classList.remove('active')
-        );
-        e.target.classList.add('active');
-        filterByCategory(selected);
-      });
-
-      // Load category from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialCat = urlParams.get('cat') || 'all';
-      filterByCategory(initialCat);
-
-      // Load hash-based article if present
-      const hash = window.location.hash.slice(1);
-      if (hash) {
-        setTimeout(() => loadMarkdown(hash), 300);
-      }
-    });
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-cat-btn';
+    btn.textContent = cat;
+    btn.onclick = () => {
+      currentPage = 1;
+      filterArticlesByCategory(cat);
+      document.getElementById('navLinks').classList.remove('open');
+    };
+    menuList.appendChild(btn);
+  });
 }
 
-function renderArticles(articles) {
+function filterArticlesByCategory(category) {
+  if (category === 'All') {
+    filteredArticles = allArticles.slice();
+  } else {
+    filteredArticles = allArticles.filter(article => article.categories.includes(category));
+  }
+  renderArticlesPage(filteredArticles, currentPage);
+  renderPagination(filteredArticles.length);
+}
+
+function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
+  const start = (page - 1) * articlesPerPage;
+  const pagedArticles = data.slice(start, start + articlesPerPage);
 
-  const start = (currentPage - 1) * articlesPerPage;
-  const end = start + articlesPerPage;
-  const pageArticles = articles.slice(start, end);
-
-  pageArticles.forEach(article => {
+  pagedArticles.forEach(article => {
     const card = document.createElement('article');
     card.setAttribute('data-categories', article.categories.join(','));
 
@@ -134,67 +169,116 @@ function renderArticles(articles) {
     container.appendChild(card);
   });
 
-  renderPagination(articles.length);
+  attachArticleButtons();
+}
 
+function attachArticleButtons() {
   document.querySelectorAll('.readMore').forEach(btn => {
-    btn.addEventListener('click', () => loadMarkdown(btn.dataset.id));
+    btn.onclick = () => loadMarkdown(btn.dataset.id);
   });
 
   document.querySelectorAll('.shareLink').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.onclick = (e) => {
+      const btn = e.target;
       const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
       navigator.clipboard.writeText(link).then(() => {
         btn.textContent = "✅ Copied!";
-        setTimeout(() => {
-          btn.textContent = "🔗 Share";
-        }, 1500);
+        setTimeout(() => btn.textContent = "🔗 Share", 1500);
+      }).catch(() => {
+        alert('Failed to copy link. Please copy manually:\n' + link);
       });
-    });
+    };
   });
 }
 
-function renderPagination(totalCount) {
-  const container = document.getElementById('articles');
-  const totalPages = Math.ceil(totalCount / articlesPerPage);
+function renderPagination(totalArticles) {
+  let pagination = document.querySelector('.pagination');
+  if (!pagination) {
+    pagination = document.createElement('div');
+    pagination.className = 'pagination';
+    pagination.innerHTML = `
+      <button id="prevPage">← Previous</button>
+      <button id="nextPage">Next →</button>
+    `;
+    document.getElementById('articles').after(pagination);
 
-  const nav = document.createElement('div');
-  nav.className = 'pagination';
+    document.getElementById('prevPage').onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderArticlesPage(filteredArticles, currentPage);
+        updatePaginationButtons(totalArticles);
+      }
+    };
 
-  const prev = document.createElement('button');
-  prev.textContent = '← Previous';
-  prev.disabled = currentPage === 1;
-  prev.onclick = () => {
-    currentPage--;
-    setTimeout(updateView, 0); // ensures iOS applies changes
-  };
-
-  const next = document.createElement('button');
-  next.textContent = 'Next →';
-  next.disabled = currentPage === totalPages;
-  next.onclick = () => {
-    currentPage++;
-    setTimeout(updateView, 0);
-  };
-
-  nav.appendChild(prev);
-  nav.appendChild(next);
-  container.appendChild(nav);
-}
-
-function updateView() {
-  const selected = document.querySelector('.category-filters button.active')?.dataset.cat || 'all';
-  filterByCategory(selected);
-}
-
-function filterByCategory(cat) {
-  currentPage = 1;
-  let filtered = allArticles;
-
-  if (cat !== 'all') {
-    filtered = allArticles.filter(article => article.categories.includes(cat));
+    document.getElementById('nextPage').onclick = () => {
+      if (currentPage * articlesPerPage < totalArticles) {
+        currentPage++;
+        renderArticlesPage(filteredArticles, currentPage);
+        updatePaginationButtons(totalArticles);
+      }
+    };
   }
+  updatePaginationButtons(totalArticles);
+}
 
-  renderArticles(filtered);
+function updatePaginationButtons(totalArticles) {
+  document.getElementById('prevPage').disabled = currentPage === 1;
+  document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
+}
+
+function loadArticles() {
+  fetch('articles.json')
+    .then(res => res.json())
+    .then(data => {
+      allArticles = data;
+      filteredArticles = allArticles.slice();
+
+      // Extract categories + "All"
+      const allCategoriesSet = new Set();
+      allArticles.forEach(a => a.categories.forEach(c => allCategoriesSet.add(c)));
+      const categories = ['All', ...Array.from(allCategoriesSet).sort()];
+      renderCategories(categories);
+
+      renderArticlesPage(filteredArticles, currentPage);
+      renderPagination(filteredArticles.length);
+
+      setupSearch();
+      setupCategoryFilters(categories);
+    });
+}
+
+function setupSearch() {
+  const searchBox = document.getElementById('searchBox');
+  searchBox.oninput = () => {
+    const term = searchBox.value.toLowerCase();
+    filteredArticles = allArticles.filter(article => {
+      return article.title.toLowerCase().includes(term) ||
+             article.summary.toLowerCase().includes(term) ||
+             article.categories.some(cat => cat.toLowerCase().includes(term));
+    });
+    currentPage = 1;
+    renderArticlesPage(filteredArticles, currentPage);
+    renderPagination(filteredArticles.length);
+  };
+}
+
+function setupCategoryFilters(categories) {
+  const filterContainer = document.getElementById('categoryFilters');
+  filterContainer.innerHTML = '';
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.textContent = cat;
+    btn.dataset.cat = cat;
+    if (cat === 'All') btn.classList.add('active');
+    btn.onclick = () => {
+      document.querySelectorAll('#categoryFilters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterArticlesByCategory(cat);
+      currentPage = 1;
+      renderPagination(filteredArticles.length);
+    };
+    filterContainer.appendChild(btn);
+  });
 }
 
 function loadMarkdown(id) {
@@ -208,6 +292,7 @@ function loadMarkdown(id) {
       const viewer = document.getElementById('articleContent');
       viewer.innerHTML = marked.parse(markdown);
 
+      // Share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
       share.onclick = () => {
@@ -215,6 +300,8 @@ function loadMarkdown(id) {
         navigator.clipboard.writeText(link).then(() => {
           share.textContent = '✅ Copied!';
           setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+        }).catch(() => {
+          alert('Failed to copy link. Please copy manually:\n' + link);
         });
       };
       share.style.marginTop = '1rem';
@@ -226,22 +313,20 @@ function loadMarkdown(id) {
     });
 }
 
-document.getElementById('backButton').addEventListener('click', () => {
-  document.getElementById('articles').style.display = 'block';
-  document.getElementById('searchBox').style.display = 'block';
-  document.getElementById('categoryFilters').style.display = 'flex';
-  document.getElementById('articleContent').style.display = 'none';
-  document.getElementById('backButton').style.display = 'none';
-  window.location.hash = '';
-  updateView();
-});
+// Back button returns to main list
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('backButton').addEventListener('click', () => {
+    document.getElementById('articles').style.display = 'block';
+    document.getElementById('searchBox').style.display = 'block';
+    document.getElementById('categoryFilters').style.display = 'flex';
+    document.getElementById('articleContent').style.display = 'none';
+    document.getElementById('backButton').style.display = 'none';
+    window.location.hash = '';
+  });
 
-document.addEventListener('input', e => {
-  if (e.target.id === 'searchBox') {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll('#articles article').forEach(article => {
-      const text = article.innerText.toLowerCase();
-      article.style.display = text.includes(term) ? 'block' : 'none';
-    });
+  // Load article from hash on load
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    setTimeout(() => loadMarkdown(hash), 300);
   }
 });

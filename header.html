@@ -1,9 +1,13 @@
 <header>
-  <img id="siteLogo" src="images/logodark.jpeg" alt="The Gadget Guide Logo" class="site-logo" />
-
+  <img id="siteLogo" src="images/logo-dark.png" alt="The Gadget Guide Logo" class="site-logo" />
   <div class="menu-icons">
-    <select id="themeSelector" title="Select Color Theme">
-      <option value="blue">Blue</option>
+    <button id="modeToggle" title="Toggle Light/Dark">🌙</button>
+    <button id="menuToggle" title="Menu">☰</button>
+  </div>
+  <div id="colorSelectorContainer">
+    Theme:
+    <select id="colorSelector" aria-label="Select theme color">
+      <option value="blue" selected>Blue</option>
       <option value="green">Green</option>
       <option value="purple">Purple</option>
       <option value="red">Red</option>
@@ -19,11 +23,12 @@
       <option value="amber">Amber</option>
       <option value="deeporange">Deep Orange</option>
     </select>
-    <button id="menuToggle" title="Menu">☰</button>
   </div>
 </header>
 
 <nav class="nav-links" id="navLinks">
-  <!-- Category links will be loaded dynamically here -->
-  <div class="article-scroll" id="articleList"></div>
+  <a href="index.html">Home</a>
+  <div class="article-scroll" id="articleList">
+    <!-- JS will load categories or articles here -->
+  </div>
 </nav>
