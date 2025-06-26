@@ -37,11 +37,9 @@ function createColorSelector() {
   const container = document.createElement('div');
   container.id = 'colorSelectorContainer';
   container.style.marginLeft = '1rem';
-  container.style.position = 'relative';
-  container.style.display = 'inline-block';
 
   const label = document.createElement('label');
-  label.htmlFor = 'colorSelector';
+  label.setAttribute('for', 'colorSelector');
   label.textContent = 'Theme: ';
   label.style.color = 'var(--foreground)';
   label.style.fontSize = '0.9rem';
@@ -49,19 +47,11 @@ function createColorSelector() {
 
   const select = document.createElement('select');
   select.id = 'colorSelector';
-  select.style.padding = '0.3rem 0.8rem';
-  select.style.borderRadius = '8px';
+  select.style.padding = '0.2rem 0.5rem';
+  select.style.borderRadius = '6px';
   select.style.border = 'none';
   select.style.cursor = 'pointer';
-  select.style.fontSize = '1.2rem';
-  select.style.fontFamily = 'inherit';
-  select.style.backgroundColor = 'var(--background)';
-  select.style.color = 'var(--foreground)';
-  select.style.appearance = 'none';
-  select.style.WebkitAppearance = 'none';
-  select.style.MozAppearance = 'none';
-  select.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-  select.style.paddingRight = '2rem'; // space for custom arrow
+  select.style.fontSize = '1rem';
 
   colorThemes.forEach(theme => {
     const option = document.createElement('option');
@@ -79,6 +69,7 @@ function createColorSelector() {
   header.querySelector('.menu-icons').appendChild(container);
 }
 
+// Apply a color theme by adding class to body
 function setColorTheme(theme) {
   colorThemes.forEach(t => document.body.classList.remove(`theme-${t}`));
   if (theme && colorThemes.includes(theme)) {
@@ -87,6 +78,7 @@ function setColorTheme(theme) {
   }
 }
 
+// Load saved color theme from localStorage
 function loadColorTheme() {
   const savedTheme = localStorage.getItem('colorTheme') || 'blue';
   const selector = document.getElementById('colorSelector');
@@ -96,7 +88,7 @@ function loadColorTheme() {
   setColorTheme(savedTheme);
 }
 
-// Load header and footer
+// Load header and footer and initialize everything
 fetch('header.html').then(res => res.text()).then(html => {
   document.getElementById('header-placeholder').innerHTML = html;
   initHeaderScripts();
@@ -107,6 +99,7 @@ fetch('footer.html').then(res => res.text()).then(html => {
   document.getElementById('footer-placeholder').innerHTML = html;
 });
 
+// Render category buttons in the menu
 function renderCategories(categories) {
   const menuList = document.getElementById('articleList');
   menuList.innerHTML = '';
@@ -124,6 +117,7 @@ function renderCategories(categories) {
   });
 }
 
+// Filter articles by category and display first page
 function filterArticlesByCategory(category) {
   if (category === 'All') {
     filteredArticles = allArticles.slice();
@@ -134,6 +128,7 @@ function filterArticlesByCategory(category) {
   renderPagination(filteredArticles.length);
 }
 
+// Render a page of articles
 function renderArticlesPage(data, page) {
   const container = document.getElementById('articles');
   container.innerHTML = '';
@@ -155,25 +150,36 @@ function renderArticlesPage(data, page) {
     `;
     container.appendChild(card);
   });
+
+  attachArticleButtons();
 }
 
-// Use event delegation to fix button issues
-document.getElementById('articles').addEventListener('click', e => {
-  if (e.target.classList.contains('readMore')) {
-    loadMarkdown(e.target.dataset.id);
-  }
-  if (e.target.classList.contains('shareLink')) {
-    const link = `${window.location.origin}${window.location.pathname}#${e.target.dataset.id}`;
-    navigator.clipboard.writeText(link).then(() => {
-      const btn = e.target;
-      btn.textContent = "✅ Copied!";
-      setTimeout(() => btn.textContent = "🔗 Share", 1500);
-    }).catch(() => {
-      alert('Failed to copy link. Please copy manually:\n' + link);
-    });
-  }
-});
+// Attach event handlers to Read More and Share buttons
+function attachArticleButtons() {
+  document.querySelectorAll('.readMore').forEach(btn => {
+    btn.onclick = () => loadMarkdown(btn.dataset.id);
+  });
 
+  document.querySelectorAll('.shareLink').forEach(btn => {
+    btn.onclick = (e) => {
+      const btn = e.target;
+      const link = `${window.location.origin}${window.location.pathname}#${btn.dataset.id}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          btn.textContent = "✅ Copied!";
+          setTimeout(() => btn.textContent = "🔗 Share", 1500);
+        }).catch(() => {
+          alert('Failed to copy link. Please copy manually:\n' + link);
+        });
+      } else {
+        // Fallback for older browsers
+        alert('Copy to clipboard not supported. Link:\n' + link);
+      }
+    };
+  });
+}
+
+// Pagination buttons and logic
 function renderPagination(totalArticles) {
   let pagination = document.querySelector('.pagination');
   if (!pagination) {
@@ -209,6 +215,7 @@ function updatePaginationButtons(totalArticles) {
   document.getElementById('nextPage').disabled = currentPage * articlesPerPage >= totalArticles;
 }
 
+// Load all articles and setup UI
 function loadArticles() {
   fetch('articles.json')
     .then(res => res.json())
@@ -227,9 +234,13 @@ function loadArticles() {
 
       setupSearch();
       setupCategoryFilters(categories);
+    })
+    .catch(err => {
+      alert('Failed to load articles.json: ' + err.message);
     });
 }
 
+// Setup search box event
 function setupSearch() {
   const searchBox = document.getElementById('searchBox');
   searchBox.oninput = () => {
@@ -245,6 +256,7 @@ function setupSearch() {
   };
 }
 
+// Setup category filter buttons below search
 function setupCategoryFilters(categories) {
   const filterContainer = document.getElementById('categoryFilters');
   filterContainer.innerHTML = '';
@@ -264,28 +276,42 @@ function setupCategoryFilters(categories) {
   });
 }
 
+// Load and display a markdown article by id
 function loadMarkdown(id) {
   fetch(`articles/${id}.md`)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error('Article not found');
+      return res.text();
+    })
     .then(markdown => {
       document.getElementById('articles').style.display = 'none';
       document.getElementById('searchBox').style.display = 'none';
       document.getElementById('categoryFilters').style.display = 'none';
 
-      const viewer = document.getElementById('articleContent');
+      let viewer = document.getElementById('articleContent');
+      if (!viewer) {
+        viewer = document.createElement('div');
+        viewer.id = 'articleContent';
+        viewer.className = 'article-viewer';
+        document.querySelector('main').appendChild(viewer);
+      }
       viewer.innerHTML = marked.parse(markdown);
 
-      // Share button below article
+      // Add share button below article
       const share = document.createElement('button');
       share.textContent = '🔗 Share';
       share.onclick = () => {
         const link = `${window.location.origin}${window.location.pathname}#${id}`;
-        navigator.clipboard.writeText(link).then(() => {
-          share.textContent = '✅ Copied!';
-          setTimeout(() => (share.textContent = '🔗 Share'), 1500);
-        }).catch(() => {
-          alert('Failed to copy link. Please copy manually:\n' + link);
-        });
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(link).then(() => {
+            share.textContent = '✅ Copied!';
+            setTimeout(() => (share.textContent = '🔗 Share'), 1500);
+          }).catch(() => {
+            alert('Failed to copy link. Please copy manually:\n' + link);
+          });
+        } else {
+          alert('Copy to clipboard not supported. Link:\n' + link);
+        }
       };
       share.style.marginTop = '1rem';
       viewer.appendChild(share);
@@ -293,21 +319,28 @@ function loadMarkdown(id) {
       viewer.style.display = 'block';
       document.getElementById('backButton').style.display = 'inline-block';
       document.getElementById('navLinks').classList.remove('open');
+    })
+    .catch(err => {
+      alert('Failed to load article: ' + err.message);
     });
 }
 
-// Back button returns to main list
+// Setup back button to return to list
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('backButton').addEventListener('click', () => {
-    document.getElementById('articles').style.display = 'block';
-    document.getElementById('searchBox').style.display = 'block';
-    document.getElementById('categoryFilters').style.display = 'flex';
-    document.getElementById('articleContent').style.display = 'none';
-    document.getElementById('backButton').style.display = 'none';
-    window.location.hash = '';
-  });
+  const backBtn = document.getElementById('backButton');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      document.getElementById('articles').style.display = 'block';
+      document.getElementById('searchBox').style.display = 'block';
+      document.getElementById('categoryFilters').style.display = 'flex';
+      const viewer = document.getElementById('articleContent');
+      if (viewer) viewer.style.display = 'none';
+      backBtn.style.display = 'none';
+      window.location.hash = '';
+    });
+  }
 
-  // Load article from hash on load
+  // Load article from URL hash if present
   const hash = window.location.hash.slice(1);
   if (hash) {
     setTimeout(() => loadMarkdown(hash), 300);
