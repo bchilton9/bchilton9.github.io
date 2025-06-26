@@ -9,7 +9,6 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: system-ui, sans-serif;
       background: #111;
       color: #eee;
@@ -17,7 +16,7 @@
 
     main {
       padding: 1rem;
-      max-width: 900px;
+      max-width: 960px;
       margin: auto;
     }
 
@@ -33,13 +32,31 @@
 
     input, select {
       width: 100%;
-      max-width: 100%;
       padding: 0.5rem;
       margin-top: 0.25rem;
       border: 1px solid #333;
       border-radius: 4px;
       background: #222;
       color: #eee;
+    }
+
+    .multi-select {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .multi-select label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: normal;
+      background: #222;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid #333;
+      cursor: pointer;
     }
 
     #quillEditor {
@@ -89,15 +106,32 @@
   <div id="header-placeholder"></div>
 
   <main>
-    <h1>Gadget Guide Editor</h1>
+    <h1>🛠️ Gadget Guide Editor</h1>
+
+    <label for="articleSelect">Edit Existing</label>
+    <select id="articleSelect">
+      <option value="">➕ New Article</option>
+    </select>
+
+    <label for="id">Article ID</label>
+    <input type="text" id="id" />
 
     <label for="title">Title</label>
-    <input type="text" id="title">
+    <input type="text" id="title" />
 
     <label for="summary">Summary</label>
-    <input type="text" id="summary">
+    <input type="text" id="summary" />
 
-    <label for="content">Content (WYSIWYG)</label>
+    <label for="image">Image Path</label>
+    <input type="text" id="image" />
+
+    <label>Categories</label>
+    <div class="multi-select" id="categoryOptions"></div>
+
+    <label for="newCategory">Add New Category</label>
+    <input type="text" id="newCategory" placeholder="Type category and press Enter" />
+
+    <label>WYSIWYG Editor</label>
     <div id="quillEditor"></div>
 
     <div class="output-box">
@@ -124,36 +158,116 @@
       });
 
     const quill = new Quill("#quillEditor", { theme: "snow" });
-
     const turndownService = new TurndownService();
+    let allArticles = [];
+
+    const $ = (id) => document.getElementById(id);
 
     function updateOutputs() {
       const markdown = turndownService.turndown(quill.root.innerHTML);
-      document.getElementById("markdownOutput").textContent = markdown;
+      $("markdownOutput").textContent = markdown;
 
       const json = {
-        title: document.getElementById("title").value,
-        summary: document.getElementById("summary").value,
-        content: markdown
+        id: $("id").value.trim(),
+        title: $("title").value.trim(),
+        summary: $("summary").value.trim(),
+        image: $("image").value.trim(),
+        categories: Array.from(document.querySelectorAll("#categoryOptions input:checked")).map(cb => cb.value)
       };
-      document.getElementById("jsonOutput").textContent = JSON.stringify(json, null, 2);
+      $("jsonOutput").textContent = JSON.stringify(json, null, 2);
     }
 
     quill.on('text-change', updateOutputs);
-    document.getElementById("title").addEventListener("input", updateOutputs);
-    document.getElementById("summary").addEventListener("input", updateOutputs);
+    ["id", "title", "summary", "image"].forEach(id => {
+      $(id).addEventListener("input", updateOutputs);
+    });
+
+    $("newCategory").addEventListener("keypress", e => {
+      if (e.key === "Enter") {
+        const val = e.target.value.trim();
+        if (val && !document.querySelector(`#categoryOptions input[value="${val}"]`)) {
+          addCategoryCheckbox(val, true);
+        }
+        e.target.value = "";
+        updateOutputs();
+      }
+    });
+
+    function addCategoryCheckbox(label, checked = false) {
+      const wrapper = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = label;
+      if (checked) cb.checked = true;
+      cb.addEventListener("change", updateOutputs);
+      wrapper.append(cb, label);
+      $("categoryOptions").appendChild(wrapper);
+    }
+
+    function populateEditDropdown() {
+      $("articleSelect").innerHTML = `<option value="">➕ New Article</option>`;
+      const catSet = new Set();
+
+      allArticles.forEach(article => {
+        const opt = document.createElement("option");
+        opt.value = article.id;
+        opt.textContent = article.title;
+        $("articleSelect").appendChild(opt);
+
+        article.categories.forEach(cat => catSet.add(cat));
+      });
+
+      $("categoryOptions").innerHTML = "";
+      Array.from(catSet).sort().forEach(cat => addCategoryCheckbox(cat));
+    }
+
+    $("articleSelect").addEventListener("change", () => {
+      const id = $("articleSelect").value;
+      if (!id) return clearForm();
+
+      const article = allArticles.find(a => a.id === id);
+      if (article) {
+        $("id").value = article.id;
+        $("title").value = article.title;
+        $("summary").value = article.summary;
+        $("image").value = article.image;
+
+        document.querySelectorAll("#categoryOptions input").forEach(cb => {
+          cb.checked = article.categories.includes(cb.value);
+        });
+
+        fetch(`articles/${article.id}.md`)
+          .then(res => res.ok ? res.text() : "")
+          .then(md => {
+            quill.root.innerHTML = md;
+            updateOutputs();
+          });
+      }
+    });
+
+    function clearForm() {
+      ["id", "title", "summary", "image"].forEach(id => $(id).value = "");
+      quill.setText("");
+      document.querySelectorAll("#categoryOptions input").forEach(cb => cb.checked = false);
+      updateOutputs();
+    }
 
     function copyText(id) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(text).then(() => {
+      navigator.clipboard.writeText($(id).textContent).then(() => {
         alert("Copied to clipboard");
       }).catch(err => {
-        console.error("Clipboard error", err);
         alert("Copy failed");
       });
     }
 
-    // Initial update
+    // Initial load of articles.json
+    fetch("articles.json")
+      .then(res => res.json())
+      .then(data => {
+        allArticles = data;
+        populateEditDropdown();
+      });
+
     updateOutputs();
   </script>
 </body>
