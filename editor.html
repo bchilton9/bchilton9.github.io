@@ -3,177 +3,198 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Article Editor - The Gadget Guide</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <title>Editor – The Gadget Guide</title>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     body {
+      margin: 0;
+      padding: 1rem;
       font-family: system-ui, sans-serif;
-      margin: 1rem;
       background: #111;
       color: #eee;
     }
-    #editorContainer {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+    h1, h2 {
+      margin-top: 1rem;
     }
-    textarea {
-      width: 48%;
-      height: 500px;
-      background: #222;
-      color: #eee;
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: monospace;
+    input, button, textarea {
       font-size: 1rem;
-      resize: vertical;
-      border: none;
     }
-    #preview {
-      width: 48%;
-      height: 500px;
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.3rem 0;
+      border-radius: 6px;
+      border: none;
       background: #222;
       color: #eee;
-      border-radius: 8px;
-      padding: 1rem;
-      overflow-y: auto;
-      border: 1px solid #0af;
     }
-    #articleList {
+    #editor {
+      height: 300px;
+      background: #fff;
       margin-bottom: 1rem;
     }
-    #articleList button {
+    #preview, #jsonPreview {
+      background: #222;
+      border-radius: 6px;
+      padding: 1rem;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    button {
       background: #0af;
       color: #fff;
       border: none;
-      border-radius: 5px;
-      margin-right: 0.5rem;
       padding: 0.5rem 1rem;
+      margin: 0.3rem;
+      border-radius: 6px;
       cursor: pointer;
-      margin-bottom: 0.5rem;
-      transition: background 0.3s;
     }
-    #articleList button:hover {
+    button:hover {
       background: #08c;
     }
-    #toggleCodeBtn {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      background: #0af;
-      border: none;
-      border-radius: 5px;
-      color: white;
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
-    #saveBtn {
-      margin-left: 1rem;
-      background: #0a0;
+
+    #articleBtns {
+      margin-bottom: 1rem;
     }
-    /* Scrollbars for preview */
-    #preview::-webkit-scrollbar {
-      width: 10px;
-    }
-    #preview::-webkit-scrollbar-thumb {
-      background: #0af;
-      border-radius: 10px;
+
+    @media (max-width: 600px) {
+      #editor, #preview, #jsonPreview {
+        font-size: 0.95rem;
+      }
+      .btn-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Article Editor</h1>
+  <h1>📝 Gadget Guide Editor</h1>
 
-  <div id="articleList" aria-label="Load existing article">
-    Loading articles...
+  <div id="articleBtns">
+    <button id="newArticleBtn">➕ New Article</button>
+    <div class="btn-row" id="loadBtns">Loading articles...</div>
   </div>
 
-  <div id="editorContainer">
-    <textarea id="markdownInput" aria-label="Markdown editor"></textarea>
-    <div id="preview" aria-live="polite" aria-atomic="true"></div>
+  <input type="text" id="mdTitle" placeholder="Title">
+  <input type="text" id="mdImage" placeholder="Image URL">
+  <input type="text" id="mdCategories" placeholder="Categories (comma-separated)">
+
+  <h2>Summary Editor</h2>
+  <div id="editor"></div>
+
+  <div class="btn-row">
+    <button id="exportMdBtn">📋 Copy Markdown</button>
+    <button id="exportJsonBtn">💾 Update JSON</button>
   </div>
 
-  <button id="toggleCodeBtn">Hide Markdown Source</button>
-  <button id="saveBtn">Save Markdown</button>
+  <h2>Live Markdown Preview</h2>
+  <div id="preview">Start typing to see preview...</div>
 
+  <h2>articles.json Preview</h2>
+  <div id="jsonPreview">Waiting for content...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <script>
-    let showingCode = true;
+    const quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: { toolbar: true }
+    });
 
-    const markdownInput = document.getElementById('markdownInput');
-    const preview = document.getElementById('preview');
-    const toggleCodeBtn = document.getElementById('toggleCodeBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const articleListDiv = document.getElementById('articleList');
+    let articles = [], currentId = null;
 
-    // Load articles.json to show buttons to load existing articles
-    let allArticles = [];
+    function updatePreview() {
+      const text = quill.getText();
+      document.getElementById('preview').innerHTML = marked.parse(text);
+    }
+
+    function updateJsonPreview() {
+      document.getElementById('jsonPreview').textContent = JSON.stringify(articles, null, 2);
+    }
+
+    function loadArticle(a) {
+      currentId = a.id;
+      document.getElementById('mdTitle').value = a.title;
+      document.getElementById('mdImage').value = a.image;
+      document.getElementById('mdCategories').value = a.categories.join(', ');
+      quill.setText(a.summary ?? '');
+      updatePreview();
+    }
+
+    function buildLoadButtons() {
+      const container = document.getElementById('loadBtns');
+      container.innerHTML = '';
+      articles.forEach(article => {
+        const btn = document.createElement('button');
+        btn.textContent = article.title;
+        btn.onclick = () => loadArticle(article);
+        container.appendChild(btn);
+      });
+    }
+
+    function getArticleFromForm() {
+      const title = document.getElementById('mdTitle').value.trim();
+      const image = document.getElementById('mdImage').value.trim();
+      const cats = document.getElementById('mdCategories').value.split(',').map(s => s.trim()).filter(Boolean);
+      const summary = quill.getText().trim().split('\n').slice(0, 2).join(' ');
+
+      if (!title || !cats.length) {
+        alert('Please enter a title and at least one category.');
+        return null;
+      }
+
+      const id = currentId || title.replace(/\s+/g, '');
+      return { id, title, image, categories: cats, summary };
+    }
+
+    document.getElementById('newArticleBtn').onclick = () => {
+      currentId = null;
+      document.getElementById('mdTitle').value = '';
+      document.getElementById('mdImage').value = '';
+      document.getElementById('mdCategories').value = '';
+      quill.setText('');
+      updatePreview();
+    };
+
+    document.getElementById('exportMdBtn').onclick = () => {
+      const text = quill.getText();
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Markdown copied to clipboard!');
+      });
+    };
+
+    document.getElementById('exportJsonBtn').onclick = () => {
+      const article = getArticleFromForm();
+      if (!article) return;
+
+      const index = articles.findIndex(a => a.id === article.id);
+      if (index !== -1) {
+        articles[index] = article;
+      } else {
+        articles.push(article);
+      }
+
+      updateJsonPreview();
+      buildLoadButtons();
+      alert('Article saved. Copy JSON preview below into articles.json.');
+    };
+
+    quill.on('text-change', updatePreview);
+
     fetch('articles.json')
       .then(res => res.json())
       .then(data => {
-        allArticles = data;
-        articleListDiv.innerHTML = '';
-        data.forEach(article => {
-          const btn = document.createElement('button');
-          btn.textContent = article.title;
-          btn.title = `Edit: ${article.title}`;
-          btn.addEventListener('click', () => loadArticleMarkdown(article.id));
-          articleListDiv.appendChild(btn);
-        });
-      })
-      .catch(() => {
-        articleListDiv.textContent = 'Failed to load articles.json';
+        articles = data;
+        updateJsonPreview();
+        buildLoadButtons();
       });
-
-    // Load Markdown for an article
-    function loadArticleMarkdown(id) {
-      fetch(`articles/${id}.md`)
-        .then(res => {
-          if (!res.ok) throw new Error('Article not found');
-          return res.text();
-        })
-        .then(md => {
-          markdownInput.value = md;
-          updatePreview();
-          if (!showingCode) toggleSourceVisibility();
-        })
-        .catch(err => {
-          alert(err.message);
-        });
-    }
-
-    // Update preview live
-    function updatePreview() {
-      preview.innerHTML = marked.parse(markdownInput.value);
-    }
-
-    markdownInput.addEventListener('input', updatePreview);
-
-    // Toggle Markdown source visibility
-    function toggleSourceVisibility() {
-      showingCode = !showingCode;
-      if (showingCode) {
-        markdownInput.style.display = 'block';
-        preview.style.width = '48%';
-        markdownInput.style.width = '48%';
-        toggleCodeBtn.textContent = 'Hide Markdown Source';
-      } else {
-        markdownInput.style.display = 'none';
-        preview.style.width = '100%';
-        toggleCodeBtn.textContent = 'Show Markdown Source';
-      }
-    }
-
-    toggleCodeBtn.addEventListener('click', toggleSourceVisibility);
-
-    // Save markdown to clipboard (or you can extend to save to server)
-    saveBtn.addEventListener('click', () => {
-      const text = markdownInput.value;
-      navigator.clipboard.writeText(text)
-        .then(() => alert('Markdown copied to clipboard!'))
-        .catch(() => alert('Failed to copy. You can manually copy the text.'));
-    });
-
-    // Initialize preview empty
-    updatePreview();
   </script>
 </body>
 </html>
