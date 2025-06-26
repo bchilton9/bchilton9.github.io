@@ -18,6 +18,8 @@ function initHeaderScripts() {
   if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
     if (modeToggle) modeToggle.textContent = '🌞';
+    const logo = document.getElementById('siteLogo');
+    if (logo) logo.src = 'images/logo-light.png';
   }
 
   if (modeToggle) {
@@ -25,6 +27,12 @@ function initHeaderScripts() {
       const isLight = document.body.classList.toggle('light-mode');
       localStorage.setItem('theme', isLight ? 'light' : 'dark');
       modeToggle.textContent = isLight ? '🌞' : '🌙';
+      
+        // Swap logo
+        const logo = document.getElementById('siteLogo');
+        if (logo) {
+          logo.src = isLight ? 'images/logolight.jpeg' : 'images/logodark.jpeg';
+        }
     };
   }
 }
