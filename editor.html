@@ -112,6 +112,22 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    .dropdown {
+  position: relative;
+}
+
+.dropdown-box {
+  position: absolute;
+  background: #222;
+  border: 1px solid #444;
+  padding: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
   </style>
 </head>
 <body>
@@ -138,11 +154,13 @@
     <input type="text" id="image" placeholder="images/example.png" />
 
     <label>Categories</label>
-    <div class="category-dropdown">
-      <button type="button" class="category-toggle" onclick="toggleCategoryBox()">Select Categories ▼</button>
-      <div id="categoryBox" class="category-boxes"></div>
-      <input type="text" id="newCategory" placeholder="Add new category..." onkeydown="if(event.key==='Enter'){addNewCategory();event.preventDefault();}" />
-    </div>
+    
+    <div id="categoryDropdown" class="dropdown">
+  <button onclick="toggleCategoryBox()">Select Categories ▾</button>
+  <div id="categoryBox" class="dropdown-box"></div>
+  <input type="text" id="newCategory" placeholder="Add new category" onkeydown="if(event.key==='Enter') addNewCategory()" />
+</div>
+    
 
     <label>Content</label>
     <div id="editor" class="quill-editor"></div>
@@ -217,7 +235,7 @@
   box.innerHTML = "";
   [...cats].sort().forEach(cat => {
     const id = "cat-" + cat.replace(/\s+/g, "-");
-    box.innerHTML += `<label><input type="checkbox" value="${cat}" id="${id}" onchange="autoCloseCategoryBox()" /> ${cat}</label>`;
+    box.innerHTML += `<label><input type="checkbox" value="${cat}" id="${id}" /> ${cat}</label>`;
   });
 }
 
@@ -226,16 +244,25 @@ function addNewCategory() {
   if (!val) return;
   const id = "cat-" + val.replace(/\s+/g, "-");
   if (!document.getElementById(id)) {
-    document.getElementById("categoryBox").innerHTML += `<label><input type="checkbox" value="${val}" id="${id}" checked onchange="autoCloseCategoryBox()" /> ${val}</label>`;
+    document.getElementById("categoryBox").innerHTML += `<label><input type="checkbox" value="${val}" id="${id}" /> ${val}</label>`;
   }
   document.getElementById("newCategory").value = "";
   updateOutputs();
-  autoCloseCategoryBox(); // <-- Close after adding
 }
 
-function autoCloseCategoryBox() {
-  document.getElementById("categoryBox").style.display = "none";
+// Toggle dropdown visibility
+function toggleCategoryBox() {
+  const box = document.getElementById("categoryBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
 }
+
+// Close dropdown if clicking outside
+document.addEventListener("click", function (event) {
+  const dropdown = document.getElementById("categoryDropdown");
+  if (!dropdown.contains(event.target)) {
+    document.getElementById("categoryBox").style.display = "none";
+  }
+});
 
     function toggleCategoryBox() {
       const box = document.getElementById("categoryBox");
