@@ -211,26 +211,31 @@
     }
 
     function populateCategories() {
-      const box = document.getElementById("categoryBox");
-      const cats = new Set();
-      allArticles.forEach(a => a.categories.forEach(c => cats.add(c)));
-      box.innerHTML = "";
-      [...cats].sort().forEach(cat => {
-        const id = "cat-" + cat.replace(/\s+/g, "-");
-        box.innerHTML += `<label><input type="checkbox" value="${cat}" id="${id}" /> ${cat}</label>`;
-      });
-    }
+  const box = document.getElementById("categoryBox");
+  const cats = new Set();
+  allArticles.forEach(a => a.categories.forEach(c => cats.add(c)));
+  box.innerHTML = "";
+  [...cats].sort().forEach(cat => {
+    const id = "cat-" + cat.replace(/\s+/g, "-");
+    box.innerHTML += `<label><input type="checkbox" value="${cat}" id="${id}" onchange="autoCloseCategoryBox()" /> ${cat}</label>`;
+  });
+}
 
-    function addNewCategory() {
-      const val = document.getElementById("newCategory").value.trim();
-      if (!val) return;
-      const id = "cat-" + val.replace(/\s+/g, "-");
-      if (!document.getElementById(id)) {
-        document.getElementById("categoryBox").innerHTML += `<label><input type="checkbox" value="${val}" id="${id}" checked /> ${val}</label>`;
-      }
-      document.getElementById("newCategory").value = "";
-      updateOutputs();
-    }
+function addNewCategory() {
+  const val = document.getElementById("newCategory").value.trim();
+  if (!val) return;
+  const id = "cat-" + val.replace(/\s+/g, "-");
+  if (!document.getElementById(id)) {
+    document.getElementById("categoryBox").innerHTML += `<label><input type="checkbox" value="${val}" id="${id}" checked onchange="autoCloseCategoryBox()" /> ${val}</label>`;
+  }
+  document.getElementById("newCategory").value = "";
+  updateOutputs();
+  autoCloseCategoryBox(); // <-- Close after adding
+}
+
+function autoCloseCategoryBox() {
+  document.getElementById("categoryBox").style.display = "none";
+}
 
     function toggleCategoryBox() {
       const box = document.getElementById("categoryBox");
