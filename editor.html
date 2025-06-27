@@ -26,8 +26,8 @@
     }
 
     main {
-      max-width: 100%;
       padding: 1rem;
+      max-width: 100%;
     }
 
     input, textarea, select {
@@ -41,73 +41,79 @@
       color: #fff;
     }
 
-    .label {
-      margin-top: 1rem;
+    label {
       font-weight: bold;
+      margin-top: 1rem;
+      display: block;
     }
 
-    #categoryDropdown {
+    .category-box {
       position: relative;
     }
 
+    #newCategory {
+      margin-bottom: 0.5rem;
+    }
+
     #categoryList {
-      position: absolute;
-      background: #222;
+      background: #1e1e2f;
+      border: 1px solid #333;
       padding: 0.5rem;
-      border: 1px solid #444;
-      border-radius: 4px;
-      display: none;
+      border-radius: 6px;
       max-height: 150px;
       overflow-y: auto;
-      z-index: 10;
     }
 
     #categoryList label {
       display: block;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
     }
 
     .output-box {
-      position: relative;
       background: #1e1e2f;
       border-radius: 6px;
-      padding: 1rem;
+      padding: 1rem 1rem 0.5rem 1rem;
       margin-bottom: 1.5rem;
-      overflow: auto;
+      overflow-x: auto;
+      position: relative;
       max-height: 400px;
     }
 
     .output-box pre {
       white-space: pre-wrap;
-      word-break: break-word;
+      word-wrap: break-word;
       margin: 0;
     }
 
-    .copy-button {
+    .copy-wrap {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: transparent;
-      color: #ccc;
+      top: 0;
+      right: 0;
+      padding: 0.5rem;
+    }
+
+    .copy-button {
+      background: #2a2a2a;
+      color: #fff;
       border: none;
-      font-size: 1rem;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+      border-radius: 4px;
       cursor: pointer;
-      opacity: 0.6;
+      position: relative;
     }
 
-    .copy-button:hover {
-      opacity: 1;
-    }
-
-    .ql-toolbar.ql-snow,
-    .ql-container.ql-snow {
-      border: none;
-    }
-
-    .ql-container {
-      background: #fff;
-      color: #000;
-      border-radius: 6px;
+    .copy-button.copied::after {
+      content: "Copied!";
+      position: absolute;
+      top: -1.6rem;
+      right: 0;
+      background: #0af;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
     }
 
     .button-row {
@@ -126,6 +132,16 @@
       cursor: pointer;
     }
 
+    .ql-toolbar.ql-snow, .ql-container.ql-snow {
+      border: none;
+    }
+
+    .ql-container {
+      background: #fff;
+      color: #000;
+      border-radius: 6px;
+    }
+
     @media (max-width: 600px) {
       .output-box {
         max-height: 300px;
@@ -135,41 +151,39 @@
 </head>
 <body>
   <header>
-    <a href="index.html">
-      <img class="site-logo" src="images/logo-dark.png" alt="Logo" />
-    </a>
+    <a href="index.html"><img class="site-logo" src="images/logo-dark.png" alt="Logo" /></a>
   </header>
 
   <main>
-    <h2>🛠️ Gadget Guide Article Editor</h2>
+    <h2>🛠️ Gadget Guide Editor</h2>
 
-    <label class="label">Load Article</label>
+    <label>Load Article</label>
     <select id="articleLoader">
       <option value="">➕ New Article</option>
     </select>
 
-    <label class="label">Article ID</label>
+    <label>Article ID</label>
     <input type="text" id="id" placeholder="e.g. MyArticle123" />
 
-    <label class="label">Title</label>
+    <label>Title</label>
     <input type="text" id="title" />
 
-    <label class="label">Summary</label>
+    <label>Summary</label>
     <input type="text" id="summary" />
 
-    <label class="label">Image URL</label>
+    <label>Image URL</label>
     <input type="text" id="image" />
 
-    <label class="label">Categories</label>
-    <div id="categoryDropdown">
+    <label>Categories</label>
+    <div class="category-box">
       <input type="text" id="newCategory" placeholder="Add new category and press Enter" />
       <div id="categoryList"></div>
     </div>
 
-    <label class="label">Markdown Content</label>
+    <label>Markdown</label>
     <textarea id="markdown" rows="10" placeholder="Paste or edit markdown..."></textarea>
 
-    <label class="label">WYSIWYG Editor</label>
+    <label>WYSIWYG Editor</label>
     <div id="editor" style="height: 300px; background: #fff; color: #000;"></div>
 
     <div class="button-row">
@@ -177,15 +191,15 @@
       <button id="downloadJson">Download JSON</button>
     </div>
 
-    <div class="label">Markdown Output</div>
+    <label>Markdown Output</label>
     <div class="output-box" id="markdownOutput">
-      <button class="copy-button" onclick="copyOutput('markdownOutput', this)">📋</button>
+      <div class="copy-wrap"><button class="copy-button" onclick="copyOutput('markdownOutput', this)">Copy</button></div>
       <pre></pre>
     </div>
 
-    <div class="label">articles.json Output</div>
+    <label>articles.json Output</label>
     <div class="output-box" id="jsonOutput">
-      <button class="copy-button" onclick="copyOutput('jsonOutput', this)">📋</button>
+      <div class="copy-wrap"><button class="copy-button" onclick="copyOutput('jsonOutput', this)">Copy</button></div>
       <pre></pre>
     </div>
   </main>
@@ -195,9 +209,7 @@
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
   <script>
-    const quill = new Quill('#editor', {
-      theme: 'snow'
-    });
+    const quill = new Quill('#editor', { theme: 'snow' });
 
     let allArticles = [];
 
@@ -226,15 +238,12 @@
       list.innerHTML = "";
       const cats = new Set();
       allArticles.forEach(a => a.categories.forEach(c => cats.add(c)));
-
       Array.from(cats).sort().forEach(cat => {
         const id = "cat-" + cat.replace(/\s+/g, "_");
         const label = document.createElement("label");
         label.innerHTML = `<input type="checkbox" value="${cat}" id="${id}"> ${cat}`;
         list.appendChild(label);
       });
-
-      list.style.display = "block";
     }
 
     document.getElementById("newCategory").addEventListener("keydown", (e) => {
@@ -260,11 +269,9 @@
         document.getElementById("title").value = article.title;
         document.getElementById("summary").value = article.summary;
         document.getElementById("image").value = article.image;
-
         document.querySelectorAll("#categoryList input").forEach(cb => {
           cb.checked = article.categories.includes(cb.value);
         });
-
         fetch(`articles/${article.id}.md`)
           .then(res => res.text())
           .then(md => {
@@ -287,7 +294,6 @@
       const summary = document.getElementById("summary").value.trim();
       const image = document.getElementById("image").value.trim();
       const categories = Array.from(document.querySelectorAll("#categoryList input:checked")).map(cb => cb.value);
-
       return { id, title, summary, image, categories };
     }
 
@@ -296,34 +302,15 @@
       const newArticle = buildArticleObject();
       const updatedJson = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
 
-      const markdownOutput = document.getElementById("markdownOutput");
-      markdownOutput.innerHTML = `
-        <button class="copy-button" onclick="copyOutput('markdownOutput', this)">📋</button>
-        <pre>${escapeHtml(md)}</pre>
-      `;
-
-      const jsonOutput = document.getElementById("jsonOutput");
-      jsonOutput.innerHTML = `
-        <button class="copy-button" onclick="copyOutput('jsonOutput', this)">📋</button>
-        <pre>${escapeHtml(JSON.stringify(updatedJson, null, 2))}</pre>
-      `;
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/[&<>'"]/g, tag => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;'
-      }[tag]));
+      document.querySelector("#markdownOutput pre").textContent = md;
+      document.querySelector("#jsonOutput pre").textContent = JSON.stringify(updatedJson, null, 2);
     }
 
     function copyOutput(id, btn) {
       const text = document.querySelector(`#${id} pre`).innerText;
       navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = "✅";
-        setTimeout(() => btn.textContent = "📋", 1500);
+        btn.classList.add("copied");
+        setTimeout(() => btn.classList.remove("copied"), 1500);
       });
     }
 
