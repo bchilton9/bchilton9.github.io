@@ -4,328 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #111;
-      color: #fff;
-    }
-
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 1rem;
-    }
-
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 1rem;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin-top: 0.3rem;
-      background: #1e1e2f;
-      border: 1px solid #444;
-      color: #fff;
-      border-radius: 5px;
-    }
-
-    .dropdown {
-      position: relative;
-    }
-
-    .dropdown-menu {
-      position: absolute;
-      background: #222;
-      border: 1px solid #555;
-      border-radius: 4px;
-      max-height: 200px;
-      overflow-y: auto;
-      padding: 0.5rem;
-      z-index: 10;
-      width: 100%;
-    }
-
-    .dropdown-menu label {
-      display: flex;
-      align-items: center;
-      font-weight: normal;
-      margin-bottom: 0.3rem;
-    }
-
-    .output-box {
-      background: #1e1e2f;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      position: relative;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      max-height: 300px;
-    }
-
-    .copy-button {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: #0af;
-      border: none;
-      color: white;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.9rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .copy-button:after {
-      content: '';
-      display: none;
-      margin-left: 0.5rem;
-    }
-
-    .copy-button.copied::after {
-      content: '✔️ Copied!';
-      display: inline;
-      color: #0f0;
-      font-weight: bold;
-    }
-
-    #editorContainer {
-      margin-top: 1rem;
-    }
-
-    .ql-toolbar, .ql-container {
-      background: #fff;
-      color: #000;
-    }
-
-    #quillEditor {
-      height: 250px;
-    }
-
-    @media (max-width: 600px) {
-      #quillEditor {
-        height: 180px;
-      }
-
-      .output-box {
-        max-height: 200px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="editor.css" />
 </head>
 <body>
   <div id="header-placeholder"></div>
+
   <main>
     <h2>🛠️ Gadget Guide Editor</h2>
 
-    <label for="articleSelect">Edit Existing Article</label>
-    <select id="articleSelect">
+    <label for="articleLoader" class="label">Edit Article</label>
+    <select id="articleLoader" aria-label="Select article to edit">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="id">Article ID</label>
-    <input type="text" id="id" placeholder="Unique ID (e.g. MyArticle123)" />
+    <label for="title" class="label">Title</label>
+    <input type="text" id="title" placeholder="Title" autocomplete="off" />
 
-    <label for="title">Title</label>
-    <input type="text" id="title" />
+    <label for="summary" class="label">Summary</label>
+    <input type="text" id="summary" placeholder="Summary" autocomplete="off" />
 
-    <label for="summary">Summary</label>
-    <input type="text" id="summary" />
+    <label for="image" class="label">Image URL</label>
+    <input type="text" id="image" placeholder="Image URL" autocomplete="off" />
 
-    <label for="image">Image URL</label>
-    <input type="text" id="image" />
-
-    <label>Categories</label>
-    <div class="dropdown">
-      <input type="text" id="categoryInput" placeholder="Add category" />
-      <div class="dropdown-menu" id="categoryMenu"></div>
+    <label for="categoriesSelect" class="label">Categories</label>
+    <div class="dropdown" id="categoriesDropdown">
+      <button type="button" id="categoriesSelect" aria-haspopup="listbox" aria-expanded="false">
+        Select Categories ▾
+      </button>
+      <ul tabindex="-1" role="listbox" aria-multiselectable="true" id="categoriesList" class="dropdown-list"></ul>
+      <div class="add-category-container">
+        <input type="text" id="newCategoryInput" placeholder="Add new category" autocomplete="off" />
+        <button id="addCategoryBtn" type="button">Add</button>
+      </div>
     </div>
 
-    <label for="quillEditor">Markdown Content</label>
-    <div id="editorContainer">
-      <div id="quillEditor"></div>
+    <label for="id" class="label">Article ID</label>
+    <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" autocomplete="off" />
+
+    <label for="wysiwygEditor" class="label">Content (WYSIWYG)</label>
+    <div id="wysiwygEditor" contenteditable="true" aria-multiline="true" spellcheck="true"></div>
+
+    <label for="markdownEditor" class="label">Content (Markdown)</label>
+    <textarea id="markdownEditor" placeholder="Markdown content here..."></textarea>
+
+    <div class="buttons-row">
+      <button id="syncMdToWysiwyg" type="button">Sync Markdown → WYSIWYG</button>
+      <button id="syncWysiwygToMd" type="button">Sync WYSIWYG → Markdown</button>
     </div>
 
-    <label>Markdown Output</label>
-    <div class="output-box" id="mdOutputBox">
-      <button class="copy-button" data-target="markdownOutput">Copy</button>
-      <pre id="markdownOutput"></pre>
+    <div class="buttons-row">
+      <button id="downloadMd" type="button">Download .md</button>
+      <button id="copyMd" type="button" class="copy-btn">Copy Markdown</button>
+      <button id="downloadJson" type="button">Download articles.json</button>
     </div>
 
-    <label>articles.json Output</label>
-    <div class="output-box" id="jsonOutputBox">
-      <button class="copy-button" data-target="jsonOutput">Copy</button>
-      <pre id="jsonOutput"></pre>
+    <label for="markdownOutput" class="label">Markdown Output</label>
+    <div class="code-box">
+      <button class="copy-btn output-copy" data-target="markdownOutput">Copy</button>
+      <pre id="markdownOutput" class="output" readonly></pre>
     </div>
 
-    <button id="downloadMd">⬇️ Download .md</button>
-    <button id="downloadJson">⬇️ Download JSON</button>
+    <label for="jsonOutput" class="label">Full JSON Output</label>
+    <div class="code-box">
+      <button class="copy-btn output-copy" data-target="jsonOutput">Copy</button>
+      <pre id="jsonOutput" class="output" readonly></pre>
+    </div>
   </main>
 
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-  <script type="module">
-    import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-
-    const quill = new Quill("#quillEditor", {
-      theme: "snow",
-      placeholder: "Write your markdown content here..."
-    });
-
-    const $ = (id) => document.getElementById(id);
-
-    let allArticles = [];
-
-    fetch("header.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("header-placeholder").innerHTML = html;
-      });
-
-    fetch("articles.json")
-      .then((res) => res.json())
-      .then((data) => {
-        allArticles = data;
-        updateDropdown();
-        updateCategoryMenu();
-        updateOutputs();
-      });
-
-    function updateDropdown() {
-      const select = $("articleSelect");
-      allArticles.forEach(a => {
-        const opt = document.createElement("option");
-        opt.value = a.id;
-        opt.textContent = a.title;
-        select.appendChild(opt);
-      });
-    }
-
-    function updateCategoryMenu() {
-      const menu = $("categoryMenu");
-      menu.innerHTML = "";
-      const cats = new Set();
-      allArticles.forEach(a => a.categories.forEach(c => cats.add(c)));
-      Array.from(cats).sort().forEach(cat => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" value="${cat}"> ${cat}`;
-        menu.appendChild(label);
-      });
-    }
-
-    $("categoryInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const cat = e.target.value.trim();
-        if (cat) {
-          const exists = [...$("categoryMenu").querySelectorAll("input")].some(i => i.value === cat);
-          if (!exists) {
-            const label = document.createElement("label");
-            label.innerHTML = `<input type="checkbox" value="${cat}" checked> ${cat}`;
-            $("categoryMenu").appendChild(label);
-          }
-          e.target.value = "";
-        }
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".dropdown")) {
-        $("categoryMenu").style.display = "none";
-      } else {
-        $("categoryMenu").style.display = "block";
-      }
-    });
-
-    $("articleSelect").addEventListener("change", () => {
-      const id = $("articleSelect").value;
-      if (!id) return clearForm();
-
-      const article = allArticles.find(a => a.id === id);
-      if (article) {
-        $("id").value = article.id;
-        $("title").value = article.title;
-        $("summary").value = article.summary;
-        $("image").value = article.image;
-        $("categoryInput").value = "";
-
-        [...$("categoryMenu").querySelectorAll("input")].forEach(input => {
-          input.checked = article.categories.includes(input.value);
-        });
-
-        fetch(`articles/${article.id}.md`)
-          .then(res => res.text())
-          .then(md => {
-            quill.setText(md);
-            updateOutputs();
-          });
-      }
-    });
-
-    function buildArticleJson() {
-      return {
-        id: $("id").value.trim(),
-        title: $("title").value.trim(),
-        summary: $("summary").value.trim(),
-        image: $("image").value.trim(),
-        categories: [...$("categoryMenu").querySelectorAll("input:checked")].map(i => i.value)
-      };
-    }
-
-    function updateOutputs() {
-      const markdown = quill.getText();
-      $("markdownOutput").textContent = markdown;
-
-      const updated = [...allArticles.filter(a => a.id !== $("id").value.trim()), buildArticleJson()];
-      $("jsonOutput").textContent = JSON.stringify(updated, null, 2);
-    }
-
-    quill.on("text-change", updateOutputs);
-    ["id", "title", "summary", "image"].forEach(id => {
-      $(id).addEventListener("input", updateOutputs);
-    });
-
-    document.querySelectorAll(".copy-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.target;
-        const text = $(target).textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          btn.classList.add("copied");
-          setTimeout(() => btn.classList.remove("copied"), 2000);
-        });
-      });
-    });
-
-    $("downloadMd").addEventListener("click", () => {
-      const blob = new Blob([quill.getText()], { type: "text/markdown" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${$("id").value}.md`;
-      link.click();
-    });
-
-    $("downloadJson").addEventListener("click", () => {
-      const updated = [...allArticles.filter(a => a.id !== $("id").value.trim()), buildArticleJson()];
-      const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `articles.json`;
-      link.click();
-    });
-
-    function clearForm() {
-      ["id", "title", "summary", "image"].forEach(id => $(id).value = "");
-      quill.setText("");
-      $("categoryInput").value = "";
-      $("articleSelect").value = "";
-      [...$("categoryMenu").querySelectorAll("input")].forEach(i => i.checked = false);
-      updateOutputs();
-    }
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="editor.js"></script>
 </body>
 </html>
