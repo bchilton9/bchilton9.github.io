@@ -40,5 +40,12 @@
     "summary": "SteamGridDB is a Decky Loader plugin to add custom artwork to your games.",
     "image": "images/IMG_1330.png",
     "categories": ["Gaming", "Steam Deck"]
+  },
+  {
+    "id": "SteamDeckMoonlight",
+    "title": "Set Up Moonlight Game Streaming on Steam Deck",
+    "summary": "Want to play your high-end PC games on the Steam Deck without installing them locally?",
+    "image": "images/IMG_1330.png",
+    "categories": ["Gaming", "Steam Deck"]
   }
 ]
