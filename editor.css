@@ -1,198 +1,167 @@
+/* General Reset & Base */
+* {
+  box-sizing: border-box;
+}
 body {
+  margin: 0;
   font-family: system-ui, sans-serif;
   background: #111;
-  color: #eee;
-  margin: 0;
-  padding: 0 1rem 3rem;
+  color: #fff;
 }
-
 main {
   max-width: 960px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 1rem;
+}
+h1 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
-.label {
-  font-weight: 700;
-  margin-top: 1rem;
+/* Inputs and Labels */
+input[type="text"], textarea, select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #222;
+  color: #fff;
+}
+label {
   display: block;
   margin-bottom: 0.3rem;
+  font-weight: bold;
 }
 
-input[type="text"],
-textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #222;
-  color: #eee;
+/* Quill Editor */
+.editor-box {
+  background: #fff;
+  color: #000;
+  height: 300px;
+  margin-bottom: 1rem;
+}
+.ql-toolbar.ql-snow {
+  border-radius: 6px 6px 0 0;
+}
+.ql-container.ql-snow {
+  border-radius: 0 0 6px 6px;
   font-size: 1rem;
-  box-sizing: border-box;
-  font-family: monospace, monospace;
 }
 
-textarea {
-  height: 200px;
-  resize: vertical;
-  font-family: monospace, monospace;
-}
-
-#wysiwygEditor {
-  background: #222;
-  border: 1px solid #444;
+/* Code Output */
+.code-output {
+  background: #1e1e2f;
+  color: #fff;
   border-radius: 6px;
   padding: 1rem;
-  min-height: 200px;
-  color: #eee;
-  overflow-y: auto;
-  font-family: inherit;
-  white-space: pre-wrap;
-  outline: none;
+  font-family: monospace;
+  font-size: 0.9rem;
+  height: 300px;
+  overflow: auto;
+  position: relative;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
 }
 
-.buttons-row {
-  margin-top: 1rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-button {
-  background: #0af;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  user-select: none;
-}
-
-button:disabled {
-  background: #555;
-  cursor: not-allowed;
-}
-
+/* Copy Buttons */
 .copy-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #444;
-  padding: 0.25rem 0.6rem;
+  right: 1rem;
+  margin-top: -2.5rem;
+  background: #0af;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
   font-size: 0.8rem;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Export Buttons */
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.export-buttons button {
+  background: #0af;
+  border: none;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
-  opacity: 0.7;
-  transition: opacity 0.25s ease;
+  color: white;
+  cursor: pointer;
 }
 
-.copy-btn:hover {
-  opacity: 1;
+/* Category Dropdown */
+.category-select-wrapper {
+  margin-bottom: 1rem;
 }
-
-.code-box {
-  position: relative;
-  background: #222;
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 0.3rem;
-  max-height: 250px;
-  overflow: auto;
-  font-family: monospace, monospace;
-  white-space: pre-wrap;
-}
-
-.output {
-  margin: 0;
-  user-select: text;
-}
-
 .dropdown {
   position: relative;
-  display: inline-block;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 0.5rem;
-}
-
-#categoriesSelect {
-  width: 100%;
-  text-align: left;
   background: #222;
-  color: #eee;
+  border-radius: 6px;
   padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  font-size: 1rem;
-  cursor: pointer;
 }
-
-.dropdown-list {
-  position: absolute;
-  background: #222;
-  border: 1px solid #444;
-  border-radius: 6px;
+#categoryDropdownToggle {
   width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  margin-top: 2px;
-  display: none;
-  list-style: none;
-  padding: 0;
-  z-index: 10;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+  text-align: left;
+  border-radius: 4px;
 }
-
-.dropdown-list.show {
+.dropdown-options {
+  display: none;
+  position: relative;
+  background: #1e1e2f;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.dropdown-options label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.dropdown.open .dropdown-options {
   display: block;
 }
-
-.dropdown-list li {
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
-  color: #eee;
-  display: flex;
-  align-items: center;
-}
-
-.dropdown-list li:hover {
-  background: #0af;
-}
-
-.dropdown-list li input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
-.add-category-container {
+.add-category {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
-
-#newCategoryInput {
-  flex-grow: 1;
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #222;
-  color: #eee;
-  font-size: 1rem;
+#newCategory {
+  flex: 1;
+  padding: 0.4rem;
+  font-size: 0.9rem;
 }
-
 #addCategoryBtn {
-  flex-shrink: 0;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
   background: #0af;
-  border: none;
   color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
+  border: none;
+  border-radius: 4px;
 }
 
+/* Mobile */
 @media (max-width: 600px) {
-  body {
-    padding: 0 0.5rem 2rem;
+  .editor-box {
+    height: 200px;
   }
-  .buttons-row {
-    flex-direction: column;
+  .code-output {
+    height: 200px;
+  }
+  .copy-btn {
+    right: 0.5rem;
+    font-size: 0.75rem;
   }
 }

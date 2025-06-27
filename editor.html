@@ -4,75 +4,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <link rel="stylesheet" href="editor.css" />
 </head>
 <body>
   <div id="header-placeholder"></div>
 
   <main>
-    <h2>🛠️ Gadget Guide Editor</h2>
+    <h1>🛠️ Gadget Guide Editor</h1>
 
-    <label for="articleLoader" class="label">Edit Article</label>
-    <select id="articleLoader" aria-label="Select article to edit">
+    <select id="articleLoader">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="title" class="label">Title</label>
-    <input type="text" id="title" placeholder="Title" autocomplete="off" />
+    <label for="id">Article ID</label>
+    <input type="text" id="id" placeholder="Unique ID (e.g., myArticle123)" />
 
-    <label for="summary" class="label">Summary</label>
-    <input type="text" id="summary" placeholder="Summary" autocomplete="off" />
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Article Title" />
 
-    <label for="image" class="label">Image URL</label>
-    <input type="text" id="image" placeholder="Image URL" autocomplete="off" />
+    <label for="summary">Summary</label>
+    <input type="text" id="summary" placeholder="Article Summary" />
 
-    <label for="categoriesSelect" class="label">Categories</label>
-    <div class="dropdown" id="categoriesDropdown">
-      <button type="button" id="categoriesSelect" aria-haspopup="listbox" aria-expanded="false">
-        Select Categories ▾
-      </button>
-      <ul tabindex="-1" role="listbox" aria-multiselectable="true" id="categoriesList" class="dropdown-list"></ul>
-      <div class="add-category-container">
-        <input type="text" id="newCategoryInput" placeholder="Add new category" autocomplete="off" />
-        <button id="addCategoryBtn" type="button">Add</button>
+    <label for="image">Image URL</label>
+    <input type="text" id="image" placeholder="e.g., images/myimage.png" />
+
+    <div class="category-select-wrapper">
+      <label>Select Categories</label>
+      <div class="dropdown">
+        <button id="categoryDropdownToggle">Choose Categories ▾</button>
+        <div id="categoryOptions" class="dropdown-options"></div>
+        <div class="add-category">
+          <input type="text" id="newCategory" placeholder="Add category..." />
+          <button id="addCategoryBtn">Add</button>
+        </div>
       </div>
     </div>
 
-    <label for="id" class="label">Article ID</label>
-    <input type="text" id="id" placeholder="Article ID (e.g. MyArticle123)" autocomplete="off" />
+    <label for="editor">Editor (WYSIWYG)</label>
+    <div id="editor" class="editor-box"></div>
 
-    <label for="wysiwygEditor" class="label">Content (WYSIWYG)</label>
-    <div id="wysiwygEditor" contenteditable="true" aria-multiline="true" spellcheck="true"></div>
+    <label for="markdown">Markdown</label>
+    <textarea id="markdown" class="code-output" placeholder="Markdown will appear here..."></textarea>
+    <button class="copy-btn" data-copy-target="markdown">Copy Markdown</button>
 
-    <label for="markdownEditor" class="label">Content (Markdown)</label>
-    <textarea id="markdownEditor" placeholder="Markdown content here..."></textarea>
+    <label for="json">Article JSON Preview</label>
+    <pre id="json" class="code-output"></pre>
+    <button class="copy-btn" data-copy-target="json">Copy JSON</button>
 
-    <div class="buttons-row">
-      <button id="syncMdToWysiwyg" type="button">Sync Markdown → WYSIWYG</button>
-      <button id="syncWysiwygToMd" type="button">Sync WYSIWYG → Markdown</button>
-    </div>
-
-    <div class="buttons-row">
-      <button id="downloadMd" type="button">Download .md</button>
-      <button id="copyMd" type="button" class="copy-btn">Copy Markdown</button>
-      <button id="downloadJson" type="button">Download articles.json</button>
-    </div>
-
-    <label for="markdownOutput" class="label">Markdown Output</label>
-    <div class="code-box">
-      <button class="copy-btn output-copy" data-target="markdownOutput">Copy</button>
-      <pre id="markdownOutput" class="output" readonly></pre>
-    </div>
-
-    <label for="jsonOutput" class="label">Full JSON Output</label>
-    <div class="code-box">
-      <button class="copy-btn output-copy" data-target="jsonOutput">Copy</button>
-      <pre id="jsonOutput" class="output" readonly></pre>
+    <div class="export-buttons">
+      <button id="downloadMd">Download .md</button>
+      <button id="downloadJson">Download JSON</button>
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="editor.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script src="editor.js" type="module"></script>
 </body>
 </html>
