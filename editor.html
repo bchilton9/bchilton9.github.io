@@ -128,6 +128,80 @@
   width: 100%;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
+.category-dropdown-container {
+  position: relative;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+#categoryToggle {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: #1e1e2f;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: left;
+}
+
+#categoryToggle:hover {
+  background: #2a2a3f;
+}
+
+.category-box {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 0.5rem;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.category-box label {
+  display: flex;
+  align-items: center;
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+  color: #ddd;
+}
+
+.category-box input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(1.2);
+}
+
+.add-category {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+#newCategoryInput {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #1e1e2f;
+  color: #fff;
+}
+
+#addCategoryBtn {
+  padding: 0.4rem 0.75rem;
+  background: #0af;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -155,10 +229,17 @@
 
     <label>Categories</label>
     
-    <div id="categoryDropdown" class="dropdown">
-  <button onclick="toggleCategoryBox()">Select Categories ▾</button>
-  <div id="categoryBox" class="dropdown-box"></div>
-  <input type="text" id="newCategory" placeholder="Add new category" onkeydown="if(event.key==='Enter') addNewCategory()" />
+    
+<div class="category-dropdown-container" id="categoryDropdown">
+  <button id="categoryToggle">Select Categories ⌄</button>
+  <div id="categoryBox" class="category-box">
+    <!-- Category checkboxes injected here -->
+    <div id="categoryList"></div>
+    <div class="add-category">
+      <input type="text" id="newCategoryInput" placeholder="Add new category" />
+      <button id="addCategoryBtn">Add</button>
+    </div>
+  </div>
 </div>
     
 
@@ -329,6 +410,56 @@ document.addEventListener("click", function (event) {
       link.download = `articles.json`;
       link.click();
     }
+    
+let currentCategories = ["Steam Deck", "Gaming"]; // Can be loaded dynamically
+const selectedCategories = new Set();
+
+function renderCategoryList() {
+  const list = document.getElementById("categoryList");
+  list.innerHTML = "";
+  currentCategories.forEach(cat => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = cat;
+    input.checked = selectedCategories.has(cat);
+    input.addEventListener("change", () => {
+      input.checked ? selectedCategories.add(cat) : selectedCategories.delete(cat);
+    });
+    label.appendChild(input);
+    label.append(cat);
+    list.appendChild(label);
+  });
+}
+
+document.getElementById("categoryToggle").addEventListener("click", () => {
+  const box = document.getElementById("categoryBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+});
+
+document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("categoryDropdown");
+  if (!dropdown.contains(e.target)) {
+    document.getElementById("categoryBox").style.display = "none";
+  }
+});
+
+document.getElementById("addCategoryBtn").addEventListener("click", () => {
+  const newCat = document.getElementById("newCategoryInput").value.trim();
+  if (newCat && !currentCategories.includes(newCat)) {
+    currentCategories.push(newCat);
+    selectedCategories.add(newCat);
+    document.getElementById("newCategoryInput").value = "";
+    renderCategoryList();
+  }
+});
+
+function getSelectedCategories() {
+  return Array.from(selectedCategories);
+}
+
+// Initialize
+renderCategoryList();
 
     function copyOutput(id, btn) {
       const text = document.querySelector(`#${id} pre`).textContent;
