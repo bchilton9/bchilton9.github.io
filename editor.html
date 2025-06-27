@@ -1,64 +1,521 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
-  <link rel="stylesheet" href="editor.css" />
+  
+  <!-- Root styles.css assumed to exist -->
+  <link rel="stylesheet" href="styles.css" />
+  
+  <!-- Quill CSS -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      background: #111;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      max-width: 960px;
+      margin: auto;
+      padding: 1rem;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1rem;
+      margin-bottom: 0.25rem;
+      color: #0af;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      background: #222;
+      color: #eee;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    select[multiple] {
+      height: 120px;
+    }
+    #categoryInput {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    #categoryInput input {
+      flex-grow: 1;
+    }
+    button {
+      background: #0af;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.75rem;
+      user-select: none;
+      transition: background-color 0.25s ease;
+    }
+    button:hover {
+      background: #06c;
+    }
+    .flex-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .flex-grow {
+      flex-grow: 1;
+    }
+    #articleLoader {
+      margin-bottom: 1rem;
+      background: #222;
+      color: #eee;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    /* Quill editor container */
+    #editor-container {
+      height: 280px;
+      background: #222;
+      border-radius: 6px;
+      margin-top: 0.25rem;
+      color: #eee;
+    }
+
+    /* Output boxes */
+    .output-container {
+      position: relative;
+      margin-top: 1.5rem;
+      background: #222;
+      border-radius: 6px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      max-height: 240px;
+      color: #eee;
+    }
+    .output-label {
+      font-weight: 700;
+      color: #0af;
+      margin-bottom: 0.5rem;
+    }
+
+.copy-btn:hover {
+  background: #06c;
+}
+.output-section {
+  margin: 2rem 0;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.output-header label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.copy-btn {
+  background: #0af;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.copy-btn:active {
+  background: #08c;
+}
+
+.output-box {
+  background: #1e1e2f;
+  color: #ddd;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 300px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      #editor-container {
+        height: 180px;
+      }
+    }
+  </style>
 </head>
 <body>
+
   <div id="header-placeholder"></div>
 
   <main>
-    <h1>🛠️ Gadget Guide Editor</h1>
+    <h2>🛠️ Gadget Guide Article Editor</h2>
 
-    <select id="articleLoader">
+    <label for="articleLoader">Load Article to Edit</label>
+    <select id="articleLoader" aria-label="Select article to edit">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="id">Article ID</label>
-    <input type="text" id="id" placeholder="Unique ID (e.g., myArticle123)" />
+    <label for="idInput">Article ID</label>
+    <input type="text" id="idInput" placeholder="Unique ID, e.g. MyArticle1" autocomplete="off" />
 
-    <label for="title">Title</label>
-    <input type="text" id="title" placeholder="Article Title" />
+    <label for="titleInput">Title</label>
+    <input type="text" id="titleInput" placeholder="Article title" autocomplete="off" />
 
-    <label for="summary">Summary</label>
-    <input type="text" id="summary" placeholder="Article Summary" />
+    <label for="summaryInput">Summary</label>
+    <input type="text" id="summaryInput" placeholder="Brief summary" autocomplete="off" />
 
-    <label for="image">Image URL</label>
-    <input type="text" id="image" placeholder="e.g., images/myimage.png" />
+    <label for="imageInput">Image URL</label>
+    <input type="text" id="imageInput" placeholder="Path or URL to image" autocomplete="off" />
 
-    <div class="category-select-wrapper">
-      <label>Select Categories</label>
-      <div class="dropdown">
-        <button id="categoryDropdownToggle">Choose Categories ▾</button>
-        <div id="categoryOptions" class="dropdown-options"></div>
-        <div class="add-category">
-          <input type="text" id="newCategory" placeholder="Add category..." />
-          <button id="addCategoryBtn">Add</button>
-        </div>
-      </div>
+    <label for="categorySelect">Categories</label>
+    <select id="categorySelect" multiple aria-label="Select categories"></select>
+
+    <div id="categoryInput">
+      <input type="text" id="newCategoryInput" placeholder="Add new category" autocomplete="off" />
+      <button id="addCategoryBtn" type="button">Add</button>
     </div>
 
-    <label for="editor">Editor (WYSIWYG)</label>
-    <div id="editor" class="editor-box"></div>
+    <label for="editor-container">WYSIWYG Editor</label>
+    <div id="editor-container"></div>
 
-    <label for="markdown">Markdown</label>
-    <textarea id="markdown" class="code-output" placeholder="Markdown will appear here..."></textarea>
-    <button class="copy-btn" data-copy-target="markdown">Copy Markdown</button>
-
-    <label for="json">Article JSON Preview</label>
-    <pre id="json" class="code-output"></pre>
-    <button class="copy-btn" data-copy-target="json">Copy JSON</button>
-
-    <div class="export-buttons">
-      <button id="downloadMd">Download .md</button>
-      <button id="downloadJson">Download JSON</button>
+    <div class="flex-row">
+      <button id="downloadMdBtn" type="button">Download Markdown</button>
+      <button id="downloadJsonBtn" type="button">Download JSON</button>
     </div>
+
+    <!-- JSON Output -->
+<div class="output-section">
+  <div class="output-header">
+    <label for="jsonOutputPre">Current Articles JSON</label>
+    <button class="copy-btn" id="copyJsonOutputBtn">Copy</button>
+  </div>
+  <pre id="jsonOutputPre" class="output-box"></pre>
+</div>
+
+<!-- Markdown Output -->
+<div class="output-section">
+  <div class="output-header">
+    <label for="mdOutputPre">Current Article Markdown</label>
+    <button class="copy-btn" id="copyMdOutputBtn">Copy</button>
+  </div>
+  <pre id="mdOutputPre" class="output-box"></pre>
+</div>
+
   </main>
 
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-  <script src="editor.js" type="module"></script>
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+
+  <script>
+    // Load header.html
+    fetch('header.html').then(r => r.text()).then(html => {
+      document.getElementById('header-placeholder').innerHTML = html;
+    });
+
+    // Initialize Quill
+    const quill = new Quill('#editor-container', {
+      theme: 'snow',
+      placeholder: 'Write article content here...'
+    });
+
+    // Elements
+    const articleLoader = document.getElementById('articleLoader');
+    const idInput = document.getElementById('idInput');
+    const titleInput = document.getElementById('titleInput');
+    const summaryInput = document.getElementById('summaryInput');
+    const imageInput = document.getElementById('imageInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const newCategoryInput = document.getElementById('newCategoryInput');
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    const jsonOutputPre = document.getElementById('jsonOutputPre');
+    const mdOutputPre = document.getElementById('mdOutputPre');
+
+    const copyJsonOutputBtn = document.getElementById('copyJsonOutputBtn');
+    const copyMdOutputBtn = document.getElementById('copyMdOutputBtn');
+    const downloadMdBtn = document.getElementById('downloadMdBtn');
+    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+
+    let articles = [];
+
+    // Helpers
+    function showCopyConfirmation(button) {
+      const original = button.textContent;
+      button.textContent = 'Copied!';
+      setTimeout(() => button.textContent = original, 1500);
+    }
+
+    function getSelectedCategories() {
+      return Array.from(categorySelect.selectedOptions).map(opt => opt.value);
+    }
+
+    function setSelectedCategories(categories) {
+      Array.from(categorySelect.options).forEach(opt => {
+        opt.selected = categories.includes(opt.value);
+      });
+    }
+
+    function buildCurrentArticle() {
+      return {
+        id: idInput.value.trim(),
+        title: titleInput.value.trim(),
+        summary: summaryInput.value.trim(),
+        image: imageInput.value.trim(),
+        categories: getSelectedCategories(),
+        content: mdOutputPre.textContent || ''
+      };
+    }
+
+    // Populate categories from all articles
+    function refreshCategories() {
+      const allCategories = new Set();
+      articles.forEach(a => {
+        if (Array.isArray(a.categories)) {
+          a.categories.forEach(c => allCategories.add(c));
+        }
+      });
+      categorySelect.innerHTML = '';
+      [...allCategories].sort().forEach(c => {
+        const option = document.createElement('option');
+        option.value = c;
+        option.textContent = c;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    // Load articles.json
+    async function loadArticles() {
+      try {
+        const res = await fetch('articles.json');
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+        articles = await res.json();
+        populateArticleLoader();
+        refreshCategories();
+        updateJsonOutput();
+      } catch(e) {
+        alert('Failed to load articles.json: ' + e.message);
+      }
+    }
+
+    // Populate article loader dropdown
+    function populateArticleLoader() {
+      articleLoader.innerHTML = '<option value="">➕ New Article</option>';
+      articles.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = a.title;
+        articleLoader.appendChild(opt);
+      });
+    }
+
+    // Load markdown content by article ID
+    async function loadMarkdownContent(id) {
+      try {
+        const res = await fetch(`articles/${id}.md`);
+        if (!res.ok) throw new Error(`Markdown file not found for ${id}`);
+        return await res.text();
+      } catch(e) {
+        console.warn(e);
+        return '';
+      }
+    }
+
+    // Load article into form & editor
+    async function loadArticle(id) {
+      if (!id) {
+        clearForm();
+        return;
+      }
+      const article = articles.find(a => a.id === id);
+      if (!article) return;
+      idInput.value = article.id;
+      titleInput.value = article.title;
+      summaryInput.value = article.summary;
+      imageInput.value = article.image || '';
+      setSelectedCategories(article.categories || []);
+      const md = await loadMarkdownContent(article.id);
+      mdOutputPre.textContent = md;
+      if(md.trim()) {
+        quill.clipboard.dangerouslyPasteHTML(mdToHtml(md));
+      } else {
+        quill.setText('');
+      }
+      updateJsonOutput();
+    }
+
+    // Clear form for new article
+    function clearForm() {
+      idInput.value = '';
+      titleInput.value = '';
+      summaryInput.value = '';
+      imageInput.value = '';
+      categorySelect.selectedIndex = -1;
+      mdOutputPre.textContent = '';
+      quill.setText('');
+      updateJsonOutput();
+    }
+
+    // Convert minimal markdown to html for Quill - basic
+    function mdToHtml(md) {
+      const escaped = md.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const html = escaped.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+      return html;
+    }
+
+    // Convert Quill Delta to Markdown - basic
+    function htmlToMd(html) {
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      let md = '';
+      temp.childNodes.forEach(node => {
+        if(node.nodeName === 'P') {
+          md += node.textContent + '\n\n';
+        } else {
+          md += node.textContent + '\n';
+        }
+      });
+      return md.trim();
+    }
+
+    // Sync Quill → Markdown output box
+    function syncQuillToMdOutput() {
+      const html = quill.root.innerHTML;
+      mdOutputPre.textContent = htmlToMd(html);
+      updateJsonOutput();
+    }
+
+    // Sync Markdown output → Quill
+    function syncMdOutputToQuill() {
+      const md = mdOutputPre.textContent;
+      if(md.trim()) {
+        quill.clipboard.dangerouslyPasteHTML(mdToHtml(md));
+      } else {
+        quill.setText('');
+      }
+      updateJsonOutput();
+    }
+
+    // Update JSON output box
+    function updateJsonOutput() {
+      const current = {
+        id: idInput.value.trim(),
+        title: titleInput.value.trim(),
+        summary: summaryInput.value.trim(),
+        image: imageInput.value.trim(),
+        categories: getSelectedCategories()
+      };
+      if(!current.id) {
+        jsonOutputPre.textContent = JSON.stringify(articles, null, 2);
+        return;
+      }
+      const filtered = articles.filter(a => a.id !== current.id);
+      const updatedArticles = [...filtered, current];
+      jsonOutputPre.textContent = JSON.stringify(updatedArticles, null, 2);
+    }
+
+    // Copy helpers
+    async function copyText(text, button) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showCopyConfirmation(button);
+      } catch(e) {
+        alert('Copy failed: ' + e.message);
+      }
+    }
+
+    // Add new category
+    addCategoryBtn.addEventListener('click', () => {
+      const newCat = newCategoryInput.value.trim();
+      if(newCat === '') return;
+      const exists = Array.from(categorySelect.options).some(opt => opt.value.toLowerCase() === newCat.toLowerCase());
+      if(exists) {
+        alert('Category already exists');
+        return;
+      }
+      const option = document.createElement('option');
+      option.value = newCat;
+      option.textContent = newCat;
+      option.selected = true;
+      categorySelect.appendChild(option);
+      newCategoryInput.value = '';
+      updateJsonOutput();
+    });
+
+    // Syncing events
+    quill.on('text-change', syncQuillToMdOutput);
+
+    // Article loader change
+    articleLoader.addEventListener('change', e => {
+      loadArticle(e.target.value);
+    });
+
+    // Copy output buttons
+    copyJsonOutputBtn.addEventListener('click', () => {
+      copyText(jsonOutputPre.textContent, copyJsonOutputBtn);
+    });
+    copyMdOutputBtn.addEventListener('click', () => {
+      copyText(mdOutputPre.textContent, copyMdOutputBtn);
+    });
+
+    // Download buttons
+    downloadMdBtn.addEventListener('click', () => {
+      const filename = (idInput.value.trim() || 'article') + '.md';
+      const blob = new Blob([mdOutputPre.textContent], {type: 'text/markdown'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    downloadJsonBtn.addEventListener('click', () => {
+      const filename = 'articles.json';
+      const blob = new Blob([jsonOutputPre.textContent], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Initial load
+    loadArticles();
+
+  </script>
+
 </body>
 </html>
