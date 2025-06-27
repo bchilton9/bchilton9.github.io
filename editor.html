@@ -1,521 +1,319 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gadget Guide Editor</title>
-  
-  <!-- Root styles.css assumed to exist -->
   <link rel="stylesheet" href="styles.css" />
-  
-  <!-- Quill CSS -->
-  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
-
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      background: #111;
-      color: #eee;
+    body {
+      margin: 0;
       font-family: system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      background: #111;
+      color: #fff;
     }
+
     main {
       max-width: 960px;
-      margin: auto;
+      margin: 0 auto;
       padding: 1rem;
     }
-    h2 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-    }
+
     label {
       display: block;
-      font-weight: 600;
-      margin-top: 1rem;
-      margin-bottom: 0.25rem;
-      color: #0af;
+      margin: 1rem 0 0.25rem;
+      font-weight: 500;
     }
+
     input[type="text"], select {
       width: 100%;
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: none;
-      background: #222;
-      color: #eee;
+      padding: 0.6rem;
       font-size: 1rem;
-      box-sizing: border-box;
-    }
-    select[multiple] {
-      height: 120px;
-    }
-    #categoryInput {
-      margin-top: 0.5rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-    #categoryInput input {
-      flex-grow: 1;
-    }
-    button {
-      background: #0af;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 0.75rem;
-      user-select: none;
-      transition: background-color 0.25s ease;
-    }
-    button:hover {
-      background: #06c;
-    }
-    .flex-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 1rem;
-    }
-    .flex-grow {
-      flex-grow: 1;
-    }
-    #articleLoader {
       margin-bottom: 1rem;
-      background: #222;
-      color: #eee;
-      font-weight: 600;
-      font-size: 1rem;
       border-radius: 6px;
+      border: 1px solid #444;
+      background: #1c1c1c;
+      color: white;
+    }
+
+    #editor {
+      background: white;
+      color: black;
+      margin-bottom: 1rem;
+    }
+
+    .output-container {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    pre {
+      background: #1e1e2f;
+      color: #fff;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      min-height: 160px;
+      max-height: 300px;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      background: #0af;
       border: none;
-      padding: 0.5rem;
+      color: #fff;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    /* Dropdown Categories */
+    .dropdown {
+      position: relative;
+      display: inline-block;
       width: 100%;
     }
 
-    /* Quill editor container */
-    #editor-container {
-      height: 280px;
-      background: #222;
+    .dropdown-toggle {
+      padding: 0.6rem;
+      width: 100%;
+      background: #1c1c1c;
+      color: white;
+      border: 1px solid #444;
       border-radius: 6px;
-      margin-top: 0.25rem;
-      color: #eee;
+      cursor: pointer;
+      text-align: left;
     }
 
-    /* Output boxes */
-    .output-container {
-      position: relative;
-      margin-top: 1.5rem;
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      z-index: 10;
+      width: 100%;
       background: #222;
+      border: 1px solid #444;
       border-radius: 6px;
-      padding: 1rem;
-      font-family: monospace;
-      font-size: 0.9rem;
-      white-space: pre-wrap;
+      max-height: 200px;
       overflow-y: auto;
-      max-height: 240px;
-      color: #eee;
-    }
-    .output-label {
-      font-weight: 700;
-      color: #0af;
-      margin-bottom: 0.5rem;
+      margin-top: 4px;
+      padding: 0.5rem;
     }
 
-.copy-btn:hover {
-  background: #06c;
-}
-.output-section {
-  margin: 2rem 0;
-}
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
 
-.output-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.3rem;
-}
+    .dropdown-menu label {
+      display: flex;
+      align-items: center;
+      padding: 0.25rem 0;
+      font-size: 0.95rem;
+    }
 
-.output-header label {
-  font-weight: bold;
-  font-size: 1rem;
-}
+    .dropdown-menu input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
 
-.copy-btn {
-  background: #0af;
-  color: #fff;
-  border: none;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.85rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
+    #addCategoryInput {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.4rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #333;
+      background: #1c1c1c;
+      color: white;
+    }
 
-.copy-btn:active {
-  background: #08c;
-}
-
-.output-box {
-  background: #1e1e2f;
-  color: #ddd;
-  padding: 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 300px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-    /* Responsive */
     @media (max-width: 600px) {
-      #editor-container {
-        height: 180px;
+      pre {
+        font-size: 0.85rem;
+      }
+
+      .copy-btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
       }
     }
   </style>
 </head>
 <body>
-
   <div id="header-placeholder"></div>
 
   <main>
-    <h2>🛠️ Gadget Guide Article Editor</h2>
+    <h2>🛠️ Article Editor</h2>
 
-    <label for="articleLoader">Load Article to Edit</label>
-    <select id="articleLoader" aria-label="Select article to edit">
+    <label for="articleSelect">Edit Existing Article</label>
+    <select id="articleSelect">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="idInput">Article ID</label>
-    <input type="text" id="idInput" placeholder="Unique ID, e.g. MyArticle1" autocomplete="off" />
+    <label for="id">Article ID</label>
+    <input type="text" id="id" placeholder="e.g. MyArticle123" />
 
-    <label for="titleInput">Title</label>
-    <input type="text" id="titleInput" placeholder="Article title" autocomplete="off" />
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Title" />
 
-    <label for="summaryInput">Summary</label>
-    <input type="text" id="summaryInput" placeholder="Brief summary" autocomplete="off" />
+    <label for="summary">Summary</label>
+    <input type="text" id="summary" placeholder="Summary" />
 
-    <label for="imageInput">Image URL</label>
-    <input type="text" id="imageInput" placeholder="Path or URL to image" autocomplete="off" />
+    <label for="image">Image URL</label>
+    <input type="text" id="image" placeholder="images/my-image.png" />
 
-    <label for="categorySelect">Categories</label>
-    <select id="categorySelect" multiple aria-label="Select categories"></select>
+    <label>Categories</label>
+    <div class="dropdown" id="categoryDropdown">
+      <div class="dropdown-toggle">Select categories…</div>
+      <div class="dropdown-menu" id="categoryList"></div>
+    </div>
+    <input type="text" id="addCategoryInput" placeholder="Add new category and press Enter" />
 
-    <div id="categoryInput">
-      <input type="text" id="newCategoryInput" placeholder="Add new category" autocomplete="off" />
-      <button id="addCategoryBtn" type="button">Add</button>
+    <label for="editor">WYSIWYG Editor</label>
+    <div id="editor" style="height: 300px;"></div>
+
+    <label for="jsonOutputPre">JSON Output</label>
+    <div class="output-container">
+      <button class="copy-btn" data-copy-target="jsonOutputPre">Copy</button>
+      <pre id="jsonOutputPre"></pre>
     </div>
 
-    <label for="editor-container">WYSIWYG Editor</label>
-    <div id="editor-container"></div>
-
-    <div class="flex-row">
-      <button id="downloadMdBtn" type="button">Download Markdown</button>
-      <button id="downloadJsonBtn" type="button">Download JSON</button>
+    <label for="mdOutputPre">Markdown Output</label>
+    <div class="output-container">
+      <button class="copy-btn" data-copy-target="mdOutputPre">Copy</button>
+      <pre id="mdOutputPre"></pre>
     </div>
-
-    <!-- JSON Output -->
-<div class="output-section">
-  <div class="output-header">
-    <label for="jsonOutputPre">Current Articles JSON</label>
-    <button class="copy-btn" id="copyJsonOutputBtn">Copy</button>
-  </div>
-  <pre id="jsonOutputPre" class="output-box"></pre>
-</div>
-
-<!-- Markdown Output -->
-<div class="output-section">
-  <div class="output-header">
-    <label for="mdOutputPre">Current Article Markdown</label>
-    <button class="copy-btn" id="copyMdOutputBtn">Copy</button>
-  </div>
-  <pre id="mdOutputPre" class="output-box"></pre>
-</div>
-
   </main>
 
-  <!-- Quill JS -->
-  <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
-
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turndown@7.1.1/dist/turndown.min.js"></script>
   <script>
-    // Load header.html
-    fetch('header.html').then(r => r.text()).then(html => {
-      document.getElementById('header-placeholder').innerHTML = html;
+    // Load header
+    fetch("header.html").then(r => r.text()).then(html => {
+      document.getElementById("header-placeholder").innerHTML = html;
     });
 
-    // Initialize Quill
-    const quill = new Quill('#editor-container', {
-      theme: 'snow',
-      placeholder: 'Write article content here...'
+    const quill = new Quill('#editor', { theme: 'snow' });
+    const turndownService = new TurndownService();
+
+    const articleSelect = document.getElementById("articleSelect");
+    const categoryList = document.getElementById("categoryList");
+    const categoryDropdown = document.getElementById("categoryDropdown");
+    const jsonOutputPre = document.getElementById("jsonOutputPre");
+    const mdOutputPre = document.getElementById("mdOutputPre");
+
+    let allArticles = [];
+
+    // Toggle dropdown
+    categoryDropdown.querySelector('.dropdown-toggle').addEventListener('click', () => {
+      categoryDropdown.classList.toggle('open');
     });
 
-    // Elements
-    const articleLoader = document.getElementById('articleLoader');
-    const idInput = document.getElementById('idInput');
-    const titleInput = document.getElementById('titleInput');
-    const summaryInput = document.getElementById('summaryInput');
-    const imageInput = document.getElementById('imageInput');
-    const categorySelect = document.getElementById('categorySelect');
-    const newCategoryInput = document.getElementById('newCategoryInput');
-    const addCategoryBtn = document.getElementById('addCategoryBtn');
-    const jsonOutputPre = document.getElementById('jsonOutputPre');
-    const mdOutputPre = document.getElementById('mdOutputPre');
+    document.addEventListener("click", (e) => {
+      if (!categoryDropdown.contains(e.target)) {
+        categoryDropdown.classList.remove('open');
+      }
+    });
 
-    const copyJsonOutputBtn = document.getElementById('copyJsonOutputBtn');
-    const copyMdOutputBtn = document.getElementById('copyMdOutputBtn');
-    const downloadMdBtn = document.getElementById('downloadMdBtn');
-    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
-
-    let articles = [];
-
-    // Helpers
-    function showCopyConfirmation(button) {
-      const original = button.textContent;
-      button.textContent = 'Copied!';
-      setTimeout(() => button.textContent = original, 1500);
+    function addCategoryCheckbox(label, checked = false) {
+      const id = "cat_" + label.replace(/\s+/g, "_");
+      const wrapper = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = label;
+      input.id = id;
+      if (checked) input.checked = true;
+      input.addEventListener("change", updateOutputs);
+      wrapper.appendChild(input);
+      wrapper.append(" " + label);
+      categoryList.appendChild(wrapper);
     }
 
-    function getSelectedCategories() {
-      return Array.from(categorySelect.selectedOptions).map(opt => opt.value);
-    }
-
-    function setSelectedCategories(categories) {
-      Array.from(categorySelect.options).forEach(opt => {
-        opt.selected = categories.includes(opt.value);
-      });
-    }
-
-    function buildCurrentArticle() {
-      return {
-        id: idInput.value.trim(),
-        title: titleInput.value.trim(),
-        summary: summaryInput.value.trim(),
-        image: imageInput.value.trim(),
-        categories: getSelectedCategories(),
-        content: mdOutputPre.textContent || ''
+    function updateOutputs() {
+      const article = {
+        id: document.getElementById("id").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        summary: document.getElementById("summary").value.trim(),
+        image: document.getElementById("image").value.trim(),
+        categories: [...categoryList.querySelectorAll("input:checked")].map(i => i.value)
       };
+      jsonOutputPre.textContent = JSON.stringify([...allArticles.filter(a => a.id !== article.id), article], null, 2);
+      mdOutputPre.textContent = turndownService.turndown(quill.root.innerHTML);
     }
 
-    // Populate categories from all articles
-    function refreshCategories() {
-      const allCategories = new Set();
-      articles.forEach(a => {
-        if (Array.isArray(a.categories)) {
-          a.categories.forEach(c => allCategories.add(c));
+    document.getElementById("addCategoryInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const value = e.target.value.trim();
+        if (value && ![...categoryList.querySelectorAll("input")].some(i => i.value === value)) {
+          addCategoryCheckbox(value, true);
         }
-      });
-      categorySelect.innerHTML = '';
-      [...allCategories].sort().forEach(c => {
-        const option = document.createElement('option');
-        option.value = c;
-        option.textContent = c;
-        categorySelect.appendChild(option);
-      });
-    }
-
-    // Load articles.json
-    async function loadArticles() {
-      try {
-        const res = await fetch('articles.json');
-        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-        articles = await res.json();
-        populateArticleLoader();
-        refreshCategories();
-        updateJsonOutput();
-      } catch(e) {
-        alert('Failed to load articles.json: ' + e.message);
+        e.target.value = "";
+        updateOutputs();
       }
-    }
+    });
 
-    // Populate article loader dropdown
-    function populateArticleLoader() {
-      articleLoader.innerHTML = '<option value="">➕ New Article</option>';
-      articles.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.id;
-        opt.textContent = a.title;
-        articleLoader.appendChild(opt);
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", updateOutputs);
+    });
+
+    quill.on('text-change', updateOutputs);
+
+    // Load articles
+    fetch("articles.json").then(r => r.json()).then(data => {
+      allArticles = data;
+      data.forEach(article => {
+        const opt = document.createElement("option");
+        opt.value = article.id;
+        opt.textContent = article.title;
+        articleSelect.appendChild(opt);
       });
-    }
 
-    // Load markdown content by article ID
-    async function loadMarkdownContent(id) {
-      try {
-        const res = await fetch(`articles/${id}.md`);
-        if (!res.ok) throw new Error(`Markdown file not found for ${id}`);
-        return await res.text();
-      } catch(e) {
-        console.warn(e);
-        return '';
-      }
-    }
+      // Collect all categories
+      const allCategories = new Set(data.flatMap(a => a.categories));
+      allCategories.forEach(cat => addCategoryCheckbox(cat));
+    });
 
-    // Load article into form & editor
-    async function loadArticle(id) {
-      if (!id) {
-        clearForm();
-        return;
-      }
-      const article = articles.find(a => a.id === id);
+    articleSelect.addEventListener("change", e => {
+      const id = e.target.value;
+      if (!id) return;
+      const article = allArticles.find(a => a.id === id);
       if (!article) return;
-      idInput.value = article.id;
-      titleInput.value = article.title;
-      summaryInput.value = article.summary;
-      imageInput.value = article.image || '';
-      setSelectedCategories(article.categories || []);
-      const md = await loadMarkdownContent(article.id);
-      mdOutputPre.textContent = md;
-      if(md.trim()) {
-        quill.clipboard.dangerouslyPasteHTML(mdToHtml(md));
-      } else {
-        quill.setText('');
-      }
-      updateJsonOutput();
-    }
 
-    // Clear form for new article
-    function clearForm() {
-      idInput.value = '';
-      titleInput.value = '';
-      summaryInput.value = '';
-      imageInput.value = '';
-      categorySelect.selectedIndex = -1;
-      mdOutputPre.textContent = '';
-      quill.setText('');
-      updateJsonOutput();
-    }
+      document.getElementById("id").value = article.id;
+      document.getElementById("title").value = article.title;
+      document.getElementById("summary").value = article.summary;
+      document.getElementById("image").value = article.image;
 
-    // Convert minimal markdown to html for Quill - basic
-    function mdToHtml(md) {
-      const escaped = md.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const html = escaped.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
-      return html;
-    }
-
-    // Convert Quill Delta to Markdown - basic
-    function htmlToMd(html) {
-      const temp = document.createElement('div');
-      temp.innerHTML = html;
-      let md = '';
-      temp.childNodes.forEach(node => {
-        if(node.nodeName === 'P') {
-          md += node.textContent + '\n\n';
-        } else {
-          md += node.textContent + '\n';
-        }
+      categoryList.querySelectorAll("input").forEach(c => {
+        c.checked = article.categories.includes(c.value);
       });
-      return md.trim();
-    }
 
-    // Sync Quill → Markdown output box
-    function syncQuillToMdOutput() {
-      const html = quill.root.innerHTML;
-      mdOutputPre.textContent = htmlToMd(html);
-      updateJsonOutput();
-    }
-
-    // Sync Markdown output → Quill
-    function syncMdOutputToQuill() {
-      const md = mdOutputPre.textContent;
-      if(md.trim()) {
-        quill.clipboard.dangerouslyPasteHTML(mdToHtml(md));
-      } else {
-        quill.setText('');
-      }
-      updateJsonOutput();
-    }
-
-    // Update JSON output box
-    function updateJsonOutput() {
-      const current = {
-        id: idInput.value.trim(),
-        title: titleInput.value.trim(),
-        summary: summaryInput.value.trim(),
-        image: imageInput.value.trim(),
-        categories: getSelectedCategories()
-      };
-      if(!current.id) {
-        jsonOutputPre.textContent = JSON.stringify(articles, null, 2);
-        return;
-      }
-      const filtered = articles.filter(a => a.id !== current.id);
-      const updatedArticles = [...filtered, current];
-      jsonOutputPre.textContent = JSON.stringify(updatedArticles, null, 2);
-    }
-
-    // Copy helpers
-    async function copyText(text, button) {
-      try {
-        await navigator.clipboard.writeText(text);
-        showCopyConfirmation(button);
-      } catch(e) {
-        alert('Copy failed: ' + e.message);
-      }
-    }
-
-    // Add new category
-    addCategoryBtn.addEventListener('click', () => {
-      const newCat = newCategoryInput.value.trim();
-      if(newCat === '') return;
-      const exists = Array.from(categorySelect.options).some(opt => opt.value.toLowerCase() === newCat.toLowerCase());
-      if(exists) {
-        alert('Category already exists');
-        return;
-      }
-      const option = document.createElement('option');
-      option.value = newCat;
-      option.textContent = newCat;
-      option.selected = true;
-      categorySelect.appendChild(option);
-      newCategoryInput.value = '';
-      updateJsonOutput();
+      fetch(`articles/${article.id}.md`).then(r => r.text()).then(md => {
+        quill.root.innerHTML = md;
+        updateOutputs();
+      });
     });
 
-    // Syncing events
-    quill.on('text-change', syncQuillToMdOutput);
-
-    // Article loader change
-    articleLoader.addEventListener('change', e => {
-      loadArticle(e.target.value);
+    document.querySelectorAll(".copy-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = document.getElementById(btn.dataset.copyTarget).textContent;
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = 0;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = "Copy", 1200);
+      });
     });
-
-    // Copy output buttons
-    copyJsonOutputBtn.addEventListener('click', () => {
-      copyText(jsonOutputPre.textContent, copyJsonOutputBtn);
-    });
-    copyMdOutputBtn.addEventListener('click', () => {
-      copyText(mdOutputPre.textContent, copyMdOutputBtn);
-    });
-
-    // Download buttons
-    downloadMdBtn.addEventListener('click', () => {
-      const filename = (idInput.value.trim() || 'article') + '.md';
-      const blob = new Blob([mdOutputPre.textContent], {type: 'text/markdown'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-    downloadJsonBtn.addEventListener('click', () => {
-      const filename = 'articles.json';
-      const blob = new Blob([jsonOutputPre.textContent], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Initial load
-    loadArticles();
-
   </script>
-
 </body>
 </html>
