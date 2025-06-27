@@ -13,67 +13,74 @@
       color: #fff;
     }
 
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1e1e2f;
+      padding: 0.75rem 1rem;
+    }
+
+    .site-logo {
+      height: 40px;
+    }
+
     main {
-      max-width: 1000px;
-      margin: auto;
+      max-width: 100%;
       padding: 1rem;
     }
 
-    h1 {
-      font-size: 1.6rem;
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem;
       margin-bottom: 1rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: none;
+      background: #222;
+      color: #fff;
     }
 
-    label {
-      display: block;
+    .label {
       margin-top: 1rem;
-      margin-bottom: 0.25rem;
       font-weight: bold;
     }
 
-    input[type="text"], textarea, select {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
+    #categoryDropdown {
+      position: relative;
+    }
+
+    #categoryList {
+      position: absolute;
       background: #222;
-      color: #fff;
+      padding: 0.5rem;
       border: 1px solid #444;
       border-radius: 4px;
+      display: none;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 10;
     }
 
-    #categoriesDropdown {
-      margin-bottom: 0.5rem;
-    }
-
-    .dropdown-container {
-      border: 1px solid #444;
-      border-radius: 4px;
-      padding: 0.5rem;
-      background: #222;
-    }
-
-    .dropdown-container label {
-      font-weight: normal;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .dropdown-container input[type="checkbox"] {
-      margin-right: 0.5rem;
+    #categoryList label {
+      display: block;
+      margin-bottom: 0.3rem;
     }
 
     .output-box {
-      background: #222;
-      color: #0f0;
-      padding: 1rem;
-      border-radius: 6px;
-      margin-top: 1rem;
-      white-space: pre-wrap;
-      font-family: monospace;
       position: relative;
-      min-height: 200px;
+      background: #1e1e2f;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
       overflow: auto;
+      max-height: 400px;
+    }
+
+    .output-box pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
     }
 
     .copy-button {
@@ -92,228 +99,253 @@
       opacity: 1;
     }
 
+    .ql-toolbar.ql-snow,
+    .ql-container.ql-snow {
+      border: none;
+    }
+
+    .ql-container {
+      background: #fff;
+      color: #000;
+      border-radius: 6px;
+    }
+
     .button-row {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
     }
 
     .button-row button {
-      background: #0af;
-      color: #fff;
-      border: none;
       padding: 0.5rem 1rem;
+      background: #0af;
+      color: white;
+      border: none;
       border-radius: 4px;
-      font-weight: bold;
       cursor: pointer;
     }
 
     @media (max-width: 600px) {
-      .button-row {
-        flex-direction: column;
+      .output-box {
+        max-height: 300px;
       }
     }
   </style>
 </head>
 <body>
-  <div id="header-placeholder"></div>
+  <header>
+    <a href="index.html">
+      <img class="site-logo" src="images/logo-dark.png" alt="Logo" />
+    </a>
+  </header>
 
   <main>
-    <h1>🛠️ Gadget Guide Editor</h1>
+    <h2>🛠️ Gadget Guide Article Editor</h2>
 
-    <label for="articleSelect">Edit Existing Article</label>
-    <select id="articleSelect">
+    <label class="label">Load Article</label>
+    <select id="articleLoader">
       <option value="">➕ New Article</option>
     </select>
 
-    <label for="id">Article ID</label>
-    <input type="text" id="id" placeholder="Unique ID for the article" />
+    <label class="label">Article ID</label>
+    <input type="text" id="id" placeholder="e.g. MyArticle123" />
 
-    <label for="title">Title</label>
-    <input type="text" id="title" placeholder="Article title" />
+    <label class="label">Title</label>
+    <input type="text" id="title" />
 
-    <label for="summary">Summary</label>
-    <input type="text" id="summary" placeholder="Short summary of the article" />
+    <label class="label">Summary</label>
+    <input type="text" id="summary" />
 
-    <label for="image">Image Path</label>
-    <input type="text" id="image" placeholder="images/example.png" />
+    <label class="label">Image URL</label>
+    <input type="text" id="image" />
 
-    <label for="categoriesDropdown">Categories</label>
-    <div class="dropdown-container" id="categoriesDropdown"></div>
-    <input type="text" id="newCategory" placeholder="➕ Add new category and press Enter" />
+    <label class="label">Categories</label>
+    <div id="categoryDropdown">
+      <input type="text" id="newCategory" placeholder="Add new category and press Enter" />
+      <div id="categoryList"></div>
+    </div>
 
-    <label for="markdown">Markdown Content</label>
-    <textarea id="markdown" rows="10" placeholder="## Markdown goes here..."></textarea>
+    <label class="label">Markdown Content</label>
+    <textarea id="markdown" rows="10" placeholder="Paste or edit markdown..."></textarea>
+
+    <label class="label">WYSIWYG Editor</label>
+    <div id="editor" style="height: 300px; background: #fff; color: #000;"></div>
 
     <div class="button-row">
-      <button onclick="downloadMarkdown()">Download .md</button>
-      <button onclick="downloadJSON()">Download JSON</button>
+      <button id="downloadMd">Download .md</button>
+      <button id="downloadJson">Download JSON</button>
     </div>
 
-    <label>Markdown Output</label>
-    <div id="markdownOutput" class="output-box">
+    <div class="label">Markdown Output</div>
+    <div class="output-box" id="markdownOutput">
       <button class="copy-button" onclick="copyOutput('markdownOutput', this)">📋</button>
+      <pre></pre>
     </div>
 
-    <label>Full articles.json Output</label>
-    <div id="jsonOutput" class="output-box">
+    <div class="label">articles.json Output</div>
+    <div class="output-box" id="jsonOutput">
       <button class="copy-button" onclick="copyOutput('jsonOutput', this)">📋</button>
+      <pre></pre>
     </div>
   </main>
 
+  <!-- QuillJS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
   <script>
-    // Load header
-    fetch("header.html").then(res => res.text()).then(html => {
-      document.getElementById("header-placeholder").innerHTML = html;
+    const quill = new Quill('#editor', {
+      theme: 'snow'
     });
 
     let allArticles = [];
 
-    function loadArticles() {
-      fetch("articles.json")
-        .then(res => res.json())
-        .then(data => {
-          allArticles = data;
-          updateSelectMenu();
-          updateCategoriesDropdown();
-          updateOutputs();
-        });
-    }
+    fetch("articles.json")
+      .then(res => res.json())
+      .then(data => {
+        allArticles = data;
+        populateDropdown();
+        populateCategories();
+        updateOutputs();
+      });
 
-    function updateSelectMenu() {
-      const select = document.getElementById("articleSelect");
-      select.innerHTML = '<option value="">➕ New Article</option>';
+    function populateDropdown() {
+      const loader = document.getElementById("articleLoader");
+      loader.innerHTML = '<option value="">➕ New Article</option>';
       allArticles.forEach(article => {
-        const opt = document.createElement("option");
-        opt.value = article.id;
-        opt.textContent = article.title;
-        select.appendChild(opt);
+        const option = document.createElement("option");
+        option.value = article.id;
+        option.textContent = article.title;
+        loader.appendChild(option);
       });
     }
 
-    function updateCategoriesDropdown() {
-      const dropdown = document.getElementById("categoriesDropdown");
-      dropdown.innerHTML = "";
-      const allCats = new Set();
-      allArticles.forEach(a => a.categories.forEach(c => allCats.add(c)));
+    function populateCategories() {
+      const list = document.getElementById("categoryList");
+      list.innerHTML = "";
+      const cats = new Set();
+      allArticles.forEach(a => a.categories.forEach(c => cats.add(c)));
 
-      Array.from(allCats).sort().forEach(cat => {
+      Array.from(cats).sort().forEach(cat => {
+        const id = "cat-" + cat.replace(/\s+/g, "_");
         const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = cat;
-        label.appendChild(checkbox);
-        label.append(cat);
-        dropdown.appendChild(label);
+        label.innerHTML = `<input type="checkbox" value="${cat}" id="${id}"> ${cat}`;
+        list.appendChild(label);
       });
-    }
 
-    function getSelectedCategories() {
-      return Array.from(document.querySelectorAll("#categoriesDropdown input:checked")).map(cb => cb.value);
+      list.style.display = "block";
     }
 
     document.getElementById("newCategory").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        e.preventDefault();
         const val = e.target.value.trim();
         if (val) {
-          const label = document.createElement("label");
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.value = val;
-          checkbox.checked = true;
-          label.appendChild(checkbox);
-          label.append(val);
-          document.getElementById("categoriesDropdown").appendChild(label);
+          const id = "cat-" + val.replace(/\s+/g, "_");
+          if (!document.getElementById(id)) {
+            const label = document.createElement("label");
+            label.innerHTML = `<input type="checkbox" value="${val}" id="${id}" checked> ${val}`;
+            document.getElementById("categoryList").appendChild(label);
+          }
           e.target.value = "";
         }
       }
     });
 
-    document.getElementById("articleSelect").addEventListener("change", (e) => {
+    document.getElementById("articleLoader").addEventListener("change", (e) => {
       const id = e.target.value;
-      if (!id) {
-        resetForm();
-        return;
-      }
-
       const article = allArticles.find(a => a.id === id);
       if (article) {
         document.getElementById("id").value = article.id;
         document.getElementById("title").value = article.title;
         document.getElementById("summary").value = article.summary;
         document.getElementById("image").value = article.image;
+
+        document.querySelectorAll("#categoryList input").forEach(cb => {
+          cb.checked = article.categories.includes(cb.value);
+        });
+
         fetch(`articles/${article.id}.md`)
           .then(res => res.text())
           .then(md => {
             document.getElementById("markdown").value = md;
+            quill.setText(md);
             updateOutputs();
           });
-        document.querySelectorAll("#categoriesDropdown input").forEach(cb => {
-          cb.checked = article.categories.includes(cb.value);
-        });
       }
     });
 
-    function resetForm() {
-      ["id", "title", "summary", "image", "markdown"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      document.querySelectorAll("#categoriesDropdown input").forEach(cb => cb.checked = false);
+    document.getElementById("markdown").addEventListener("input", updateOutputs);
+    quill.on("text-change", () => {
+      document.getElementById("markdown").value = quill.getText();
       updateOutputs();
-    }
+    });
 
     function buildArticleObject() {
-      return {
-        id: document.getElementById("id").value.trim(),
-        title: document.getElementById("title").value.trim(),
-        summary: document.getElementById("summary").value.trim(),
-        image: document.getElementById("image").value.trim(),
-        categories: getSelectedCategories()
-      };
+      const id = document.getElementById("id").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const summary = document.getElementById("summary").value.trim();
+      const image = document.getElementById("image").value.trim();
+      const categories = Array.from(document.querySelectorAll("#categoryList input:checked")).map(cb => cb.value);
+
+      return { id, title, summary, image, categories };
     }
 
     function updateOutputs() {
       const md = document.getElementById("markdown").value;
-      const json = [...allArticles.filter(a => a.id !== document.getElementById("id").value.trim()), buildArticleObject()];
-      document.getElementById("markdownOutput").textContent = md;
-      document.getElementById("jsonOutput").textContent = JSON.stringify(json, null, 2);
+      const newArticle = buildArticleObject();
+      const updatedJson = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
+
+      const markdownOutput = document.getElementById("markdownOutput");
+      markdownOutput.innerHTML = `
+        <button class="copy-button" onclick="copyOutput('markdownOutput', this)">📋</button>
+        <pre>${escapeHtml(md)}</pre>
+      `;
+
+      const jsonOutput = document.getElementById("jsonOutput");
+      jsonOutput.innerHTML = `
+        <button class="copy-button" onclick="copyOutput('jsonOutput', this)">📋</button>
+        <pre>${escapeHtml(JSON.stringify(updatedJson, null, 2))}</pre>
+      `;
     }
 
-    document.getElementById("markdown").addEventListener("input", updateOutputs);
-    document.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", updateOutputs);
-    });
-    document.getElementById("categoriesDropdown").addEventListener("change", updateOutputs);
+    function escapeHtml(text) {
+      return text.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag]));
+    }
 
     function copyOutput(id, btn) {
-      const text = document.getElementById(id).textContent;
+      const text = document.querySelector(`#${id} pre`).innerText;
       navigator.clipboard.writeText(text).then(() => {
         btn.textContent = "✅";
         setTimeout(() => btn.textContent = "📋", 1500);
       });
     }
 
-    function downloadMarkdown() {
+    document.getElementById("downloadMd").addEventListener("click", () => {
       const id = document.getElementById("id").value.trim();
-      const blob = new Blob([document.getElementById("markdown").value], { type: "text/markdown" });
+      const md = document.getElementById("markdown").value;
+      const blob = new Blob([md], { type: "text/markdown" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `${id}.md`;
+      link.download = id + ".md";
       link.click();
-    }
+    });
 
-    function downloadJSON() {
-      const updated = [...allArticles.filter(a => a.id !== document.getElementById("id").value.trim()), buildArticleObject()];
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      const newArticle = buildArticleObject();
+      const updated = [...allArticles.filter(a => a.id !== newArticle.id), newArticle];
       const blob = new Blob([JSON.stringify(updated, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "articles.json";
       link.click();
-    }
-
-    loadArticles();
+    });
   </script>
 </body>
 </html>
