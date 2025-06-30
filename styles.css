@@ -28,14 +28,15 @@ canvas#matrix {
 header, footer {
   text-align: center;
   padding: 2rem 1rem;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid #444;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
   border-radius: 10px;
   margin-bottom: 2rem;
+  backdrop-filter: blur(3px);
 }
 
 h1 {
-  color: #61dafb;
+  color: #3390ff; /* darker blue */
 }
 
 main {
@@ -49,17 +50,17 @@ main {
 }
 
 .repo-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #3a3a3a;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid #2d2d2d;
   padding: 1rem;
   border-radius: 5px;
   transition: transform 0.2s ease, border-color 0.2s ease;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(3px);
 }
 
 .repo-card:hover {
   transform: translateY(-3px);
-  border-color: #61dafb;
+  border-color: #3390ff;
 }
 
 .repo-card h3 {
@@ -68,8 +69,12 @@ main {
 }
 
 .repo-card a {
-  color: #61dafb;
+  color: #3390ff;
   text-decoration: none;
+}
+
+.repo-card a:hover {
+  text-decoration: underline;
 }
 
 .repo-card p {
@@ -84,9 +89,9 @@ main {
 
 .badge {
   display: inline-block;
-  background: #1e1e1e;
-  border: 1px solid #61dafb;
-  color: #61dafb;
+  background: #1a1a1a;
+  border: 1px solid #3390ff;
+  color: #3390ff;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -104,7 +109,7 @@ footer {
   margin-top: 2rem;
   display: flex;
   align-items: center;
-  color: #61dafb;
+  color: #3390ff;
 }
 
 .collapsible span {
