@@ -26,8 +26,8 @@ body, html {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  height: 64px;
-  padding: 0 1rem;
+  height: 56px;
+  padding: 0 0.75rem 0 0.5rem;  /* tighter left/right */
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -48,7 +48,7 @@ body, html {
 
 /* CONTENT SPACING */
 main {
-  margin-top: 64px;
+  margin-top: 56px;
   padding: 1rem;
 }
 
