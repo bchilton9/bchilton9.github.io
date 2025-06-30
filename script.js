@@ -21,6 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
           card.innerHTML = `
             <h3><a href="${project.link}" target="_blank">${project.name}</a></h3>
             <p>${project.description}</p>
+            <div class="repo-meta">
+          <span class="badge">Custom Project (Non-GitHub)</span>
+        </div>
           `;
           (project.archived ? archivedList : activeList).appendChild(card);
         });
