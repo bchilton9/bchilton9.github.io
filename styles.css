@@ -38,6 +38,13 @@ canvas#matrix {
   object-fit: contain;
   border-radius: 6px;
 }
+.logo-img {
+  height: 40px;
+  max-width: 40px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
 
 /* Fixed Glassy Header */
 header {
@@ -178,4 +185,9 @@ footer {
   .repo-card {
     font-size: 0.95rem;
   }
+  .logo-img {
+    height: 32px;
+    max-width: 32px;
+  }
+
 }
