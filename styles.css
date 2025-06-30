@@ -31,17 +31,12 @@ canvas#matrix {
   gap: 0.75rem;
 }
 
-.logo-wrap img {
-  height: 40px;
-  width: auto;
-  max-width: 50px;
-  object-fit: contain;
-  border-radius: 6px;
-}
 .logo-img {
-  height: 40px;
-  max-width: 40px;
+  height: 5vw;                /* Scales with screen width */
+  max-height: 60px;           /* Never bigger than 60px */
+  min-height: 32px;           /* Never smaller than 32px */
   width: auto;
+  max-width: 100px;
   object-fit: contain;
   border-radius: 6px;
 }
@@ -185,9 +180,6 @@ footer {
   .repo-card {
     font-size: 0.95rem;
   }
-  .logo-img {
-    height: 32px;
-    max-width: 32px;
-  }
+
 
 }
