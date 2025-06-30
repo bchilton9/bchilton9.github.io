@@ -33,10 +33,10 @@ canvas#matrix {
 
 .logo-wrap img {
   height: 40px;
-  width: 40px;
-  border-radius: 8px;
-  background: #000;
+  width: auto;
+  max-width: 50px;
   object-fit: contain;
+  border-radius: 6px;
 }
 
 /* Fixed Glassy Header */
