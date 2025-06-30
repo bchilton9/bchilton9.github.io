@@ -1,0 +1,52 @@
+body {
+  margin: 0;
+  font-family: 'Fira Code', monospace;
+  background-color: #1e1e1e;
+  color: #ccc;
+}
+
+header {
+  text-align: center;
+  padding: 2rem 1rem;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+h1 {
+  color: #61dafb;
+}
+
+main {
+  padding: 2rem;
+}
+
+.repo-card {
+  background-color: #2b2b2b;
+  border: 1px solid #3a3a3a;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.repo-card h3 {
+  margin: 0 0 0.5rem;
+  color: #ffd700;
+}
+
+.repo-card p {
+  margin: 0.5rem 0 0;
+  color: #ccc;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #2d2d2d;
+  border-top: 1px solid #444;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 1rem;
+  }
+}
