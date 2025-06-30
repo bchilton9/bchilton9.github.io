@@ -7,26 +7,32 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>ChilSoft</h1>
-    <p>Developer Projects & Repositories</p>
-  </header>
+  <canvas id="matrix"></canvas>
 
-  <main>
-    <section id="active">
-      <h2>Active Projects</h2>
-      <div class="repo-list" id="active-list"></div>
-    </section>
+  <div class="container">
+    <header>
+      <h1>ChilSoft</h1>
+      <p>Developer Projects & Repositories</p>
+    </header>
 
-    <section id="archived">
-      <h2>Archived Projects</h2>
-      <div class="repo-list" id="archived-list"></div>
-    </section>
-  </main>
+    <main>
+      <section id="active">
+        <h2>Active Projects</h2>
+        <div class="repo-list" id="active-list"></div>
+      </section>
 
-  <footer>
-    <p>&copy; 2025 ChilSoft</p>
-  </footer>
+      <section id="archived">
+        <h2 id="toggle-archive" class="collapsible">
+          <span>▶</span> Archived Projects
+        </h2>
+        <div class="repo-list collapsed" id="archived-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 ChilSoft</p>
+    </footer>
+  </div>
 
   <script src="script.js"></script>
 </body>
