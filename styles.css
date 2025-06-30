@@ -24,12 +24,6 @@ canvas#matrix {
   z-index: 1;
 }
 
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-}
 
 header {
   position: fixed;
@@ -51,21 +45,18 @@ header {
   justify-content: space-between;
 }
 
-.logo-img {
-  max-height: 50px;
-  max-width: 50px;
+.logo-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.full-logo {
+  max-height: 60px;
   width: auto;
   height: auto;
   object-fit: contain;
-  margin-left: auto;
-  display: block;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  color: #3390ff;
-  font-weight: bold;
 }
 
 main {
