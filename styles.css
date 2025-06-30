@@ -22,27 +22,52 @@ canvas#matrix {
 .container {
   position: relative;
   z-index: 1;
-  padding: 1rem;
 }
 
-header, footer {
+/* Static Header */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  padding: 1.5rem 1rem;
   text-align: center;
-  padding: 2rem 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #333;
-  border-radius: 10px;
-  margin-bottom: 2rem;
-  backdrop-filter: blur(3px);
+  border-bottom: 1px solid #333;
+  z-index: 999;
 }
 
 h1 {
-  color: #3390ff; /* darker blue */
+  margin: 0;
+  color: #3390ff;
+}
+
+header p {
+  margin: 0.5rem 0 0;
+  color: #aaa;
 }
 
 main {
-  padding: 0 1rem;
+  padding: 7rem 1rem 2rem;
 }
 
+/* Card container for project sections */
+.card-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #2d2d2d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(5px);
+}
+
+.card-box h2 {
+  margin-top: 0;
+  color: #3390ff;
+}
+
+/* Repo cards */
 .repo-list {
   display: flex;
   flex-direction: column;
@@ -50,10 +75,10 @@ main {
 }
 
 .repo-card {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid #2d2d2d;
+  background: rgba(10, 10, 10, 0.5);
+  border: 1px solid #3a3a3a;
   padding: 1rem;
-  border-radius: 5px;
+  border-radius: 6px;
   transition: transform 0.2s ease, border-color 0.2s ease;
   backdrop-filter: blur(3px);
 }
@@ -98,15 +123,12 @@ main {
   margin-right: 6px;
 }
 
-footer {
-  margin-top: 2rem;
-}
-
+/* Archive toggle */
 .collapsible {
   cursor: pointer;
   user-select: none;
-  font-size: 1.3rem;
-  margin-top: 2rem;
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
   display: flex;
   align-items: center;
   color: #3390ff;
@@ -121,9 +143,17 @@ footer {
   display: none;
 }
 
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #888;
+}
+
+/* Mobile */
 @media (max-width: 600px) {
   main {
-    padding: 1rem 0.5rem;
+    padding: 7rem 0.5rem 2rem;
   }
 
   .repo-card {
