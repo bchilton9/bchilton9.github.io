@@ -52,7 +52,11 @@ header {
 }
 
 .logo-img {
-  /* Remove size styling completely */
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin-left: 1rem;
 }
 
 header h1 {
