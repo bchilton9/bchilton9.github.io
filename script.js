@@ -10,19 +10,34 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleIcon.textContent = archivedList.classList.contains("collapsed") ? "▶" : "▼";
   });
 
+  function loadCustomProjects() {
+    return fetch('projects.txt')
+      .then(res => res.json())
+      .then(projects => {
+        projects.forEach(project => {
+          const card = document.createElement('div');
+          card.className = 'repo-card';
+          card.innerHTML = `
+            <h3><a href="${project.link}" target="_blank">${project.name}</a></h3>
+            <p>${project.description}</p>
+          `;
+          (project.archived ? archivedList : activeList).appendChild(card);
+        });
+      });
+  }
+
   async function fetchRepos() {
     const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
     const repos = await response.json();
 
     repos.forEach(async (repo) => {
       const description = await fetchDescription(repo);
-      const card = document.createElement("div");
-      card.className = "repo-card";
-
       const updated = new Date(repo.updated_at).toLocaleDateString();
       const language = repo.language ? `<span class="badge">${repo.language}</span>` : "";
       const stars = repo.stargazers_count > 0 ? `<span class="badge">⭐ ${repo.stargazers_count}</span>` : "";
 
+      const card = document.createElement("div");
+      card.className = "repo-card";
       card.innerHTML = `
         <h3><a href="${repo.html_url}" target="_blank">${repo.name}</a></h3>
         <p>${description || repo.description || "No description provided."}</p>
@@ -33,11 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      if (repo.archived) {
-        archivedList.appendChild(card);
-      } else {
-        activeList.appendChild(card);
-      }
+      (repo.archived ? archivedList : activeList).appendChild(card);
     });
   }
 
@@ -46,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo.name}/main/description.md`);
       if (!res.ok) return null;
       return await res.text();
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -54,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function startMatrix() {
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -84,6 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(draw, 35);
   }
 
-  fetchRepos();
-  startMatrix();
+  // Load both custom + GitHub content
+  loadCustomProjects().then(() => {
+    fetchRepos();
+    startMatrix();
+  });
 });
