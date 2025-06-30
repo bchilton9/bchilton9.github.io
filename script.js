@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const username = "bchilton9";
+  document.getElementById("year").textContent = new Date().getFullYear();
   const activeList = document.getElementById("active-list");
   const archivedList = document.getElementById("archived-list");
   const toggleArchive = document.getElementById("toggle-archive");
