@@ -24,6 +24,21 @@ canvas#matrix {
   z-index: 1;
 }
 
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.logo-wrap img {
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
+}
+
 /* Fixed Glassy Header */
 header {
   position: fixed;
@@ -86,8 +101,9 @@ main {
 }
 
 .repo-card:hover {
-  transform: translateY(-3px);
-  border-color: #3390ff;
+  transform: translateY(-4px);
+  border-color: #00f0ff;
+  box-shadow: 0 0 8px #00f0ff, 0 0 16px #00f0ff66;
 }
 
 .repo-card h3 {
