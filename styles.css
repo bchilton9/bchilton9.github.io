@@ -31,41 +31,39 @@ canvas#matrix {
   gap: 0.75rem;
 }
 
-.logo-img {
-  height: 5vw;                /* Scales with screen width */
-  max-height: 60px;           /* Never bigger than 60px */
-  min-height: 32px;           /* Never smaller than 32px */
-  width: auto;
-  max-width: 100px;
-  object-fit: contain;
-  border-radius: 6px;
-}
-
-/* Fixed Glassy Header */
 header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 1.5rem 1rem;
-  text-align: center;
   background: rgba(10, 10, 20, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(80, 80, 80, 0.3);
   z-index: 999;
+  padding: 1.2rem 1rem 0.8rem;
   color: #ccc;
 }
 
-h1 {
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+header h1 {
   margin: 0;
+  font-size: 2rem;
   color: #3390ff;
   font-weight: bold;
 }
 
-header p {
-  margin: 0.5rem 0 0;
-  color: #aaa;
+.logo-img {
+  height: clamp(40px, 7vw, 80px);
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 main {
