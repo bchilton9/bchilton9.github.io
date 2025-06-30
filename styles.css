@@ -16,6 +16,7 @@ canvas#matrix {
   width: 100vw;
   height: 100vh;
   display: block;
+  background-color: black;
 }
 
 .container {
@@ -24,11 +25,11 @@ canvas#matrix {
   padding: 1rem;
 }
 
-header {
+header, footer {
   text-align: center;
   padding: 2rem 1rem;
-  background: rgba(30, 30, 30, 0.8);
-  border-bottom: 1px solid #444;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #444;
   border-radius: 10px;
   margin-bottom: 2rem;
 }
@@ -41,13 +42,19 @@ main {
   padding: 0 1rem;
 }
 
+.repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .repo-card {
-  background: rgba(43, 43, 43, 0.9);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid #3a3a3a;
-  margin-bottom: 1rem;
   padding: 1rem;
   border-radius: 5px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(4px);
 }
 
 .repo-card:hover {
@@ -66,15 +73,28 @@ main {
 }
 
 .repo-card p {
-  margin: 0.5rem 0 0;
+  margin: 0.5rem 0;
+}
+
+.repo-meta {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-top: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  background: #1e1e1e;
+  border: 1px solid #61dafb;
+  color: #61dafb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-right: 6px;
 }
 
 footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: rgba(30, 30, 30, 0.8);
   margin-top: 2rem;
-  border-radius: 10px;
 }
 
 .collapsible {
@@ -99,5 +119,9 @@ footer {
 @media (max-width: 600px) {
   main {
     padding: 1rem 0.5rem;
+  }
+
+  .repo-card {
+    font-size: 0.95rem;
   }
 }

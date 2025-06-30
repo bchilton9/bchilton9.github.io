@@ -1,77 +1,89 @@
-const username = "bchilton9";
-const activeList = document.getElementById("active-list");
-const archivedList = document.getElementById("archived-list");
-const toggleArchive = document.getElementById("toggle-archive");
-const toggleIcon = toggleArchive.querySelector("span");
+document.addEventListener("DOMContentLoaded", () => {
+  const username = "bchilton9";
+  const activeList = document.getElementById("active-list");
+  const archivedList = document.getElementById("archived-list");
+  const toggleArchive = document.getElementById("toggle-archive");
+  const toggleIcon = toggleArchive.querySelector("span");
 
-toggleArchive.addEventListener("click", () => {
-  archivedList.classList.toggle("collapsed");
-  toggleIcon.textContent = archivedList.classList.contains("collapsed") ? "▶" : "▼";
-});
-
-async function fetchRepos() {
-  const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
-  const repos = await response.json();
-
-  repos.forEach(async (repo) => {
-    const description = await fetchDescription(repo);
-    const card = document.createElement("div");
-    card.className = "repo-card";
-    card.innerHTML = `
-      <h3><a href="${repo.html_url}" target="_blank">${repo.name}</a></h3>
-      <p>${description || repo.description || "No description provided."}</p>
-    `;
-
-    if (repo.archived) {
-      archivedList.appendChild(card);
-    } else {
-      activeList.appendChild(card);
-    }
+  toggleArchive.addEventListener("click", () => {
+    archivedList.classList.toggle("collapsed");
+    toggleIcon.textContent = archivedList.classList.contains("collapsed") ? "▶" : "▼";
   });
-}
 
-async function fetchDescription(repo) {
-  try {
-    const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo.name}/main/description.md`);
-    if (!res.ok) return null;
-    return await res.text();
-  } catch (e) {
-    return null;
-  }
-}
+  async function fetchRepos() {
+    const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+    const repos = await response.json();
 
-function startMatrix() {
-  const canvas = document.getElementById("matrix");
-  const ctx = canvas.getContext("2d");
+    repos.forEach(async (repo) => {
+      const description = await fetchDescription(repo);
+      const card = document.createElement("div");
+      card.className = "repo-card";
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+      const updated = new Date(repo.updated_at).toLocaleDateString();
+      const language = repo.language ? `<span class="badge">${repo.language}</span>` : "";
+      const stars = repo.stargazers_count > 0 ? `<span class="badge">⭐ ${repo.stargazers_count}</span>` : "";
 
-  const letters = "01";
-  const fontSize = 14;
-  const columns = canvas.width / fontSize;
-  const drops = Array(Math.floor(columns)).fill(1);
+      card.innerHTML = `
+        <h3><a href="${repo.html_url}" target="_blank">${repo.name}</a></h3>
+        <p>${description || repo.description || "No description provided."}</p>
+        <div class="repo-meta">
+          ${language}
+          ${stars}
+          <span class="badge">Updated: ${updated}</span>
+        </div>
+      `;
 
-  function draw() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "#00f0ff";
-    ctx.font = fontSize + "px monospace";
-
-    for (let i = 0; i < drops.length; i++) {
-      const text = letters[Math.floor(Math.random() * letters.length)];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
+      if (repo.archived) {
+        archivedList.appendChild(card);
+      } else {
+        activeList.appendChild(card);
       }
-      drops[i]++;
+    });
+  }
+
+  async function fetchDescription(repo) {
+    try {
+      const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo.name}/main/description.md`);
+      if (!res.ok) return null;
+      return await res.text();
+    } catch (e) {
+      return null;
     }
   }
 
-  setInterval(draw, 35);
-}
+  function startMatrix() {
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
 
-fetchRepos();
-startMatrix();
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = "01";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#00f0ff";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 35);
+  }
+
+  fetchRepos();
+  startMatrix();
+});
