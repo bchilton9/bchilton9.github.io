@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function loadCustomProjects() {
-    return fetch('projects.txt')
+    return fetch('projects.json')
       .then(res => res.json())
       .then(projects => {
         projects.forEach(project => {
