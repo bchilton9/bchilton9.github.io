@@ -15,5 +15,3 @@ Built with:
 - GitHub Pages for hosting
 
 Visit the live site: [https://chilsoft.com](https://chilsoft.com)
-
-—
