@@ -1,1 +1,0 @@
-A single file visual editor and converter for Docker Compose and `docker run` commands. Clean, beginner-friendly UI with support for most Docker features, built-in live preview, and YAML download.
