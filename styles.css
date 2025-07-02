@@ -92,6 +92,16 @@ main {
   color: #ddd;
   line-height: 1.6;
 }
+.donate-link {
+  color: #00f0ff;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.donate-link:hover {
+  color: #33ccff;
+  text-shadow: 0 0 6px #00f0ff;
+}
 
 /* REPO LIST + CARDS */
 .repo-list {
