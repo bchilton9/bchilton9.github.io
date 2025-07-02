@@ -15,3 +15,13 @@ Built with:
 - GitHub Pages for hosting
 
 Visit the live site: [https://chilsoft.com](https://chilsoft.com)
+
+---
+
+## 🛠 Built By
+
+[ChilSoft.com](https://chilsoft.com)
+
+© 2025 ChilSoft. All rights reserved.
+
+Disclaimer: Chilsoft is provided for informational purposes only. Use any code, tools, or instructions at your own risk. We are not responsible for any damage to your device, data loss, or unintended consequences. Always proceed with caution.
