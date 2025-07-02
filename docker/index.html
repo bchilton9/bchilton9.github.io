@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>🐳 Docker Toolkit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #222;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark {
+      background: #1e1e2f;
+      color: #eee;
+    }
+    header {
+      background: #007acc;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      position: relative;
+    }
+    header .theme-btn {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    body.dark main {
+      background: #2b2b3b;
+    }
+    label {
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    body.dark .desc {
+      color: #aaa;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #fff;
+      color: #000;
+    }
+    body.dark input,
+    body.dark select,
+    body.dark textarea {
+      background: #3a3a4a;
+      color: #fff;
+      border-color: #555;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #007acc;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .convert-btn {
+      margin-bottom: 1rem;
+      background: #28a745;
+    }
+    .convert-btn:hover {
+      background: #218838;
+    }
+    .rm {
+      background: #dc3545;
+    }
+    .add-btn {
+      background: #28a745;
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-left: auto;
+      display: block;
+      border: none;
+      width: 2.2rem;
+      height: 2.2rem;
+      padding: 0;
+    }
+    .entry-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.5rem;
+      background: #f1f1f1;
+      position: relative;
+    }
+    body.dark .entry-row {
+      background: #3b3b4a;
+      border-color: #444;
+    }
+    .entry-row input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .entry-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .service-block {
+      margin-bottom: 2rem;
+      border: 2px solid #ccc;
+      padding: 1rem;
+      border-radius: 10px;
+      background: #f8f8f8;
+      position: relative;
+    }
+    body.dark .service-block {
+      background: #3c3c4c;
+      border-color: #555;
+    }
+    .remove-service {
+      background: #dc3545;
+      float: right;
+      margin-top: -1rem;
+      margin-bottom: 1rem;
+    }
+    .output-box {
+      margin-top: 2rem;
+    }
+    .output-box h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    textarea[readonly] {
+      background: #e9ecef;
+      font-family: monospace;
+    }
+    body.dark textarea[readonly] {
+      background: #404050;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    footer a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🐳 Docker Toolkit
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  </header>
+  <main>
+    <div class="section">
+      <label>Paste or Upload Docker Configuration</label>
+      <div class="desc">Paste a <strong>docker run</strong> command or a <strong>docker-compose.yml</strong> here.</div>
+      <textarea id="mainInput" rows="10" placeholder="Paste docker run or compose config here..."></textarea>
+      <button class="convert-btn" onclick="handlePaste()">Convert</button>
+      <input type="file" onchange="importFile(event)">
+    </div>
+
+    <div class="section">
+      <label for="composeVersion">Compose Version</label>
+      <div class="desc">Choose the Compose version for the YAML file.</div>
+      <select id="composeVersion" onchange="updateOutput()">
+        <option>3</option>
+        <option>3.7</option>
+        <option selected>3.8</option>
+        <option>3.9</option>
+        <option>3.10</option>
+      </select>
+    </div>
+		    <div class="section" id="servicesSection">
+      <h3>Services</h3>
+      <div id="services"></div>
+      <button onclick="addService()">+ Add Service</button>
+    </div>
+
+    <div class="output-box">
+      <h3>
+        Compose Output
+        <button onclick="copyText('yamlOut')">📋 Copy</button>
+      </h3>
+      <textarea id="yamlOut" rows="10" readonly></textarea>
+      <button onclick="downloadYAML()">💾 Download docker-compose.yml</button>
+    </div>
+
+    <div class="output-box">
+      <h3>
+        Docker Run Output
+        <button onclick="copyText('runOut')">📋 Copy</button>
+      </h3>
+      <textarea id="runOut" rows="5" readonly></textarea>
+    </div>
+
+  </main>
+  <footer>
+    <a href="https://chilsoft.com" target="_blank">🐳 Docker Toolkit by ChilSoft</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script>
+    let services = [];
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      const btn = document.querySelector('.theme-btn');
+      btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    }
+
+    function addService(data = {}) {
+      services.push({
+        name: data.name || '',
+        image: data.image || '',
+        ports: data.ports || [''],
+        volumes: data.volumes || [''],
+        environment: data.environment || [''],
+        networks: data.networks || [''],
+        depends_on: data.depends_on || [''],
+        restart: data.restart || ''
+      });
+      renderServices();
+      updateOutput();
+    }
+
+    function renderServices() {
+      const out = document.getElementById('services');
+      out.innerHTML = '';
+      services.forEach((s, i) => {
+        const div = document.createElement('div');
+        div.className = 'service-block';
+        div.innerHTML = `
+          <button class="remove-service" onclick="removeService(${i})">✕ Remove Service</button>
+
+          <label>Service Name</label>
+          <div class="desc">The identifier used in Compose and Run.</div>
+          <input value="${s.name}" oninput="updateField(${i}, 'name', this.value)">
+
+          <label>Image</label>
+          <div class="desc">The Docker image (e.g. lscr.io/linuxserver/sonarr:latest)</div>
+          <input value="${s.image}" oninput="updateField(${i}, 'image', this.value)">
+
+          ${renderList('Ports', 'ports', s.ports, i, 'Format: 8080:80')}
+          ${renderList('Volumes', 'volumes', s.volumes, i, 'Format: /host/path:/container/path')}
+          ${renderList('Environment Variables', 'environment', s.environment, i, 'Format: VAR=value')}
+          ${renderList('Networks', 'networks', s.networks, i, 'Custom or named network')}
+          ${renderList('Depends On', 'depends_on', s.depends_on, i, 'Other service names this depends on')}
+
+          <label>Restart Policy</label>
+          <select onchange="updateField(${i}, 'restart', this.value)">
+            <option value="">None</option>
+            <option value="no" ${s.restart === 'no' ? 'selected' : ''}>no</option>
+            <option value="on-failure" ${s.restart === 'on-failure' ? 'selected' : ''}>on-failure</option>
+            <option value="unless-stopped" ${s.restart === 'unless-stopped' ? 'selected' : ''}>unless-stopped</option>
+            <option value="always" ${s.restart === 'always' ? 'selected' : ''}>always</option>
+          </select>
+        `;
+        out.appendChild(div);
+      });
+    }
+
+    function renderList(label, key, arr, i, tip) {
+      return `
+        <label>${label}</label>
+        <div class="desc">${tip}</div>
+        ${arr.map((v, j) => `
+          <div class="entry-row">
+            <input value="${v}" oninput="updateList(${i}, '${key}', ${j}, this.value)">
+            <button class="rm" onclick="removeList(${i}, '${key}', ${j})">✕</button>
+          </div>
+          ${j === arr.length - 1 ? `<div class="entry-wrapper"><button class="add-btn" onclick="addList(${i}, '${key}')">+</button></div>` : ''}
+        `).join('')}
+        ${arr.length === 0 ? `
+          <div class="entry-row">
+            <input value="" oninput="updateList(${i}, '${key}', 0, this.value)">
+            <button class="rm" onclick="removeList(${i}, '${key}', 0)">✕</button>
+          </div>
+          <div class="entry-wrapper"><button class="add-btn" onclick="addList(${i}, '${key}')">+</button></div>
+        ` : ''}
+      `;
+    }
+		    function updateField(i, key, val) {
+      services[i][key] = val;
+      updateOutput();
+    }
+
+    function updateList(i, key, j, val) {
+      if (!services[i][key]) services[i][key] = [];
+      services[i][key][j] = val;
+      updateOutput();
+    }
+
+    function addList(i, key) {
+      if (!services[i][key]) services[i][key] = [];
+      services[i][key].push('');
+      renderServices();
+      updateOutput();
+    }
+
+    function removeList(i, key, j) {
+      if (services[i][key]) {
+                services[i][key].splice(j, 1);
+        renderServices();
+        updateOutput();
+      }
+    }
+
+    function removeService(i) {
+      services.splice(i, 1);
+      renderServices();
+      updateOutput();
+    }
+
+    function updateOutput() {
+      const yamlOut = document.getElementById('yamlOut');
+      const runOut = document.getElementById('runOut');
+      const version = document.getElementById('composeVersion').value;
+      const doc = { version, services: {} };
+      const runLines = [];
+
+      services.forEach(s => {
+        if (!s.name || !s.image) return;
+        const svc = {};
+        svc.image = s.image;
+        if (s.ports?.filter(Boolean).length) svc.ports = s.ports.filter(Boolean);
+        if (s.volumes?.filter(Boolean).length) svc.volumes = s.volumes.filter(Boolean);
+        if (s.environment?.filter(Boolean).length) svc.environment = s.environment.filter(Boolean);
+        if (s.networks?.filter(Boolean).length) svc.networks = s.networks.filter(Boolean);
+        if (s.depends_on?.filter(Boolean).length) svc.depends_on = s.depends_on.filter(Boolean);
+        if (s.restart) svc.restart = s.restart;
+        doc.services[s.name] = svc;
+
+        let run = `docker run -d --name=${s.name}`;
+        if (s.restart) run += ` --restart ${s.restart}`;
+        if (s.networks?.length) s.networks.forEach(n => run += ` --network ${n}`);
+        if (s.ports?.length) s.ports.forEach(p => run += ` -p ${p}`);
+        if (s.volumes?.length) s.volumes.forEach(v => run += ` -v ${v}`);
+        if (s.environment?.length) s.environment.forEach(e => run += ` -e ${e}`);
+        run += ` ${s.image}`;
+        runLines.push(run);
+      });
+
+      yamlOut.value = jsyaml.dump(doc);
+      runOut.value = runLines.join('\n');
+    }
+
+    function handlePaste() {
+      let raw = document.getElementById('mainInput').value;
+
+      // Strip comments, backslashes, backticks, and smart quotes
+      raw = raw
+        .replace(/`[^`]*`/g, '')
+        .replace(/['‘’""]/g, '')
+        .replace(/\\\s*\n/g, ' ')
+        .replace(/#.*/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!raw) return;
+
+      if (raw.startsWith('docker run')) {
+        parseRun(raw);
+      } else {
+        try {
+          const obj = jsyaml.load(document.getElementById('mainInput').value);
+          const parsed = Object.entries(obj.services || {}).map(([name, s]) => ({
+            name,
+            image: s.image || '',
+            ports: s.ports || [''],
+            volumes: s.volumes || [''],
+            environment: s.environment || [''],
+            networks: s.networks || [''],
+            depends_on: s.depends_on || [''],
+            restart: s.restart || ''
+          }));
+          services = parsed;
+          renderServices();
+          updateOutput();
+        } catch {
+          alert('Invalid Compose YAML. Please check formatting.');
+        }
+      }
+    }
+
+    function parseRun(input) {
+      let name = '', image = '', ports = [], volumes = [], envs = [], nets = [], restart = '';
+      const tokens = input.trim().split(/\s+/);
+      for (let i = 0; i < tokens.length; i++) {
+        let t = tokens[i];
+        if (t === '--name') name = tokens[++i];
+        else if (t.startsWith('--name=')) name = t.split('=')[1];
+        else if (t === '-p') ports.push(tokens[++i]);
+        else if (t === '-v') volumes.push(tokens[++i]);
+        else if (t === '-e') envs.push(tokens[++i]);
+        else if (t === '--restart') restart = tokens[++i];
+        else if (t === '--network') nets.push(tokens[++i]);
+        else if (!t.startsWith('-') && i === tokens.length - 1) image = t;
+      }
+
+      const blank = services.length === 1 && !services[0].name && !services[0].image;
+      const data = { name, image, ports, volumes, environment: envs, networks: nets, depends_on: [], restart };
+      if (blank) services[0] = data;
+      else services.push(data);
+      renderServices();
+      updateOutput();
+    }
+
+    function copyText(id) {
+      const el = document.getElementById(id);
+      el.select();
+      el.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(el.value);
+    }
+
+    function importFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('mainInput').value = reader.result;
+        handlePaste();
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadYAML() {
+      const blob = new Blob([document.getElementById('yamlOut').value], { type: 'text/yaml' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'docker-compose.yml';
+      link.click();
+    }
+
+    addService(); // add initial empty block
+  </script>
+</body>
+</html>
