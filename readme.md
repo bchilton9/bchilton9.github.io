@@ -15,7 +15,7 @@
 
 - **HTML** + **CSS** (dark theme with glassmorphism effects)
 - **Vanilla JavaScript** (no frameworks)
-- **GitHub Pages** for fast, free hosting
+- **GitHub Pages**
 
 ## 🔗 Live Site
 
