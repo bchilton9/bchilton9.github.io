@@ -103,6 +103,12 @@ main {
   text-shadow: 0 0 6px #00f0ff;
 }
 
+.emoji {
+  font-size: 1.4em;
+  vertical-align: middle;
+  line-height: 1;
+}
+
 /* REPO LIST + CARDS */
 .repo-list {
   display: flex;
