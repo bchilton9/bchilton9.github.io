@@ -19,6 +19,9 @@ body, html {
   color: #ccc;
   height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
+overscroll-behavior-y: none;
+  scroll-behavior: smooth;
 }
 
 /* FIXED LOGO HEADER */
@@ -52,6 +55,8 @@ body, html {
 main {
   margin-top: 56px;
   padding: 1rem;
+  min-height: calc(100vh - 56px - 140px); /* header height + footer estimate */
+  box-sizing: border-box;
 }
 
 /* CARD BLOCKS */
@@ -239,6 +244,7 @@ footer {
   color: #888;
   background: transparent;
   font-size: 0.9rem;
+  margin-bottom: 0; /* Make sure there's no extra margin */
 }
 
 /* FAKE STATUD BAR */
