@@ -26,9 +26,9 @@ Visit the live site here:
 
 This is provided as-is under the MIT License.
 
-## 🛠 Built By
+## 🛠 Made By
 
-[ChilSoft.com](https://chilsoft.com)
+[ChilSoft.com](https://chilsoft.com) with caffeine and questionable commits.
 
 ## ⚠️ Disclaimer
 
