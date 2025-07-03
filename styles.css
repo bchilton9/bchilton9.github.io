@@ -322,32 +322,29 @@ footer {
 
 #backToTop {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background-color: rgba(0, 240, 255, 0.15);
-  color: #00f0ff;
-  border: 1px solid #00f0ff88;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 14px;
   font-size: 1.2rem;
-  font-family: 'Fira Code', monospace;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid #00f0ff;
+  color: #00f0ff;
+  border-radius: 6px;
   cursor: pointer;
-  z-index: 999;
-  box-shadow: 0 0 10px #00f0ff55;
-  transition: opacity 0.3s ease, transform 0.3s ease;
   opacity: 0;
-  transform: translateY(20px);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
 }
 
 #backToTop:hover {
-  background-color: rgba(0, 240, 255, 0.3);
-  box-shadow: 0 0 14px #00f0ff99;
-  transform: translateY(0);
+  background: rgba(0, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px #00f0ff;
 }
 
 #backToTop.show {
   opacity: 1;
-  transform: translateY(0);
+  visibility: visible;
 }

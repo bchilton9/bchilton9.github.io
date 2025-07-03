@@ -11,6 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
 const terminal = document.getElementById("terminal-text");
 const loader = document.getElementById("terminal-loader");
 
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 200) {
+    backToTop.classList.add('show');
+  } else {
+    backToTop.classList.remove('show');
+  }
+});
+
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+
 let lineIndex = 0;
 
 function typeLine() {
@@ -138,20 +152,6 @@ typeLine();
   loadCustomProjects().then(() => {
     fetchRepos();
     startMatrix();
-    
-    const backToTop = document.getElementById('backToTop');
-
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 200) {
-    backToTop.classList.add('show');
-  } else {
-    backToTop.classList.remove('show');
-  }
-});
-
-backToTop.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
     
   });
 });
