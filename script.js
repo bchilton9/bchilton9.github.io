@@ -138,10 +138,8 @@ typeLine();
   loadCustomProjects().then(() => {
     fetchRepos();
     startMatrix();
-  });
-});
-
-const backToTop = document.getElementById('backToTop');
+    
+    const backToTop = document.getElementById('backToTop');
 
 window.addEventListener('scroll', () => {
   if (window.scrollY > 200) {
@@ -153,4 +151,7 @@ window.addEventListener('scroll', () => {
 
 backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+    
+  });
 });
