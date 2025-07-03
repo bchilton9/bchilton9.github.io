@@ -189,6 +189,15 @@ main {
   display: none;
 }
 
+.archive-subtitle {
+  display: block;
+  font-size: 0.75rem;
+  color: #999;
+  margin-left: 1.5rem;
+  margin-top: 4px;
+  font-style: italic;
+}
+
 /* FOOTER */
 footer {
   text-align: center;
