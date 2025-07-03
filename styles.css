@@ -319,32 +319,3 @@ footer {
   50% { opacity: 0; }
   100% { opacity: 1; }
 }
-
-#backToTop {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px 14px;
-  font-size: 1.2rem;
-  background: rgba(0, 255, 255, 0.1);
-  border: 1px solid #00f0ff;
-  color: #00f0ff;
-  border-radius: 6px;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  z-index: 9999;
-  backdrop-filter: blur(5px);
-}
-
-#backToTop:hover {
-  background: rgba(0, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 0 10px #00f0ff;
-}
-
-#backToTop.show {
-  opacity: 1;
-  visibility: visible;
-}

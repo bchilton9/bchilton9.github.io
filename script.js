@@ -1,65 +1,77 @@
 document.addEventListener("DOMContentLoaded", () => {
   const username = "bchilton9";
-  
+
+  // TERMINAL LOADER
   const terminalLines = [
-  "> Initializing ChilSoft...",
-  "> Loading repositories...",
-  "> Injecting caffeine...",
-  "> System ready."
-];
+    "> Initializing ChilSoft...",
+    "> Loading repositories...",
+    "> Injecting caffeine...",
+    "> System ready."
+  ];
 
-const terminal = document.getElementById("terminal-text");
-const loader = document.getElementById("terminal-loader");
+  const terminal = document.getElementById("terminal-text");
+  const loader = document.getElementById("terminal-loader");
 
-const backToTop = document.getElementById('backToTop');
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 200) {
-    backToTop.classList.add('show');
-  } else {
-    backToTop.classList.remove('show');
+  let lineIndex = 0;
+  function typeLine() {
+    if (lineIndex < terminalLines.length) {
+      const line = terminalLines[lineIndex];
+      let charIndex = 0;
+      const typer = setInterval(() => {
+        if (charIndex < line.length) {
+          terminal.textContent += line[charIndex++];
+        } else {
+          clearInterval(typer);
+          terminal.textContent += '\n';
+          lineIndex++;
+          setTimeout(typeLine, 500);
+        }
+      }, 40);
+    } else {
+      setTimeout(() => {
+        loader.style.opacity = "0";
+        setTimeout(() => loader.remove(), 600);
+      }, 1000);
+    }
   }
-});
+  typeLine();
 
-backToTop.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+  // MATRIX BACKGROUND
+  function startMatrix() {
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
+    const letters = "01";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
 
-let lineIndex = 0;
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function typeLine() {
-  if (lineIndex < terminalLines.length) {
-    const line = terminalLines[lineIndex];
-    let charIndex = 0;
-    const typer = setInterval(() => {
-      if (charIndex < line.length) {
-        terminal.textContent += line[charIndex++];
-      } else {
-        clearInterval(typer);
-        terminal.textContent += '\n';
-        lineIndex++;
-        setTimeout(typeLine, 500);
+      ctx.fillStyle = "#00f0ff";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
       }
-    }, 40);
-  } else {
-    setTimeout(() => {
-      loader.style.opacity = "0";
-      setTimeout(() => loader.remove(), 600);
-    }, 1000);
-  }
-}
+    }
 
-typeLine();
-  document.getElementById("year").textContent = new Date().getFullYear();
+    setInterval(draw, 35);
+  }
+
+  // REPO + PROJECT LOADING
   const activeList = document.getElementById("active-list");
   const archivedList = document.getElementById("archived-list");
-  const toggleArchive = document.getElementById("toggle-archive");
-  const toggleIcon = toggleArchive.querySelector("h2 span");
-
-  toggleArchive.addEventListener("click", () => {
-    archivedList.classList.toggle("collapsed");
-    toggleIcon.textContent = archivedList.classList.contains("collapsed") ? "▶" : "▼";
-  });
 
   function loadCustomProjects() {
     return fetch('projects.json')
@@ -72,8 +84,8 @@ typeLine();
             <h3><a href="${project.link}" target="_blank">${project.name}</a></h3>
             <p>${project.description}</p>
             <div class="repo-meta">
-          <span class="badge">Custom Project (Non-GitHub)</span>
-        </div>
+              <span class="badge">Custom Project (Non-GitHub)</span>
+            </div>
           `;
           (project.archived ? archivedList : activeList).appendChild(card);
         });
@@ -116,42 +128,21 @@ typeLine();
     }
   }
 
-  function startMatrix() {
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  // ARCHIVE TOGGLE
+  const toggleArchive = document.getElementById("toggle-archive");
+  const toggleIcon = toggleArchive.querySelector("h2 span");
 
-    const letters = "01";
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+  toggleArchive.addEventListener("click", () => {
+    archivedList.classList.toggle("collapsed");
+    toggleIcon.textContent = archivedList.classList.contains("collapsed") ? "▶" : "▼";
+  });
 
-    function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // YEAR
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-      ctx.fillStyle = "#00f0ff";
-      ctx.font = fontSize + "px monospace";
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    }
-
-    setInterval(draw, 35);
-  }
-
-  // Load both custom + GitHub content
+  // START EVERYTHING
   loadCustomProjects().then(() => {
     fetchRepos();
     startMatrix();
-    
   });
 });
