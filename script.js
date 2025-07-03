@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activeList = document.getElementById("active-list");
   const archivedList = document.getElementById("archived-list");
   const toggleArchive = document.getElementById("toggle-archive");
-  const toggleIcon = toggleArchive.querySelector("span");
+  const toggleIcon = toggleArchive.querySelector("h2 span");
 
   toggleArchive.addEventListener("click", () => {
     archivedList.classList.toggle("collapsed");

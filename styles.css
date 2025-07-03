@@ -85,7 +85,7 @@ main {
 
 .welcome-box h2 {
   margin-top: 0;
-  color: #00f0ff;
+  color: #3390ff;
 }
 
 .welcome-box p {
@@ -93,7 +93,7 @@ main {
   line-height: 1.6;
 }
 .donate-link {
-  color: #00f0ff;
+  color: #3390ff;
   text-decoration: underline;
   font-weight: bold;
 }
@@ -189,12 +189,46 @@ main {
   display: none;
 }
 
+.archive-header {
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.archive-header h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.4rem;
+  
+  margin: 0;
+}
+
+.archive-header h2 span {
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
 .archive-subtitle {
-  display: block;
-  font-size: 0.75rem;
-  color: #999;
-  margin-left: 1.5rem;
-  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #aaa;
+  font-style: italic;
+  margin-left: 1.9rem; /* aligns nicely under the title text */
+  margin-top: 0.25rem;
+}
+
+.active-header {
+  margin-bottom: 0.5rem;
+}
+
+.active-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.active-subtitle {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-left: 0.2rem;
+  margin-top: 0.25rem;
   font-style: italic;
 }
 
