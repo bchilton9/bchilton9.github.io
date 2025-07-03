@@ -1,5 +1,41 @@
 document.addEventListener("DOMContentLoaded", () => {
   const username = "bchilton9";
+  
+  const terminalLines = [
+  "> Initializing ChilSoft...",
+  "> Loading repositories...",
+  "> Injecting caffeine...",
+  "> System ready."
+];
+
+const terminal = document.getElementById("terminal-text");
+const loader = document.getElementById("terminal-loader");
+
+let lineIndex = 0;
+
+function typeLine() {
+  if (lineIndex < terminalLines.length) {
+    const line = terminalLines[lineIndex];
+    let charIndex = 0;
+    const typer = setInterval(() => {
+      if (charIndex < line.length) {
+        terminal.textContent += line[charIndex++];
+      } else {
+        clearInterval(typer);
+        terminal.textContent += '\n';
+        lineIndex++;
+        setTimeout(typeLine, 500);
+      }
+    }, 40);
+  } else {
+    setTimeout(() => {
+      loader.style.opacity = "0";
+      setTimeout(() => loader.remove(), 600);
+    }, 1000);
+  }
+}
+
+typeLine();
   document.getElementById("year").textContent = new Date().getFullYear();
   const activeList = document.getElementById("active-list");
   const archivedList = document.getElementById("archived-list");
