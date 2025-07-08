@@ -319,3 +319,16 @@ footer {
   50% { opacity: 0; }
   100% { opacity: 1; }
 }
+
+.quote-line {
+  font-style: italic;
+  color: #88ccff;
+  text-align: center;
+  margin-top: 1rem;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  min-height: 1.5em;
+}
+.quote-line.show {
+  opacity: 1;
+}

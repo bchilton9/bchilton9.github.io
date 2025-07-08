@@ -36,6 +36,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   typeLine();
 
+// quotes loader
+const quotes = [
+  `"I have no idea what I'm doing." – Also me, five minutes ago`,
+  `"It worked on my machine." – Famous last words`,
+  `"Why is it glowing?" – An actual concern`,
+  `"Not a bug, it's a feature." – Technically true`,
+  `"Who needs documentation?" – Someone else, hopefully`,
+  `"Move fast and break everything." – You, reading this site`,
+  `"Will it work? Maybe. Will it explode? Also maybe."`,
+  `"Proudly built with duct tape, sarcasm, and Stack Overflow"`,
+  `"404: sanity not found"`,
+  `"One does not simply deploy to production... and yet, here we are."`
+];
+
+let quoteBox = document.getElementById("quote-box");
+let quoteIndex = Math.floor(Math.random() * quotes.length);
+
+function showQuote() {
+  if (!quoteBox) return;
+  quoteBox.classList.remove("show");
+  setTimeout(() => {
+    quoteBox.textContent = quotes[quoteIndex];
+    quoteBox.classList.add("show");
+    quoteIndex = (quoteIndex + 1) % quotes.length;
+  }, 500); // wait for fade out
+}
+
+setInterval(showQuote, 6000); // change every 6 seconds
+showQuote(); // show first quote right away
+
+
   // MATRIX BACKGROUND
   function startMatrix() {
     const canvas = document.getElementById("matrix");
