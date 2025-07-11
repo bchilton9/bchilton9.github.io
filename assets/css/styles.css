@@ -1,0 +1,102 @@
+canvas#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1000;
+  display: block;
+  background-color: black;
+}
+
+body {
+  font-family: 'Fira Code', monospace;
+  background: transparent;
+  color: #ccc;
+  margin: 0;
+  padding: 0;
+}
+
+.logo-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 56px;
+  padding-right: 12rem;
+  padding: 0 1.75rem 0 0.5rem;
+  background: rgba(0, 0, 0, 0.6); /* darker than before */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.full-logo {
+  max-height: 40px;
+}
+
+main.container {
+  margin-top: 60px;
+  padding: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #888;
+  background: transparent;
+  font-size: 0.9rem;
+  margin-bottom: 0; /* Make sure there's no extra margin */
+}
+
+/* FAKE STATUS BAR */
+.fake-status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(10, 10, 20, 0.9);
+  border-top: 1px solid #222;
+  color: #66ccff;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 4px 10px;
+  z-index: 998;
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+}
+
+.fake-status-bar span {
+  white-space: nowrap;
+}
+
+a {
+  color: #00f0ff;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 4px #00f0ff44;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+a:hover {
+  color: #ffffff;
+  box-shadow: 0 0 8px #00f0ff, 0 0 12px #00f0ff66;
+  text-shadow: 0 0 6px #00f0ff;
+  background-color: rgba(0, 240, 255, 0.1);
+}
