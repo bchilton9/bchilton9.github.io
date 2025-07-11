@@ -1,0 +1,22 @@
+name: Trigger Pushover
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the private Pushover relay
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.RELAY_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/bchilton9/pushover-relay/dispatches \
+            -d '{
+              "event_type": "pushover",
+              "client_payload": {
+                "title": "✅ It works!",
+                "message": "Dispatched from '${{ github.repository }}' by ${{ github.actor }}"
+              }
+            }'
