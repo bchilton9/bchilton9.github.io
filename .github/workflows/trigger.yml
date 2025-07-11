@@ -1,13 +1,13 @@
-name: Trigger Pushover
+name: Notify Pushover on Commit
 
 on:
-  workflow_dispatch:
+  push:
 
 jobs:
-  trigger:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Call private pushover relay
+      - name: Trigger pushover-relay notification
         run: |
           curl -X POST \
             -H "Authorization: token ${{ secrets.RELAY_PAT }}" \
@@ -16,7 +16,7 @@ jobs:
             -d '{
               "event_type": "pushover",
               "client_payload": {
-                "title": "✅ Notification Test",
-                "message": "Triggered from '${{ github.repository }}' by ${{ github.actor }}"
+                "title": "📦 New Commit to ${{ github.repository }}",
+                "message": "**${{ github.actor }}** pushed:\n${{ github.event.head_commit.message }}\n\n🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
               }
             }'
