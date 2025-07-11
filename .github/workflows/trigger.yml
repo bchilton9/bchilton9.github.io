@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  notify:
+  trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger the private Pushover relay
+      - name: Call private pushover relay
         run: |
           curl -X POST \
             -H "Authorization: token ${{ secrets.RELAY_PAT }}" \
@@ -16,7 +16,7 @@ jobs:
             -d '{
               "event_type": "pushover",
               "client_payload": {
-                "title": "✅ It works!",
-                "message": "Dispatched from '${{ github.repository }}' by ${{ github.actor }}"
+                "title": "✅ Notification Test",
+                "message": "Triggered from '${{ github.repository }}' by ${{ github.actor }}"
               }
             }'
