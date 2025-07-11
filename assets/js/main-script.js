@@ -72,7 +72,7 @@ showQuote(); // show first quote right away
   const archivedList = document.getElementById("archived-list");
 
   function loadCustomProjects() {
-    return fetch('projects.json')
+    return fetch('assets/json/projects.json')
       .then(res => res.json())
       .then(projects => {
         projects.forEach(project => {
