@@ -1,3 +1,4 @@
-<div class=“wip-box”>
-  🚧 <strong>Work in Progress:</strong> This project is actively being developed. Expect bugs, quirks, and improvements coming soon!
-</div>
+<div class="wip-badge" title="This project is still baking">🚧 Work in Progress</div>
+
+
+Change the quotes to straight ones
