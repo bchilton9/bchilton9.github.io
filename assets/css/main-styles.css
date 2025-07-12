@@ -122,6 +122,7 @@ main {
 }
 
 .repo-card {
+  position: relative;
   background: rgba(30, 30, 40, 0.45);
   border: 1px solid rgba(80, 120, 180, 0.2);
   border-radius: 10px;
@@ -342,4 +343,23 @@ footer {
   color: #fff;
   box-shadow: 0 0 10px #ffd70080;
   backdrop-filter: blur(2px);
+}
+.wip-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ffcc00;
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  box-shadow: 0 0 8px #ffcc00aa;
+  z-index: 2;
+  text-shadow: none;
+
+  background: #00f0ff22;
+  color: #00f0ff;
+  border: 1px solid #00f0ff55;
+  box-shadow: 0 0 8px #00f0ffaa;
 }
